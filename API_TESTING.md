@@ -5,7 +5,7 @@ This guide provides comprehensive examples for testing all API endpoints in the 
 ## 🚀 Base URL
 
 ```
-http://localhost:3000/api
+http://localhost:5000/api
 ```
 
 ## 🔐 Authentication
@@ -130,7 +130,7 @@ _No body required_
 
 ### 5. Get Current User Profile
 
-**GET** `/auth/profile`
+**GET** `/auth/me`
 
 _Requires Authentication_
 
@@ -844,7 +844,7 @@ Create a `.env` file with the following variables:
 
 ```env
 NODE_ENV=development
-PORT=3000
+PORT=5000
 MONGODB_URI=mongodb://localhost:27017/parcel-delivery
 JWT_ACCESS_SECRET=your-super-secret-access-key-here
 JWT_REFRESH_SECRET=your-super-secret-refresh-key-here

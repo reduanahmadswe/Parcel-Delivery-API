@@ -77,6 +77,21 @@ export class UserController {
         });
     });
 
+    // Update user by ID (admin only)
+    static updateUserById = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+        const { id } = req.params;
+        const updateData = req.body;
+
+        const updatedUser = await UserService.updateUser(id, updateData);
+
+        sendResponse(res, {
+            statuscode: 200,
+            success: true,
+            message: 'User updated successfully',
+            data: updatedUser
+        });
+    });
+
     // Block/Unblock user (admin only)
     static toggleUserBlockStatus = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
         const { id } = req.params;
