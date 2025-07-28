@@ -104,6 +104,7 @@ export class ParcelService {
     static async getUserParcels(
         userId: string,
         userRole: string,
+        userEmail: string,
         page: number = 1,
         limit: number = 10,
         status?: string,
@@ -118,10 +119,8 @@ export class ParcelService {
         if (userRole === 'sender') {
             filter.senderId = userId;
         } else if (userRole === 'receiver') {
-            filter.$or = [
-                { receiverId: userId },
-                { 'receiverInfo.email': userId }
-            ];
+            // For receivers, match against their email in receiverInfo.email
+            filter['receiverInfo.email'] = userEmail;
         }
 
         // Additional filters
@@ -257,12 +256,14 @@ export class ParcelService {
             throw new AppError('Parcel not found', 404);
         }
 
-        if (parcel.senderId !== senderId) {
-            throw new AppError('Access denied', 403);
+        // Convert both to strings for comparison to handle ObjectId vs string mismatch
+        if (parcel.senderId.toString() !== senderId.toString()) {
+            throw new AppError('Access denied: You can only cancel your own parcels', 403);
         }
 
+        // Check if parcel can be cancelled (not dispatched yet)
         if (['dispatched', 'in-transit', 'delivered'].includes(parcel.currentStatus)) {
-            throw new AppError('Cannot cancel parcel that is already dispatched', 400);
+            throw new AppError('Cannot cancel parcel that is already dispatched or in transit', 400);
         }
 
         if (parcel.currentStatus === 'cancelled') {

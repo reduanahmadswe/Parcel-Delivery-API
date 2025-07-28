@@ -53,11 +53,13 @@ export class ParcelController {
     static getMyParcels = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
         const userId = (req as any).user.userId;
         const userRole = (req as any).user.role;
+        const userEmail = (req as any).user.email;
         const { page, limit, status, isUrgent, startDate, endDate } = req.query as any;
 
         const result = await ParcelService.getUserParcels(
             userId,
             userRole,
+            userEmail,
             page,
             limit,
             status,
@@ -130,7 +132,8 @@ export class ParcelController {
 
         const parcel = await ParcelService.cancelParcel(id, senderId, note);
 
-        res.status(200).json({
+        sendResponse(res, {
+            statuscode: 200,
             success: true,
             message: 'Parcel cancelled successfully',
             data: parcel

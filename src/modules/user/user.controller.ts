@@ -41,13 +41,14 @@ export class UserController {
 
     // Get all users (admin only)
     static getAllUsers = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+        const currentAdminId = (req as any).user.userId; // Get current admin's ID
         const page = parseInt(req.query.page as string) || 1;
         const limit = parseInt(req.query.limit as string) || 10;
         const role = req.query.role as string;
         const isBlocked = req.query.isBlocked === 'true' ? true :
             req.query.isBlocked === 'false' ? false : undefined;
 
-        const result = await UserService.getAllUsers(page, limit, role, isBlocked);
+        const result = await UserService.getAllUsers(page, limit, role, isBlocked, currentAdminId);
 
         sendResponse(res, {
             statuscode: 200,

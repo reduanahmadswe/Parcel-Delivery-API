@@ -60,7 +60,8 @@ export class UserService {
         page: number = 1,
         limit: number = 10,
         role?: string,
-        isBlocked?: boolean
+        isBlocked?: boolean,
+        excludeAdminId?: string
     ): Promise<{ users: IUserResponse[]; totalCount: number; totalPages: number }> {
         const skip = (page - 1) * limit;
         const filter: any = {};
@@ -71,6 +72,11 @@ export class UserService {
 
         if (typeof isBlocked === 'boolean') {
             filter.isBlocked = isBlocked;
+        }
+
+        // Exclude the current admin's profile from the results
+        if (excludeAdminId) {
+            filter._id = { $ne: new mongoose.Types.ObjectId(excludeAdminId) };
         }
 
         const [users, totalCount] = await Promise.all([

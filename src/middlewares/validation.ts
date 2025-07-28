@@ -24,7 +24,9 @@ export const validateRequest = (schema: ZodSchema) => {
                 req.params = validatedData.params;
             }
             if (validatedData.query) {
-                req.query = validatedData.query;
+                // Instead of directly assigning to req.query, we'll store it in a custom property
+                // and update the existing query object properties
+                Object.assign(req.query, validatedData.query);
             }
 
             next();
