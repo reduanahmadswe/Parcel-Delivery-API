@@ -1,11 +1,11 @@
 {
   "name": "parcel-delivery-api",
   "version": "1.0.0",
-  "main": "dist/app.js",
+  "main": "dist/server.js",
   "scripts": {
     "build": "tsc",
-    "start": "node dist/app.js",
-    "dev": "nodemon src/app.ts",
+    "start": "node dist/server.js",
+    "dev": "nodemon src/server.ts",
     "clean": "rimraf dist",
     "prebuild": "npm run clean",
     "postbuild": "echo Build completed successfully",
