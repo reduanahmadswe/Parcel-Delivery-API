@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { AppError } from '../../utils/AppError';
 import { catchAsync } from '../../utils/catchAsync';
+import { sendResponse } from '../../utils/sendResponse';
 import { ParcelService } from './parcel.service';
 
 export class ParcelController {
@@ -11,7 +12,8 @@ export class ParcelController {
 
         const parcel = await ParcelService.createParcel(senderId, parcelData);
 
-        res.status(201).json({
+        sendResponse(res, {
+            statuscode: 201,
             success: true,
             message: 'Parcel created successfully',
             data: parcel
@@ -26,7 +28,8 @@ export class ParcelController {
 
         const parcel = await ParcelService.getParcelById(id, userId, userRole);
 
-        res.status(200).json({
+        sendResponse(res, {
+            statuscode: 200,
             success: true,
             message: 'Parcel retrieved successfully',
             data: parcel
@@ -38,7 +41,8 @@ export class ParcelController {
         const { trackingId } = req.params;
         const parcel = await ParcelService.getParcelByTrackingId(trackingId);
 
-        res.status(200).json({
+        sendResponse(res, {
+            statuscode: 200,
             success: true,
             message: 'Parcel tracking information retrieved successfully',
             data: parcel
@@ -62,15 +66,16 @@ export class ParcelController {
             endDate
         );
 
-        res.status(200).json({
+        sendResponse(res, {
+            statuscode: 200,
             success: true,
             message: 'Parcels retrieved successfully',
             data: result.parcels,
-            pagination: {
-                currentPage: page || 1,
-                totalPages: result.totalPages,
-                totalCount: result.totalCount,
-                limit: limit || 10
+            meta: {
+                page: page || 1,
+                limit: limit || 10,
+                total: result.totalCount,
+                totalPages: result.totalPages
             }
         });
     });

@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import { AppError } from '../../utils/AppError';
 import { catchAsync } from '../../utils/catchAsync';
 import { IJWTPayload } from '../../utils/helpers';
+import { sendResponse } from '../../utils/sendResponse';
 import { UserService } from './user.service';
 
 // Extend Request interface locally for authenticated requests
@@ -15,7 +16,8 @@ export class UserController {
         const userId = (req as any).user.userId;
         const user = await UserService.getUserById(userId);
 
-        res.status(200).json({
+        sendResponse(res, {
+            statuscode: 200,
             success: true,
             message: 'Profile retrieved successfully',
             data: user
@@ -29,7 +31,8 @@ export class UserController {
 
         const updatedUser = await UserService.updateUser(userId, updateData);
 
-        res.status(200).json({
+        sendResponse(res, {
+            statuscode: 200,
             success: true,
             message: 'Profile updated successfully',
             data: updatedUser
@@ -46,15 +49,16 @@ export class UserController {
 
         const result = await UserService.getAllUsers(page, limit, role, isBlocked);
 
-        res.status(200).json({
+        sendResponse(res, {
+            statuscode: 200,
             success: true,
             message: 'Users retrieved successfully',
             data: result.users,
-            pagination: {
-                currentPage: page,
-                totalPages: result.totalPages,
-                totalCount: result.totalCount,
-                limit
+            meta: {
+                page: page,
+                limit: limit,
+                total: result.totalCount,
+                totalPages: result.totalPages
             }
         });
     });
@@ -64,7 +68,8 @@ export class UserController {
         const { id } = req.params;
         const user = await UserService.getUserById(id);
 
-        res.status(200).json({
+        sendResponse(res, {
+            statuscode: 200,
             success: true,
             message: 'User retrieved successfully',
             data: user
@@ -82,7 +87,8 @@ export class UserController {
 
         const updatedUser = await UserService.toggleUserBlockStatus(id, isBlocked);
 
-        res.status(200).json({
+        sendResponse(res, {
+            statuscode: 200,
             success: true,
             message: `User ${isBlocked ? 'blocked' : 'unblocked'} successfully`,
             data: updatedUser
@@ -94,9 +100,11 @@ export class UserController {
         const { id } = req.params;
         await UserService.deleteUser(id);
 
-        res.status(200).json({
+        sendResponse(res, {
+            statuscode: 200,
             success: true,
-            message: 'User deleted successfully'
+            message: 'User deleted successfully',
+            data: null
         });
     });
 
@@ -104,7 +112,8 @@ export class UserController {
     static getUserStats = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
         const stats = await UserService.getUserStats();
 
-        res.status(200).json({
+        sendResponse(res, {
+            statuscode: 200,
             success: true,
             message: 'User statistics retrieved successfully',
             data: stats

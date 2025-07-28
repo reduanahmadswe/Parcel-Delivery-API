@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { catchAsync } from '../../utils/catchAsync';
+import { sendResponse } from '../../utils/sendResponse';
 import { AuthService } from './auth.service';
 
 export class AuthController {
@@ -16,7 +17,8 @@ export class AuthController {
             maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
         });
 
-        res.status(201).json({
+        sendResponse(res, {
+            statuscode: 201,
             success: true,
             message: 'User registered successfully',
             data: {
@@ -39,7 +41,8 @@ export class AuthController {
             maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
         });
 
-        res.status(200).json({
+        sendResponse(res, {
+            statuscode: 200,
             success: true,
             message: 'Login successful',
             data: {
@@ -52,9 +55,11 @@ export class AuthController {
     // Logout user
     static logout = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
         res.clearCookie('token');
-        res.status(200).json({
+        sendResponse(res, {
+            statuscode: 200,
             success: true,
-            message: 'Logout successful'
+            message: 'Logout successful',
+            data: null
         });
     });
 
@@ -71,7 +76,8 @@ export class AuthController {
             maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
         });
 
-        res.status(200).json({
+        sendResponse(res, {
+            statuscode: 200,
             success: true,
             message: 'Token refreshed successfully',
             data: result
@@ -80,7 +86,8 @@ export class AuthController {
 
     // Check authentication status
     static me = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-        res.status(200).json({
+        sendResponse(res, {
+            statuscode: 200,
             success: true,
             message: 'User authenticated',
             data: {
