@@ -18,7 +18,8 @@ export const authenticate = catchAsync(async (req: Request, res: Response, next:
         throw new AppError('Access token is required', 401);
     }
 
-    const decoded = jwt.verify(accessToken, process.env.JWT_ACCESS_SECRET || 'access-secret') as IJWTPayload;
+    // Use the same secret as token creation (JWT_SECRET)
+    const decoded = jwt.verify(accessToken, process.env.JWT_SECRET || 'fallback-secret') as IJWTPayload;
     const user = await UserService.getUserById(decoded.userId);
 
     if (!user) {

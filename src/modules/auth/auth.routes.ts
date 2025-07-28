@@ -6,14 +6,13 @@ import { AuthController } from './auth.controller';
 
 const router = Router();
 
-// Public routes
+// Public routes (no authentication required)
 router.post('/register', validateRequest(createUserValidation), AuthController.register);
 router.post('/login', validateRequest(loginValidation), AuthController.login);
-
-// Protected routes
-router.use(authenticate);
 router.post('/logout', AuthController.logout);
 router.post('/refresh-token', AuthController.refreshToken);
-router.get('/me', AuthController.me);
+
+// Protected routes (authentication required)
+router.get('/me', authenticate, AuthController.me);
 
 export const authRoutes = router;
