@@ -63,6 +63,7 @@ jspm_packages/
 # dotenv environment variables file
 .env
 API_TESTING.MD
+CATCHASYNC_IMPLEMENTATION.md
 
 .github
 

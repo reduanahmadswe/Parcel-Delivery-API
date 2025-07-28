@@ -1,5 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { AppError } from '../utils/AppError';
+import { handlerZodError } from '../helpers/handlerZodError';
+import { TErrorSources } from '@/types/error.types';
 
 export const globalErrorHandler = (
     error: Error,
@@ -10,6 +12,8 @@ export const globalErrorHandler = (
     let statusCode = 500;
     let message = 'Internal Server Error';
     let details: any = null;
+
+    let errorSources: TErrorSources[] = []
 
     if (error instanceof AppError) {
         statusCode = error.statusCode;
@@ -32,9 +36,14 @@ export const globalErrorHandler = (
     } else if (error.name === 'TokenExpiredError') {
         statusCode = 401;
         message = 'Token has expired';
+    } else if (error.name === "ZodError") {
+        const simplifiedError = handlerZodError(error)
+        statusCode = simplifiedError.statusCode
+        message = simplifiedError.message
+        errorSources = simplifiedError.errorSources as TErrorSources[]
     }
 
-    // Log error in development
+     // Log error in development
     if (process.env.NODE_ENV === 'development') {
         console.error('Error:', error);
     }
