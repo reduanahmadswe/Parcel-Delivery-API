@@ -184,7 +184,7 @@ const parcelSchema = new Schema<IParcel>({
         type: String,
         required: [true, 'Sender ID is required']
     },
-    receiverId: String, 
+    receiverId: String,
     senderInfo: {
         type: personInfoSchema,
         required: [true, 'Sender information is required']
@@ -211,6 +211,11 @@ const parcelSchema = new Schema<IParcel>({
         default: 'requested'
     },
     statusHistory: [statusLogSchema],
+    assignedDeliveryPersonnel: {
+        type: String,
+        trim: true,
+        default: null
+    },
     isBlocked: {
         type: Boolean,
         default: false
@@ -242,7 +247,7 @@ parcelSchema.pre('save', function (next) {
         this.fee.totalFee = this.fee.baseFee + this.fee.weightFee + this.fee.urgentFee;
     }
 
-  
+
     if (this.isNew) {
         this.statusHistory.push({
             status: 'requested',

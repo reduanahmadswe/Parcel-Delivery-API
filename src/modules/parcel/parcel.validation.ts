@@ -73,3 +73,15 @@ export const parcelQueryValidation = z.object({
         endDate: z.string().datetime().optional().transform((date) => date ? new Date(date) : undefined)
     })
 });
+
+export const toggleParcelBlockStatusValidation = z.object({
+    body: z.object({
+        isBlocked: z.boolean({ message: 'isBlocked field is required and must be a boolean' })
+    })
+});
+
+export const assignDeliveryPersonnelValidation = z.object({
+    body: z.object({
+        deliveryPersonnel: z.string().min(1, 'Delivery personnel name is required').max(100, 'Name cannot exceed 100 characters').trim()
+    })
+});

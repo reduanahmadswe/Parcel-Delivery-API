@@ -3,7 +3,7 @@ import { Document } from 'mongoose';
 export interface IStatusLog {
     status: 'requested' | 'approved' | 'dispatched' | 'in-transit' | 'delivered' | 'cancelled' | 'returned';
     timestamp: Date;
-    updatedBy: string; 
+    updatedBy: string;
     location?: string;
     note?: string;
 }
@@ -63,6 +63,7 @@ export interface IParcel extends Document {
     };
     currentStatus: 'requested' | 'approved' | 'dispatched' | 'in-transit' | 'delivered' | 'cancelled' | 'returned';
     statusHistory: IStatusLog[];
+    assignedDeliveryPersonnel?: string;
     isBlocked: boolean;
     createdAt: Date;
     updatedAt: Date;
@@ -117,6 +118,7 @@ export interface IParcelResponse {
     fee: any;
     currentStatus: string;
     statusHistory: IStatusLog[];
+    assignedDeliveryPersonnel?: string;
     isBlocked: boolean;
     createdAt: Date;
     updatedAt: Date;

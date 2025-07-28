@@ -191,4 +191,23 @@ export class ParcelController {
             data: parcel
         });
     });
+
+    // Assign delivery personnel (admin only)
+    static assignDeliveryPersonnel = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+        const { id } = req.params;
+        const { deliveryPersonnel } = req.body;
+
+        if (!deliveryPersonnel || typeof deliveryPersonnel !== 'string') {
+            throw new AppError('Delivery personnel name is required', 400);
+        }
+
+        const parcel = await ParcelService.assignDeliveryPersonnel(id, deliveryPersonnel.trim());
+
+        sendResponse(res, {
+            statuscode: 200,
+            success: true,
+            message: 'Delivery personnel assigned successfully',
+            data: parcel
+        });
+    });
 }

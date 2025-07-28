@@ -45,3 +45,9 @@ export const userIdValidation = z.object({
         id: z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid user ID format')
     })
 });
+
+export const toggleUserBlockStatusValidation = z.object({
+    body: z.object({
+        isBlocked: z.boolean({ message: 'isBlocked field is required and must be a boolean' })
+    })
+});

@@ -3,9 +3,11 @@ import { authenticate, authorize } from '../../middlewares/auth';
 import { validateRequest } from '../../middlewares/validation';
 import { ParcelController } from './parcel.controller';
 import {
+    assignDeliveryPersonnelValidation,
     createParcelValidation,
     parcelIdValidation,
     parcelQueryValidation,
+    toggleParcelBlockStatusValidation,
     trackingIdValidation,
     updateParcelStatusValidation
 } from './parcel.validation';
@@ -74,7 +76,14 @@ router.patch('/:id/status',
 
 router.patch('/:id/block-status',
     validateRequest(parcelIdValidation),
+    validateRequest(toggleParcelBlockStatusValidation),
     ParcelController.toggleParcelBlockStatus
+);
+
+router.patch('/:id/assign-personnel',
+    validateRequest(parcelIdValidation),
+    validateRequest(assignDeliveryPersonnelValidation),
+    ParcelController.assignDeliveryPersonnel
 );
 
 export const parcelRoutes = router;

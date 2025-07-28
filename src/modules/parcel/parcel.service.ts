@@ -295,6 +295,34 @@ export class ParcelService {
         return parcel.toJSON();
     }
 
+    // Assign delivery personnel (admin only)
+    static async assignDeliveryPersonnel(id: string, deliveryPersonnel: string): Promise<IParcelResponse> {
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            throw new AppError('Invalid parcel ID format', 400);
+        }
+
+        const parcel = await Parcel.findByIdAndUpdate(
+            id,
+            { assignedDeliveryPersonnel: deliveryPersonnel },
+            { new: true, runValidators: true }
+        );
+
+        if (!parcel) {
+            throw new AppError('Parcel not found', 404);
+        }
+
+        // Add status log entry
+        parcel.statusHistory.push({
+            status: parcel.currentStatus as any,
+            timestamp: new Date(),
+            updatedBy: 'admin',
+            note: `Delivery personnel assigned: ${deliveryPersonnel}`
+        });
+
+        await parcel.save();
+        return parcel.toJSON();
+    }
+
     // Get parcel statistics (admin only)
     static async getParcelStats(): Promise<{
         totalParcels: number;
