@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
+import { clearAuthCookies, setAuthCookie } from '../../utils/authTokens';
 import { catchAsync } from '../../utils/catchAsync';
 import { sendResponse } from '../../utils/sendResponse';
 import { AuthService } from './auth.service';
@@ -9,12 +10,10 @@ export class AuthController {
         const userData = req.body;
         const result = await AuthService.register(userData);
 
-        // Set token in cookie
-        res.cookie('token', result.token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
-            maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+        // Set tokens in cookies
+        setAuthCookie(res, {
+            accessToken: result.accessToken,
+            refreshToken: result.refreshToken
         });
 
         sendResponse(res, {
@@ -23,7 +22,8 @@ export class AuthController {
             message: 'User registered successfully',
             data: {
                 user: result.user,
-                token: result.token
+                accessToken: result.accessToken,
+                refreshToken: result.refreshToken
             }
         });
     });
@@ -33,12 +33,10 @@ export class AuthController {
         const loginData = req.body;
         const result = await AuthService.login(loginData);
 
-        // Set token in cookie
-        res.cookie('token', result.token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
-            maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+        // Set tokens in cookies
+        setAuthCookie(res, {
+            accessToken: result.accessToken,
+            refreshToken: result.refreshToken
         });
 
         sendResponse(res, {
@@ -47,14 +45,15 @@ export class AuthController {
             message: 'Login successful',
             data: {
                 user: result.user,
-                token: result.token
+                accessToken: result.accessToken,
+                refreshToken: result.refreshToken
             }
         });
     });
 
     // Logout user
     static logout = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-        res.clearCookie('token');
+        clearAuthCookies(res);
         sendResponse(res, {
             statuscode: 200,
             success: true,
@@ -65,15 +64,21 @@ export class AuthController {
 
     // Refresh token
     static refreshToken = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-        const userId = (req as any).user.userId;
-        const result = await AuthService.refreshToken(userId);
+        const refreshToken = req.cookies.refreshToken;
+        if (!refreshToken) {
+            return sendResponse(res, {
+                statuscode: 401,
+                success: false,
+                message: 'Refresh token not provided',
+                data: null
+            });
+        }
 
-        // Set new token in cookie
-        res.cookie('token', result.token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
-            maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+        const result = await AuthService.refreshToken(refreshToken);
+
+        // Set new access token in cookie
+        setAuthCookie(res, {
+            accessToken: result.accessToken
         });
 
         sendResponse(res, {

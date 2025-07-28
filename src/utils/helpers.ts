@@ -1,5 +1,7 @@
-import jwt from 'jsonwebtoken';
+import * as jwt from 'jsonwebtoken';
 import { IUser } from '../modules/user/user.interface';
+import { User } from '../modules/user/user.model';
+import { AppError } from './AppError';
 
 export interface IJWTPayload {
     userId: string;
@@ -22,6 +24,50 @@ export const generateToken = (user: IUser): string => {
 export const verifyToken = (token: string): IJWTPayload => {
     const secret = process.env.JWT_SECRET || 'fallback-secret';
     return jwt.verify(token, secret) as IJWTPayload;
+};
+
+/**
+ * Create access and refresh tokens for a user
+ */
+export const createUserTokens = (user: Partial<IUser>) => {
+    // For now, create simple tokens using the existing generateToken function
+    const userForToken = {
+        _id: user._id!,
+        email: user.email!,
+        role: user.role!
+    } as IUser;
+
+    const accessToken = generateToken(userForToken);
+    const refreshToken = generateToken(userForToken);
+
+    return {
+        accessToken,
+        refreshToken
+    };
+};
+
+/**
+ * Create new access token using refresh token (simplified version)
+ */
+export const createNewAccessTokenWithRefreshToken = async (refreshToken: string) => {
+    try {
+        const verifiedRefreshToken = verifyToken(refreshToken);
+
+        const isUserExist = await User.findOne({ email: verifiedRefreshToken.email });
+
+        if (!isUserExist) {
+            throw new AppError('User does not exist', 400);
+        }
+
+        if (isUserExist.isBlocked) {
+            throw new AppError('User is blocked', 400);
+        }
+
+        const accessToken = generateToken(isUserExist);
+        return accessToken;
+    } catch (error) {
+        throw new AppError('Invalid refresh token', 401);
+    }
 };
 
 export const generateTrackingId = (): string => {

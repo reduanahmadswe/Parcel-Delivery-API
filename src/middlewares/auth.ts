@@ -1,8 +1,9 @@
 import { NextFunction, Request, Response } from 'express';
+import * as jwt from 'jsonwebtoken';
 import { UserService } from '../modules/user/user.service';
 import { AppError } from '../utils/AppError';
 import { catchAsync } from '../utils/catchAsync';
-import { IJWTPayload, verifyToken } from '../utils/helpers';
+import { IJWTPayload } from '../utils/helpers';
 
 // Extend Request interface locally
 interface AuthenticatedRequest extends Request {
@@ -11,13 +12,13 @@ interface AuthenticatedRequest extends Request {
 
 export const authenticate = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const authHeader = req.headers.authorization;
-    const token = req.cookies.token || (authHeader && authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null);
+    const accessToken = req.cookies.accessToken || (authHeader && authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null);
 
-    if (!token) {
+    if (!accessToken) {
         throw new AppError('Access token is required', 401);
     }
 
-    const decoded = verifyToken(token);
+    const decoded = jwt.verify(accessToken, process.env.JWT_ACCESS_SECRET || 'access-secret') as IJWTPayload;
     const user = await UserService.getUserById(decoded.userId);
 
     if (!user) {

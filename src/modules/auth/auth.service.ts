@@ -1,5 +1,5 @@
 import { AppError } from '../../utils/AppError';
-import { generateToken } from '../../utils/helpers';
+import { createNewAccessTokenWithRefreshToken, createUserTokens } from '../../utils/helpers';
 import { ICreateUser, ILoginUser } from '../user/user.interface';
 import { UserService } from '../user/user.service';
 import { IAuthResponse } from './auth.interface';
@@ -9,12 +9,8 @@ export class AuthService {
     static async register(userData: ICreateUser): Promise<IAuthResponse> {
         const user = await UserService.createUser(userData);
 
-        // Generate token
-        const token = generateToken({
-            _id: user._id,
-            email: user.email,
-            role: user.role
-        } as any);
+        // Generate tokens
+        const tokens = createUserTokens(user);
 
         return {
             user: {
@@ -25,7 +21,8 @@ export class AuthService {
                 isBlocked: user.isBlocked,
                 isVerified: user.isVerified
             },
-            token
+            accessToken: tokens.accessToken,
+            refreshToken: tokens.refreshToken
         };
     }
 
@@ -50,8 +47,8 @@ export class AuthService {
             throw new AppError('Invalid email or password', 401);
         }
 
-        // Generate token
-        const token = generateToken(user);
+        // Generate tokens
+        const tokens = createUserTokens(user);
 
         return {
             user: {
@@ -62,27 +59,14 @@ export class AuthService {
                 isBlocked: user.isBlocked,
                 isVerified: user.isVerified
             },
-            token
+            accessToken: tokens.accessToken,
+            refreshToken: tokens.refreshToken
         };
     }
 
-    // Refresh token (optional)
-    static async refreshToken(userId: string): Promise<{ token: string }> {
-        const user = await UserService.getUserById(userId);
-        if (!user) {
-            throw new AppError('User not found', 404);
-        }
-
-        if (user.isBlocked) {
-            throw new AppError('Your account has been blocked', 403);
-        }
-
-        const token = generateToken({
-            _id: user._id,
-            email: user.email,
-            role: user.role
-        } as any);
-
-        return { token };
+    // Refresh token
+    static async refreshToken(refreshToken: string): Promise<{ accessToken: string }> {
+        const accessToken = await createNewAccessTokenWithRefreshToken(refreshToken);
+        return { accessToken };
     }
 }

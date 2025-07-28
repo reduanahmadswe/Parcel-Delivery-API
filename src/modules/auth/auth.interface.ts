@@ -9,7 +9,12 @@ export interface IAuthResponse {
         isBlocked: boolean;
         isVerified: boolean;
     };
-    token: string;
+    accessToken: string;
+    refreshToken: string;
+}
+
+export interface IRefreshTokenResponse {
+    accessToken: string;
 }
 
 export interface IRegisterUser extends ICreateUser { }
