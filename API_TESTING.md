@@ -1,6 +1,6 @@
 # 🧪 API Testing Guide
 
-This guide provides comprehensive examples for testing all API endpoints in the Parcel Delivery System. All examples use standard HTTP methods and can be tested with tools like Postman, Thunder Client, or curl.
+This comprehensive guide provides detailed examples for testing all API endpoints in the Parcel Delivery System. All examples are production-ready and can be tested with tools like Postman, Thunder Client, Insomnia, or curl.
 
 ## 🚀 Base URL
 
@@ -8,14 +8,14 @@ This guide provides comprehensive examples for testing all API endpoints in the 
 http://localhost:5000/api
 ```
 
-## 🔐 Authentication
+## 🔐 Authentication Overview
 
-The API uses JWT-based authentication with dual token system:
+The API uses JWT-based authentication with a dual token system:
 
 - **Access Token**: 15 minutes expiry (for API requests)
 - **Refresh Token**: 7 days expiry (for token renewal)
 
-Both tokens are stored as HTTP-only cookies for security.
+Both tokens are stored as HTTP-only cookies for enhanced security.
 
 ---
 
@@ -25,11 +25,14 @@ Both tokens are stored as HTTP-only cookies for security.
 
 **POST** `/auth/register`
 
+Register a new user in the system.
+
+**Request Body:**
 ```json
 {
   "name": "John Doe",
   "email": "john.doe@example.com",
-  "password": "securePassword123",
+  "password": "SecurePassword123!",
   "phone": "+1234567890",
   "role": "sender",
   "address": {
@@ -43,30 +46,44 @@ Both tokens are stored as HTTP-only cookies for security.
 ```
 
 **Response (201):**
-
 ```json
 {
+  "statusCode": 201,
   "success": true,
   "message": "User registered successfully",
   "data": {
-    "user": {
-      "_id": "507f1f77bcf86cd799439011",
-      "name": "John Doe",
-      "email": "john.doe@example.com",
-      "phone": "+1234567890",
-      "role": "sender",
-      "address": {
-        "street": "123 Main Street",
-        "city": "New York",
-        "state": "NY",
-        "zipCode": "10001",
-        "country": "USA"
-      },
-      "isBlocked": false,
-      "isVerified": false,
-      "createdAt": "2024-01-15T10:30:00.000Z"
-    }
+    "_id": "507f1f77bcf86cd799439011",
+    "name": "John Doe",
+    "email": "john.doe@example.com",
+    "phone": "+1234567890",
+    "role": "sender",
+    "address": {
+      "street": "123 Main Street",
+      "city": "New York",
+      "state": "NY",
+      "zipCode": "10001",
+      "country": "USA"
+    },
+    "isBlocked": false,
+    "isVerified": false,
+    "createdAt": "2024-01-15T10:30:00.000Z",
+    "updatedAt": "2024-01-15T10:30:00.000Z"
   }
+}
+```
+
+**Validation Errors (400):**
+```json
+{
+  "statusCode": 400,
+  "success": false,
+  "message": "Validation error",
+  "errorSources": [
+    {
+      "path": "email",
+      "message": "Invalid email format"
+    }
+  ]
 }
 ```
 
@@ -74,17 +91,20 @@ Both tokens are stored as HTTP-only cookies for security.
 
 **POST** `/auth/login`
 
+Authenticate a user and receive JWT tokens.
+
+**Request Body:**
 ```json
 {
   "email": "john.doe@example.com",
-  "password": "securePassword123"
+  "password": "SecurePassword123!"
 }
 ```
 
 **Response (200):**
-
 ```json
 {
+  "statusCode": 200,
   "success": true,
   "message": "Login successful",
   "data": {
@@ -100,14 +120,16 @@ Both tokens are stored as HTTP-only cookies for security.
 
 ### 3. Refresh Token
 
-**POST** `/auth/refresh`
+**POST** `/auth/refresh-token`
 
-_No body required - uses refresh token from HTTP-only cookie_
+Refresh the access token using the refresh token stored in cookies.
+
+**Request:** No body required (uses refresh token from HTTP-only cookie)
 
 **Response (200):**
-
 ```json
 {
+  "statusCode": 200,
   "success": true,
   "message": "Token refreshed successfully"
 }
@@ -117,12 +139,14 @@ _No body required - uses refresh token from HTTP-only cookie_
 
 **POST** `/auth/logout`
 
-_No body required_
+Log out the user and invalidate tokens.
+
+**Request:** No body required
 
 **Response (200):**
-
 ```json
 {
+  "statusCode": 200,
   "success": true,
   "message": "Logout successful"
 }
@@ -132,31 +156,36 @@ _No body required_
 
 **GET** `/auth/me`
 
-_Requires Authentication_
+Get the profile information of the currently authenticated user.
+
+**Headers:**
+```
+Authorization: Bearer <access_token>
+```
 
 **Response (200):**
-
 ```json
 {
+  "statusCode": 200,
   "success": true,
+  "message": "User profile retrieved successfully",
   "data": {
-    "user": {
-      "_id": "507f1f77bcf86cd799439011",
-      "name": "John Doe",
-      "email": "john.doe@example.com",
-      "phone": "+1234567890",
-      "role": "sender",
-      "address": {
-        "street": "123 Main Street",
-        "city": "New York",
-        "state": "NY",
-        "zipCode": "10001",
-        "country": "USA"
-      },
-      "isBlocked": false,
-      "isVerified": false,
-      "createdAt": "2024-01-15T10:30:00.000Z"
-    }
+    "_id": "507f1f77bcf86cd799439011",
+    "name": "John Doe",
+    "email": "john.doe@example.com",
+    "phone": "+1234567890",
+    "role": "sender",
+    "address": {
+      "street": "123 Main Street",
+      "city": "New York",
+      "state": "NY",
+      "zipCode": "10001",
+      "country": "USA"
+    },
+    "isBlocked": false,
+    "isVerified": false,
+    "createdAt": "2024-01-15T10:30:00.000Z",
+    "updatedAt": "2024-01-15T10:30:00.000Z"
   }
 }
 ```
@@ -165,1212 +194,172 @@ _Requires Authentication_
 
 ## 👥 User Management Endpoints
 
-### 1. Get All Users (Admin Only)
+### 1. Get User Profile
 
-**GET** `/users?page=1&limit=10&role=sender&search=john`
+**GET** `/users/profile`
 
-_Requires Admin Authentication_
+Get the current user's profile information.
 
-**Query Parameters:**
-
-- `page` (optional): Page number (default: 1)
-- `limit` (optional): Items per page (default: 10)
-- `role` (optional): Filter by role (sender/receiver/admin)
-- `search` (optional): Search by name or email
+**Headers:**
+```
+Authorization: Bearer <access_token>
+```
 
 **Response (200):**
-
 ```json
 {
+  "statusCode": 200,
   "success": true,
+  "message": "Profile retrieved successfully",
   "data": {
-    "users": [
-      {
-        "_id": "507f1f77bcf86cd799439011",
-        "name": "John Doe",
-        "email": "john.doe@example.com",
-        "phone": "+1234567890",
-        "role": "sender",
-        "isBlocked": false,
-        "isVerified": false,
-        "createdAt": "2024-01-15T10:30:00.000Z"
-      }
-    ],
-    "pagination": {
-      "currentPage": 1,
-      "totalPages": 1,
-      "totalUsers": 1,
-      "hasNextPage": false,
-      "hasPrevPage": false
-    }
+    "_id": "507f1f77bcf86cd799439011",
+    "name": "John Doe",
+    "email": "john.doe@example.com",
+    "phone": "+1234567890",
+    "role": "sender",
+    "address": {
+      "street": "123 Main Street",
+      "city": "New York",
+      "state": "NY",
+      "zipCode": "10001",
+      "country": "USA"
+    },
+    "isBlocked": false,
+    "isVerified": false,
+    "createdAt": "2024-01-15T10:30:00.000Z",
+    "updatedAt": "2024-01-15T10:30:00.000Z"
   }
 }
 ```
 
-### 2. Get User by ID (Admin Only)
+### 2. Update User Profile
 
-**GET** `/users/507f1f77bcf86cd799439011`
+**PATCH** `/users/profile`
 
-_Requires Admin Authentication_
+Update the current user's profile information.
 
-**Response (200):**
-
-```json
-{
-  "success": true,
-  "data": {
-    "user": {
-      "_id": "507f1f77bcf86cd799439011",
-      "name": "John Doe",
-      "email": "john.doe@example.com",
-      "phone": "+1234567890",
-      "role": "sender",
-      "address": {
-        "street": "123 Main Street",
-        "city": "New York",
-        "state": "NY",
-        "zipCode": "10001",
-        "country": "USA"
-      },
-      "isBlocked": false,
-      "isVerified": false,
-      "createdAt": "2024-01-15T10:30:00.000Z"
-    }
-  }
-}
+**Headers:**
+```
+Authorization: Bearer <access_token>
 ```
 
-### 3. Update User (Admin Only)
-
-**PUT** `/users/507f1f77bcf86cd799439011`
-
-_Requires Admin Authentication_
-
+**Request Body:**
 ```json
 {
-  "name": "John Smith",
-  "phone": "+1234567891",
+  "name": "John Updated Doe",
+  "phone": "+1234567899",
   "address": {
-    "street": "456 Oak Avenue",
-    "city": "Los Angeles",
-    "state": "CA",
-    "zipCode": "90210",
+    "street": "456 Updated Street",
+    "city": "Boston",
+    "state": "MA",
+    "zipCode": "02101",
     "country": "USA"
   }
 }
 ```
 
-**Response (201):**
-
+**Response (200):**
 ```json
 {
+  "statusCode": 200,
   "success": true,
-  "message": "Parcel created successfully",
+  "message": "Profile updated successfully",
   "data": {
-    "parcel": {
-      "_id": "507f1f77bcf86cd799439012",
-      "trackingId": "TRK-20240115-001234",
-      "senderId": "507f1f77bcf86cd799439011",
-      "senderInfo": {
-        "name": "John Doe",
-        "email": "john.doe@example.com",
-        "phone": "+1234567890",
-        "address": {
-          "street": "123 Main Street",
-          "city": "New York",
-          "state": "NY",
-          "zipCode": "10001",
-          "country": "USA"
-        }
-      },
-      "receiverInfo": {
-        "name": "Jane Smith",
-        "email": "jane.smith@example.com",
-        "phone": "+0987654321",
-        "address": {
-          "street": "789 Pine Street",
-          "city": "Chicago",
-          "state": "IL",
-          "zipCode": "60601",
-          "country": "USA"
-        }
-      },
-      "parcelDetails": {
-        "type": "electronics",
-        "weight": 2.5,
-        "dimensions": {
-          "length": 30,
-          "width": 20,
-          "height": 15
-        },
-        "description": "Laptop computer",
-        "value": 1200
-      },
-      "deliveryInfo": {
-        "preferredDeliveryDate": "2024-01-20T00:00:00.000Z",
-        "deliveryInstructions": "Ring doorbell twice",
-        "isUrgent": false
-      },
-      "fee": {
-        "baseFee": 10,
-        "weightFee": 2.5,
-        "urgentFee": 0,
-        "totalFee": 12.5,
-        "isPaid": false,
-        "paymentMethod": "cash"
-      },
-      "currentStatus": "requested",
-      "statusHistory": [
-        {
-          "status": "requested",
-          "timestamp": "2024-01-15T10:30:00.000Z",
-          "location": "New York, NY",
-          "notes": "Parcel request submitted"
-        }
-      ],
-      "isBlocked": false,
-      "createdAt": "2024-01-15T10:30:00.000Z"
-    }
+    "_id": "507f1f77bcf86cd799439011",
+    "name": "John Updated Doe",
+    "email": "john.doe@example.com",
+    "phone": "+1234567899",
+    "role": "sender",
+    "address": {
+      "street": "456 Updated Street",
+      "city": "Boston",
+      "state": "MA",
+      "zipCode": "02101",
+      "country": "USA"
+    },
+    "isBlocked": false,
+    "isVerified": false,
+    "createdAt": "2024-01-15T10:30:00.000Z",
+    "updatedAt": "2024-01-15T11:00:00.000Z"
   }
 }
 ```
 
-### 2. Get All Parcels (Admin Only)
+### 3. Get All Users (Admin Only)
 
-**GET** `/parcels?page=1&limit=10&status=requested&search=TRK-20240115&senderEmail=john@example.com`
+**GET** `/users`
 
-_Requires Admin Authentication_
+Retrieve all users in the system (admin access required).
 
-**Enhanced Query Parameters:**
+**Headers:**
+```
+Authorization: Bearer <admin_access_token>
+```
 
-**Basic Filters:**
-
+**Query Parameters:**
 - `page` (optional): Page number (default: 1)
 - `limit` (optional): Items per page (default: 10)
-- `status` (optional): Filter by status
-- `isUrgent` (optional): Filter by urgency (true/false)
-- `startDate` (optional): Filter by creation date (from) - ISO 8601 format
-- `endDate` (optional): Filter by creation date (to) - ISO 8601 format
 
-**Advanced Admin Filters:**
-
-- `search` (optional): Search by tracking ID, sender name, receiver name, or description
-- `senderId` (optional): Filter by specific sender user ID
-- `receiverId` (optional): Filter by specific receiver user ID
-- `senderEmail` (optional): Filter by sender email address
-- `receiverEmail` (optional): Filter by receiver email address
-- `isFlagged` (optional): Filter by flagged status (true/false)
-- `isHeld` (optional): Filter by held status (true/false)
-- `isBlocked` (optional): Filter by blocked status (true/false)
-
-**Example Admin Query:**
-
+**Request Example:**
 ```
-GET /parcels?status=in-transit&search=electronics&senderEmail=john@example.com&isFlagged=false&page=1&limit=20
+GET /users?page=1&limit=10
 ```
 
 **Response (200):**
-
 ```json
 {
+  "statusCode": 200,
   "success": true,
-  "message": "All parcels retrieved successfully",
+  "message": "Users retrieved successfully",
   "data": [
     {
-      "_id": "507f1f77bcf86cd799439012",
-      "trackingId": "TRK-20240115-001234",
-      "senderId": "507f1f77bcf86cd799439011",
-      "receiverId": "507f1f77bcf86cd799439013",
-      "senderInfo": {
-        "name": "John Doe",
-        "email": "john.doe@example.com"
-      },
-      "receiverInfo": {
-        "name": "Jane Smith",
-        "email": "jane.smith@example.com"
-      },
-      "currentStatus": "requested",
-      "isFlagged": false,
-      "isHeld": false,
+      "_id": "507f1f77bcf86cd799439011",
+      "name": "John Doe",
+      "email": "john.doe@example.com",
+      "phone": "+1234567890",
+      "role": "sender",
       "isBlocked": false,
-      "createdAt": "2024-01-15T10:30:00.000Z",
-      "fee": {
-        "totalFee": 12.5,
-        "isPaid": false
-      }
-    }
-  ],
-  "pagination": {
-    "currentPage": 1,
-    "totalPages": 1,
-    "totalCount": 1,
-    "limit": 10
-  }
-}
-```
-
----
-
-## 🔍 **Admin Advanced Search Examples**
-
-### Basic Status Filtering
-
-```bash
-GET /parcels?status=in-transit&page=1&limit=20
-```
-
-### Search by Text
-
-```bash
-# Search across tracking ID, names, and descriptions
-GET /parcels?search=electronics&limit=50
-```
-
-### User-Specific Filters
-
-```bash
-# Filter by specific sender
-GET /parcels?senderId=507f1f77bcf86cd799439011
-
-# Filter by sender email
-GET /parcels?senderEmail=john.doe@example.com
-
-# Filter by receiver email
-GET /parcels?receiverEmail=jane@example.com
-```
-
-### Management Status Filters
-
-```bash
-# Show only flagged parcels
-GET /parcels?isFlagged=true
-
-# Show only held parcels
-GET /parcels?isHeld=true
-
-# Show only blocked parcels
-GET /parcels?isBlocked=true
-
-# Show unflagged, unheld, unblocked parcels
-GET /parcels?isFlagged=false&isHeld=false&isBlocked=false
-```
-
-### Complex Combined Filters
-
-```bash
-# Urgent parcels from specific sender in last 7 days
-GET /parcels?isUrgent=true&senderEmail=sender@example.com&startDate=2024-01-08T00:00:00.000Z&endDate=2024-01-15T23:59:59.999Z
-
-# Search for flagged electronics deliveries
-GET /parcels?search=electronics&isFlagged=true&status=in-transit
-
-# All delivered parcels to specific receiver
-GET /parcels?receiverEmail=receiver@example.com&status=delivered&limit=100
-```
-
-### Date Range Filtering
-
-```bash
-# Parcels created this month
-GET /parcels?startDate=2024-01-01T00:00:00.000Z&endDate=2024-01-31T23:59:59.999Z
-
-# Recent parcels (last 24 hours)
-GET /parcels?startDate=2024-01-14T10:00:00.000Z
-```
-
----
-
-### 3. Get Parcel by ID
-
-**GET** `/parcels/507f1f77bcf86cd799439012`
-
-_Requires Authentication_
-
-**Response (200):**
-
-```json
-{
-  "success": true,
-  "data": {
-    "parcel": {
-      "_id": "507f1f77bcf86cd799439012",
-      "trackingId": "TRK-20240115-001234",
-      "senderId": "507f1f77bcf86cd799439011",
-      "senderInfo": {
-        "name": "John Doe",
-        "email": "john.doe@example.com",
-        "phone": "+1234567890",
-        "address": {
-          "street": "123 Main Street",
-          "city": "New York",
-          "state": "NY",
-          "zipCode": "10001",
-          "country": "USA"
-        }
-      },
-      "receiverInfo": {
-        "name": "Jane Smith",
-        "email": "jane.smith@example.com",
-        "phone": "+0987654321",
-        "address": {
-          "street": "789 Pine Street",
-          "city": "Chicago",
-          "state": "IL",
-          "zipCode": "60601",
-          "country": "USA"
-        }
-      },
-      "parcelDetails": {
-        "type": "electronics",
-        "weight": 2.5,
-        "dimensions": {
-          "length": 30,
-          "width": 20,
-          "height": 15
-        },
-        "description": "Laptop computer",
-        "value": 1200
-      },
-      "deliveryInfo": {
-        "preferredDeliveryDate": "2024-01-20T00:00:00.000Z",
-        "deliveryInstructions": "Ring doorbell twice",
-        "isUrgent": false
-      },
-      "fee": {
-        "baseFee": 10,
-        "weightFee": 2.5,
-        "urgentFee": 0,
-        "totalFee": 12.5,
-        "isPaid": false,
-        "paymentMethod": "cash"
-      },
-      "currentStatus": "requested",
-      "statusHistory": [
-        {
-          "status": "requested",
-          "timestamp": "2024-01-15T10:30:00.000Z",
-          "location": "New York, NY",
-          "notes": "Parcel request submitted"
-        }
-      ],
-      "isBlocked": false,
+      "isVerified": false,
       "createdAt": "2024-01-15T10:30:00.000Z"
     }
+  ],
+  "meta": {
+    "page": 1,
+    "limit": 10,
+    "total": 1,
+    "totalPages": 1
   }
 }
 ```
 
-### 4. Track Parcel by Tracking ID
+### 4. Get User Statistics (Admin Only)
 
-**GET** `/parcels/track/TRK-20240115-001234`
+**GET** `/users/stats`
 
-_Public endpoint - No authentication required_
+Get comprehensive user statistics.
+
+**Headers:**
+```
+Authorization: Bearer <admin_access_token>
+```
 
 **Response (200):**
-
 ```json
 {
+  "statusCode": 200,
   "success": true,
+  "message": "User statistics retrieved successfully",
   "data": {
-    "parcel": {
-      "trackingId": "TRK-20240115-001234",
-      "currentStatus": "in-transit",
-      "statusHistory": [
-        {
-          "status": "requested",
-          "timestamp": "2024-01-15T10:30:00.000Z",
-          "location": "New York, NY",
-          "notes": "Parcel request submitted"
-        },
-        {
-          "status": "approved",
-          "timestamp": "2024-01-15T11:00:00.000Z",
-          "location": "New York, NY",
-          "notes": "Parcel approved for shipment"
-        },
-        {
-          "status": "dispatched",
-          "timestamp": "2024-01-15T14:00:00.000Z",
-          "location": "New York Distribution Center",
-          "notes": "Parcel dispatched from origin"
-        },
-        {
-          "status": "in-transit",
-          "timestamp": "2024-01-16T09:00:00.000Z",
-          "location": "Chicago Distribution Center",
-          "notes": "Parcel in transit to destination"
-        }
-      ],
-      "estimatedDelivery": "2024-01-18T00:00:00.000Z"
-    }
+    "totalUsers": 150,
+    "adminUsers": 2,
+    "senderUsers": 98,
+    "receiverUsers": 50,
+    "blockedUsers": 3,
+    "verifiedUsers": 142,
+    "unverifiedUsers": 8
   }
 }
 ```
-
-### 5. Get Parcel Status Log
-
-**GET** `/parcels/507f1f77bcf86cd799439012/status-log`
-
-_Requires Authentication (Sender, Receiver, or Admin)_
-
-**Response (200):**
-
-```json
-{
-  "success": true,
-  "message": "Parcel status log retrieved successfully",
-  "data": {
-    "trackingId": "TRK-20240115-001234",
-    "statusHistory": [
-      {
-        "status": "requested",
-        "timestamp": "2024-01-15T10:30:00.000Z",
-        "updatedBy": "507f1f77bcf86cd799439011",
-        "updatedByType": "sender",
-        "location": "New York, NY",
-        "note": "Parcel created and requested for delivery"
-      },
-      {
-        "status": "approved",
-        "timestamp": "2024-01-15T11:00:00.000Z",
-        "updatedBy": "admin_id",
-        "updatedByType": "admin",
-        "location": "New York Distribution Center",
-        "note": "Parcel approved for shipment"
-      },
-      {
-        "status": "dispatched",
-        "timestamp": "2024-01-15T14:00:00.000Z",
-        "updatedBy": "admin_id",
-        "updatedByType": "admin",
-        "location": "New York Distribution Center",
-        "note": "Parcel dispatched from origin"
-      },
-      {
-        "status": "in-transit",
-        "timestamp": "2024-01-16T09:00:00.000Z",
-        "updatedBy": "delivery_agent_id",
-        "updatedByType": "delivery_agent",
-        "location": "Chicago Distribution Center",
-        "note": "Parcel in transit to destination"
-      }
-    ]
-  }
-}
-```
-
-### 6. Update Parcel Status (Admin Only)
-
-**PATCH** `/parcels/507f1f77bcf86cd799439012/status`
-
-_Requires Admin Authentication_
-
-```json
-{
-  "status": "approved",
-  "location": "New York, NY",
-  "notes": "Parcel approved for shipment"
-}
-```
-
-**Response (200):**
-
-```json
-{
-  "success": true,
-  "message": "Parcel status updated successfully",
-  "data": {
-    "parcel": {
-      "_id": "507f1f77bcf86cd799439012",
-      "trackingId": "TRK-20240115-001234",
-      "currentStatus": "approved",
-      "statusHistory": [
-        {
-          "status": "requested",
-          "timestamp": "2024-01-15T10:30:00.000Z",
-          "location": "New York, NY",
-          "notes": "Parcel request submitted"
-        },
-        {
-          "status": "approved",
-          "timestamp": "2024-01-15T11:00:00.000Z",
-          "location": "New York, NY",
-          "notes": "Parcel approved for shipment"
-        }
-      ]
-    }
-  }
-}
-```
-
-### 7. Cancel Parcel (Sender Only)
-
-**PATCH** `/parcels/cancel/507f1f77bcf86cd799439012`
-
-_Requires Sender Authentication (Only if status is 'requested')_
-
-```json
-{
-  "reason": "Changed delivery address"
-}
-```
-
-**Response (200):**
-
-```json
-{
-  "success": true,
-  "message": "Parcel cancelled successfully",
-  "data": {
-    "parcel": {
-      "_id": "507f1f77bcf86cd799439012",
-      "trackingId": "TRK-20240115-001234",
-      "currentStatus": "cancelled",
-      "statusHistory": [
-        {
-          "status": "requested",
-          "timestamp": "2024-01-15T10:30:00.000Z",
-          "location": "New York, NY",
-          "notes": "Parcel request submitted"
-        },
-        {
-          "status": "cancelled",
-          "timestamp": "2024-01-15T11:30:00.000Z",
-          "location": "New York, NY",
-          "notes": "Cancelled by sender: Changed delivery address"
-        }
-      ]
-    }
-  }
-}
-```
-
-### 7. Confirm Delivery (Receiver Only)
-
-**PATCH** `/parcels/507f1f77bcf86cd799439012/deliver`
-
-_Requires Receiver Authentication (Only if status is 'delivered')_
-
-```json
-{
-  "deliveryNotes": "Package received in good condition",
-  "rating": 5
-}
-```
-
-**Response (200):**
-
-```json
-{
-  "success": true,
-  "message": "Delivery confirmed successfully",
-  "data": {
-    "parcel": {
-      "_id": "507f1f77bcf86cd799439012",
-      "trackingId": "TRK-20240115-001234",
-      "currentStatus": "delivered",
-      "deliveryConfirmation": {
-        "confirmedAt": "2024-01-18T15:30:00.000Z",
-        "notes": "Package received in good condition",
-        "rating": 5
-      }
-    }
-  }
-}
-```
-
-### 8. Assign Delivery Personnel (Admin Only)
-
-**PATCH** `/parcels/507f1f77bcf86cd799439012/assign`
-
-_Requires Admin Authentication_
-
-```json
-{
-  "deliveryPersonnel": "John Driver",
-  "notes": "Assigned to experienced driver for electronics delivery"
-}
-```
-
-**Response (200):**
-
-```json
-{
-  "success": true,
-  "message": "Delivery personnel assigned successfully",
-  "data": {
-    "parcel": {
-      "_id": "507f1f77bcf86cd799439012",
-      "trackingId": "TRK-20240115-001234",
-      "assignedDeliveryPersonnel": "John Driver",
-      "statusHistory": [
-        {
-          "status": "personnel-assigned",
-          "timestamp": "2024-01-16T10:00:00.000Z",
-          "location": "Distribution Center",
-          "notes": "Assigned to experienced driver for electronics delivery"
-        }
-      ]
-    }
-  }
-}
-```
-
-### 9. Block/Unblock Parcel (Admin Only)
-
-**PATCH** `/parcels/507f1f77bcf86cd799439012/block`
-
-_Requires Admin Authentication_
-
-```json
-{
-  "isBlocked": true,
-  "reason": "Suspicious package contents"
-}
-```
-
-**Response (200):**
-
-```json
-{
-  "success": true,
-  "message": "Parcel blocked successfully",
-  "data": {
-    "parcel": {
-      "_id": "507f1f77bcf86cd799439012",
-      "trackingId": "TRK-20240115-001234",
-      "isBlocked": true,
-      "blockReason": "Suspicious package contents"
-    }
-  }
-}
-```
-
-### 10. Delete Parcel (Admin Only)
-
-**DELETE** `/parcels/507f1f77bcf86cd799439012`
-
-_Requires Admin Authentication_
-
-**Response (200):**
-
-```json
-{
-  "success": true,
-  "message": "Parcel deleted successfully"
-}
-```
-
-### 11. Flag/Unflag Parcel (Admin Only)
-
-**PATCH** `/parcels/507f1f77bcf86cd799439012/flag`
-
-_Requires Admin Authentication_
-
-```json
-{
-  "isFlagged": true,
-  "note": "Suspicious parcel contents detected"
-}
-```
-
-**Response (200):**
-
-```json
-{
-  "success": true,
-  "message": "Parcel flagged successfully",
-  "data": {
-    "parcel": {
-      "_id": "507f1f77bcf86cd799439012",
-      "trackingId": "TRK-20240115-001234",
-      "isFlagged": true,
-      "statusHistory": [
-        {
-          "status": "flagged",
-          "timestamp": "2024-01-16T10:00:00.000Z",
-          "updatedBy": "admin_id",
-          "note": "Suspicious parcel contents detected"
-        }
-      ]
-    }
-  }
-}
-```
-
-### 12. Hold/Unhold Parcel (Admin Only)
-
-**PATCH** `/parcels/507f1f77bcf86cd799439012/hold`
-
-_Requires Admin Authentication_
-
-```json
-{
-  "isHeld": true,
-  "note": "Holding parcel for further inspection"
-}
-```
-
-**Response (200):**
-
-```json
-{
-  "success": true,
-  "message": "Parcel held successfully",
-  "data": {
-    "parcel": {
-      "_id": "507f1f77bcf86cd799439012",
-      "trackingId": "TRK-20240115-001234",
-      "isHeld": true,
-      "statusHistory": [
-        {
-          "status": "held",
-          "timestamp": "2024-01-16T10:00:00.000Z",
-          "updatedBy": "admin_id",
-          "note": "Holding parcel for further inspection"
-        }
-      ]
-    }
-  }
-}
-```
-
-### 13. Unblock Parcel (Admin Only)
-
-**PATCH** `/parcels/507f1f77bcf86cd799439012/unblock`
-
-_Requires Admin Authentication_
-
-```json
-{
-  "note": "All issues resolved, parcel cleared for delivery"
-}
-```
-
-**Response (200):**
-
-```json
-{
-  "success": true,
-  "message": "Parcel unblocked successfully",
-  "data": {
-    "parcel": {
-      "_id": "507f1f77bcf86cd799439012",
-      "trackingId": "TRK-20240115-001234",
-      "isBlocked": false,
-      "isFlagged": false,
-      "isHeld": false,
-      "statusHistory": [
-        {
-          "status": "unblocked",
-          "timestamp": "2024-01-16T11:00:00.000Z",
-          "updatedBy": "admin_id",
-          "note": "All issues resolved, parcel cleared for delivery"
-        }
-      ]
-    }
-  }
-}
-```
-
-### 14. Return Parcel (Admin Only)
-
-**PATCH** `/parcels/507f1f77bcf86cd799439012/return`
-
-_Requires Admin Authentication_
-
-**Request Body (Optional):**
-
-```json
-{
-  "note": "Receiver was unavailable for delivery"
-}
-```
-
-**Note:** The request body is optional. If no body is provided, a default note "Parcel returned" will be used.
-
-**Example without body:**
-
-```bash
-curl -X PATCH http://localhost:5000/api/parcels/6887d7e57f6b918d0ed42d44/return \
-  -H "Authorization: Bearer ADMIN_JWT_TOKEN"
-```
-
-**Example with body:**
-
-```bash
-curl -X PATCH http://localhost:5000/api/parcels/6887d7e57f6b918d0ed42d44/return \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer ADMIN_JWT_TOKEN" \
-  -d '{"note": "Receiver was unavailable for delivery"}'
-```
-
-**Response (200):**
-
-```json
-{
-  "success": true,
-  "message": "Parcel marked as returned successfully",
-  "data": {
-    "parcel": {
-      "_id": "507f1f77bcf86cd799439012",
-      "trackingId": "TRK-20240115-001234",
-      "currentStatus": "returned",
-      "statusHistory": [
-        {
-          "status": "returned",
-          "timestamp": "2024-01-16T12:00:00.000Z",
-          "updatedBy": "admin_id",
-          "note": "Receiver was unavailable for delivery"
-        }
-      ]
-    }
-  }
-}
-```
-
----
-
-## 📊 Statistics & Reports (Admin Only)
-
-### 1. Dashboard Statistics
-
-**GET** `/parcels/stats/dashboard`
-
-_Requires Admin Authentication_
-
-**Response (200):**
-
-```json
-{
-  "success": true,
-  "data": {
-    "stats": {
-      "totalParcels": 150,
-      "totalUsers": 45,
-      "totalRevenue": 2500.75,
-      "statusBreakdown": {
-        "requested": 15,
-        "approved": 10,
-        "dispatched": 8,
-        "in-transit": 12,
-        "delivered": 98,
-        "cancelled": 7
-      },
-      "recentActivity": [
-        {
-          "type": "parcel_created",
-          "message": "New parcel TRK-20240115-001234 created",
-          "timestamp": "2024-01-15T10:30:00.000Z"
-        },
-        {
-          "type": "user_registered",
-          "message": "New user John Doe registered",
-          "timestamp": "2024-01-15T10:15:00.000Z"
-        }
-      ]
-    }
-  }
-}
-```
-
----
-
-## 🚨 Error Responses
-
-### Common Error Codes
-
-**400 Bad Request:**
-
-```json
-{
-  "success": false,
-  "message": "Validation error",
-  "errors": [
-    {
-      "field": "email",
-      "message": "Invalid email format"
-    }
-  ]
-}
-```
-
-**401 Unauthorized:**
-
-```json
-{
-  "success": false,
-  "message": "Access denied. Please authenticate."
-}
-```
-
-**403 Forbidden:**
-
-```json
-{
-  "success": false,
-  "message": "Access denied. Insufficient permissions."
-}
-```
-
-**404 Not Found:**
-
-```json
-{
-  "success": false,
-  "message": "Resource not found"
-}
-```
-
-**409 Conflict:**
-
-```json
-{
-  "success": false,
-  "message": "Email already exists"
-}
-```
-
-**500 Internal Server Error:**
-
-```json
-{
-  "success": false,
-  "message": "Internal server error"
-}
-```
-
----
-
-## 🔧 Testing Tools
-
-### Recommended Testing Tools
-
-1. **Postman** - GUI-based API testing
-2. **Thunder Client** - VS Code extension for API testing
-3. **Insomnia** - REST client with beautiful interface
-4. **curl** - Command-line HTTP client
-
-### Environment Variables for Testing
-
-Create a `.env` file with the following variables:
-
-```env
-NODE_ENV=development
-PORT=5000
-MONGODB_URI=mongodb://localhost:27017/parcel-delivery
-JWT_ACCESS_SECRET=your-super-secret-access-key-here
-JWT_REFRESH_SECRET=your-super-secret-refresh-key-here
-JWT_ACCESS_EXPIRES_IN=15m
-JWT_REFRESH_EXPIRES_IN=7d
-```
-
-### Test Data Setup
-
-Use the registration endpoint to create test users with different roles:
-
-1. **Admin User**: `role: "admin"`
-2. **Sender User**: `role: "sender"`
-3. **Receiver User**: `role: "receiver"`
-
----
-
-## � Tracking System Specifications
-
-### Unique Tracking IDs
-
-Every parcel is assigned a **unique tracking ID** that follows this format:
-
-**Format**: `TRK-YYYYMMDD-XXXXXX`
-
-- **TRK**: Fixed prefix for all tracking IDs
-- **YYYYMMDD**: Date of creation (Year-Month-Day)
-- **XXXXXX**: 6-character random alphanumeric code (uppercase)
-
-**Examples**:
-
-- `TRK-20250729-A8B2C4`
-- `TRK-20250730-X9Y7Z1`
-
-### Tracking Events (statusHistory)
-
-Each parcel maintains a comprehensive **statusHistory** array containing all tracking events:
-
-```json
-{
-  "statusHistory": [
-    {
-      "status": "requested",
-      "timestamp": "2025-07-29T10:30:00.000Z",
-      "updatedBy": "668779a234c2156b621d73ef",
-      "location": "Dhaka, Bangladesh",
-      "note": "Parcel created and requested for delivery"
-    },
-    {
-      "status": "approved",
-      "timestamp": "2025-07-29T11:00:00.000Z",
-      "updatedBy": "admin_id",
-      "location": "Dhaka Distribution Center",
-      "note": "Parcel approved for shipment"
-    },
-    {
-      "status": "dispatched",
-      "timestamp": "2025-07-29T14:00:00.000Z",
-      "updatedBy": "admin_id",
-      "location": "Dhaka Distribution Center",
-      "note": "Parcel dispatched to destination"
-    }
-  ]
-}
-```
-
-### Status Log Properties
-
-Each tracking event contains:
-
-- **status**: Current status of the parcel
-  - Standard: `requested`, `approved`, `dispatched`, `in-transit`, `delivered`, `cancelled`, `returned`
-  - Management: `flagged`, `unflagged`, `held`, `unheld`, `unblocked`
-- **timestamp**: ISO 8601 timestamp of when the status changed
-- **updatedBy**: User ID of who performed the action (sender/receiver/admin)
-- **location**: Physical location where the event occurred (optional)
-- **note**: Additional information about the status change (optional, max 200 chars)
-
-### Uniqueness Guarantees
-
-1. **Database Index**: `trackingId` field has a unique index in MongoDB
-2. **Format Validation**: Regex validation ensures proper format: `/^TRK-\d{8}-[A-Z0-9]{6}$/`
-3. **Auto-Generation**: Tracking IDs are automatically generated on parcel creation using robust random character selection
-4. **Collision Handling**: Database constraints prevent duplicate tracking IDs with retry logic (up to 5 attempts)
-5. **Retry Logic**: If a duplicate tracking ID is generated (rare), the system automatically retries with a new ID
-
-### Technical Implementation
-
-- **Pre-Save Hook**: MongoDB pre-save middleware generates unique tracking IDs
-- **Character Set**: Uses uppercase letters (A-Z) and digits (0-9) for maximum readability
-- **Date Component**: YYYYMMDD format allows for easy sorting and filtering by creation date
-- **Collision Rate**: With 36^6 possible combinations per day (≈2.1 billion), collisions are extremely rare
-
-### Public Tracking
-
-The tracking system provides:
-
-- **Public endpoint**: `/parcels/track/:trackingId` (no authentication required)
-- **Complete history**: Full status log from creation to delivery
-- **Real-time updates**: Status changes are immediately reflected
-- **Location tracking**: Geographic progression of the parcel
-
-### Complete Tracking Example
-
-**Request**: `GET /parcels/track/TRK-20250729-A8B2C4`
-
-**Response**:
-
-```json
-{
-  "success": true,
-  "message": "Parcel tracking information retrieved successfully",
-  "data": {
-    "trackingId": "TRK-20250729-A8B2C4",
-    "currentStatus": "delivered",
-    "senderInfo": {
-      "name": "John Sender",
-      "email": "sender@example.com"
-    },
-    "receiverInfo": {
-      "name": "Jane Receiver",
-      "email": "receiver@example.com"
-    },
-    "parcelDetails": {
-      "type": "electronics",
-      "weight": 2.5,
-      "description": "Laptop computer"
-    },
-    "statusHistory": [
-      {
-        "status": "requested",
-        "timestamp": "2025-07-29T10:30:00.000Z",
-        "updatedBy": "668779a234c2156b621d73ef",
-        "location": "Dhaka, Bangladesh",
-        "note": "Parcel created and requested for delivery"
-      },
-      {
-        "status": "approved",
-        "timestamp": "2025-07-29T11:00:00.000Z",
-        "updatedBy": "admin_id",
-        "location": "Dhaka Distribution Center",
-        "note": "Parcel approved for shipment"
-      },
-      {
-        "status": "dispatched",
-        "timestamp": "2025-07-29T14:00:00.000Z",
-        "updatedBy": "admin_id",
-        "location": "Dhaka Distribution Center",
-        "note": "Parcel dispatched to destination"
-      },
-      {
-        "status": "in-transit",
-        "timestamp": "2025-07-29T18:00:00.000Z",
-        "updatedBy": "admin_id",
-        "location": "Chittagong Hub",
-        "note": "Parcel in transit to final destination"
-      },
-      {
-        "status": "delivered",
-        "timestamp": "2025-07-30T10:30:00.000Z",
-        "updatedBy": "delivery_person_id",
-        "location": "Chittagong, Bangladesh",
-        "note": "Parcel successfully delivered to receiver"
-      }
-    ],
-    "estimatedDelivery": "2025-07-30T10:30:00.000Z",
-    "actualDelivery": "2025-07-30T10:30:00.000Z"
-  }
-}
-```
-
----
-
-## �📝 Notes
-
-- All endpoints that require authentication need valid JWT tokens in HTTP-only cookies
-- Timestamps are in ISO 8601 format (UTC)
-- All monetary values are in USD
-- Phone numbers should include country codes
-- Tracking IDs follow the format: `TRK-YYYYMMDD-XXXXXX`
-- Status transitions follow a specific workflow: `requested → approved → dispatched → in-transit → delivered`
-- Only certain operations are allowed based on user roles and parcel status
-- **Parcel Hold System**: Held parcels cannot proceed to next status until unheld by admin
-- **Parcel Flag System**: Flagged parcels are marked as suspicious for admin review
-- **Parcel Return System**: Returned parcels cannot be cancelled by sender or confirmed by receiver
-- **Status Restrictions**: Blocked or held parcels cannot have their status updated until unblocked/unheld
-- **Return Restrictions**: Once marked as returned, only admin can re-dispatch the parcel
-- **Admin Override**: Only admins can flag, hold, unblock, or return parcels
-
----
-
-_For detailed API documentation and project setup, see [README.md](README.md)_
-"\_id": "507f1f77bcf86cd799439011",
-"isBlocked": true
-}
-}
-}
-
-````
-
-### 5. Delete User (Admin Only)
-
-**DELETE** `/users/507f1f77bcf86cd799439011`
-
-*Requires Admin Authentication*
-
-**Response (200):**
-```json
-{
-  "success": true,
-  "message": "User deleted successfully"
-}
-````
 
 ---
 
@@ -1380,8 +369,14 @@ _For detailed API documentation and project setup, see [README.md](README.md)_
 
 **POST** `/parcels`
 
-_Requires Sender Authentication_
+Create a new parcel delivery request.
 
+**Headers:**
+```
+Authorization: Bearer <sender_access_token>
+```
+
+**Request Body:**
 ```json
 {
   "receiverInfo": {
@@ -1404,260 +399,827 @@ _Requires Sender Authentication_
       "width": 20,
       "height": 15
     },
-    "description": "Laptop computer",
+    "description": "Laptop computer for delivery",
     "value": 1200
   },
   "deliveryInfo": {
-    "preferredDeliveryDate": "2024-01-20T00:00:00.000Z",
-    "deliveryInstructions": "Ring doorbell twice",
-    "isUrgent": false
+    "preferredDeliveryDate": "2024-01-20T14:00:00.000Z",
+    "deliveryInstructions": "Please ring the doorbell twice",
+    "isUrgent": true
   }
 }
-      "zipCode": "4000",
-      "country": "Bangladesh"
-    }
-  }'
 ```
 
-## 4. Login as Sender
-
-```bash
-curl -X POST http://localhost:5000/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "sender@example.com",
-    "password": "password123"
-  }'
-```
-
-## 5. Create a Parcel (Sender)
-
-**Note:** You need to login first to get the JWT token, then use it in the Authorization header.
-
-### PowerShell Command:
-
-```powershell
-Invoke-WebRequest -Uri "http://localhost:5000/api/parcels" -Method POST `
-  -Headers @{
-    "Content-Type"="application/json"
-    "Authorization"="Bearer YOUR_JWT_TOKEN"
-  } `
-  -Body '{
-    "receiverInfo": {
-      "name": "Jane Receiver",
-      "email": "receiver@example.com",
-      "phone": "+8801700000002",
-      "address": {
-        "street": "456 Receiver Avenue",
-        "city": "Chittagong",
-        "state": "Chittagong Division",
-        "zipCode": "4000",
-        "country": "Bangladesh"
-      }
-    },
-    "parcelDetails": {
-      "type": "package",
-      "weight": 2.5,
-      "dimensions": {
-        "length": 30,
-        "width": 20,
-        "height": 15
-      },
-      "description": "Electronics and accessories",
-      "value": 5000
-    },
-    "deliveryInfo": {
-      "preferredDeliveryDate": "2025-08-05T10:00:00.000Z",
-      "deliveryInstructions": "Please call before delivery",
-      "isUrgent": false
-    }
-  }' | Select-Object -ExpandProperty Content
-```
-
-### cURL Command:
-
-```bash
-curl -X POST http://localhost:5000/api/parcels \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
-  -d '{
-    "receiverInfo": {
-      "name": "Jane Receiver",
-      "email": "receiver@example.com",
-      "phone": "+8801700000002",
-      "address": {
-        "street": "456 Receiver Avenue",
-        "city": "Chittagong",
-        "state": "Chittagong Division",
-        "zipCode": "4000",
-        "country": "Bangladesh"
-      }
-    },
-    "parcelDetails": {
-      "type": "package",
-      "weight": 2.5,
-      "dimensions": {
-        "length": 30,
-        "width": 20,
-        "height": 15
-      },
-      "description": "Electronics and accessories",
-      "value": 5000
-    },
-    "deliveryInfo": {
-      "preferredDeliveryDate": "2025-08-05T10:00:00.000Z",
-      "deliveryInstructions": "Please call before delivery",
-      "isUrgent": false
-    }
-  }'
-```
-
-### Expected Response:
-
+**Response (201):**
 ```json
 {
+  "statusCode": 201,
   "success": true,
   "message": "Parcel created successfully",
   "data": {
-    "trackingId": "TRK-20250728-XXXXXX",
-    "senderId": "user_id_here",
-    "receiverId": "receiver_id_here",
-    "senderInfo": { ... },
-    "receiverInfo": { ... },
-    "parcelDetails": { ... },
-    "deliveryInfo": { ... },
-    "fee": {
-      "baseFee": 50,
-      "weightFee": 50,
-      "urgentFee": 0,
-      "totalFee": 100,
-      "isPaid": false
+    "_id": "507f1f77bcf86cd799439012",
+    "trackingId": "TRK-20240115-ABC123",
+    "senderId": "507f1f77bcf86cd799439011",
+    "receiverId": null,
+    "senderInfo": {
+      "name": "John Doe",
+      "email": "john.doe@example.com",
+      "phone": "+1234567890",
+      "address": {
+        "street": "123 Main Street",
+        "city": "New York",
+        "state": "NY",
+        "zipCode": "10001",
+        "country": "USA"
+      }
+    },
+    "receiverInfo": {
+      "name": "Jane Smith",
+      "email": "jane.smith@example.com",
+      "phone": "+0987654321",
+      "address": {
+        "street": "789 Pine Street",
+        "city": "Chicago",
+        "state": "IL",
+        "zipCode": "60601",
+        "country": "USA"
+      }
+    },
+    "parcelDetails": {
+      "type": "electronics",
+      "weight": 2.5,
+      "dimensions": {
+        "length": 30,
+        "width": 20,
+        "height": 15
+      },
+      "description": "Laptop computer for delivery",
+      "value": 1200
+    },
+    "deliveryInfo": {
+      "preferredDeliveryDate": "2024-01-20T14:00:00.000Z",
+      "deliveryInstructions": "Please ring the doorbell twice",
+      "isUrgent": true
     },
     "currentStatus": "requested",
     "statusHistory": [
       {
         "status": "requested",
-        "timestamp": "2025-07-28T13:24:57.189Z",
-        "updatedBy": "sender_id",
-        "note": "Parcel created and requested for delivery"
+        "timestamp": "2024-01-15T10:45:00.000Z",
+        "updatedBy": "507f1f77bcf86cd799439011",
+        "note": "Parcel created"
+      }
+    ],
+    "fee": {
+      "baseFee": 50,
+      "weightFee": 50,
+      "urgentFee": 100,
+      "totalFee": 200,
+      "isPaid": false
+    },
+    "isFlagged": false,
+    "isHeld": false,
+    "isBlocked": false,
+    "createdAt": "2024-01-15T10:45:00.000Z",
+    "updatedAt": "2024-01-15T10:45:00.000Z"
+  }
+}
+```
+
+### 2. Track Parcel by Tracking ID (Public)
+
+**GET** `/parcels/track/:trackingId`
+
+Track a parcel using its tracking ID (no authentication required).
+
+**Request Example:**
+```
+GET /parcels/track/TRK-20240115-ABC123
+```
+
+**Response (200):**
+```json
+{
+  "statusCode": 200,
+  "success": true,
+  "message": "Parcel tracking information retrieved successfully",
+  "data": {
+    "_id": "507f1f77bcf86cd799439012",
+    "trackingId": "TRK-20240115-ABC123",
+    "currentStatus": "in-transit",
+    "senderInfo": {
+      "name": "John Doe",
+      "city": "New York",
+      "state": "NY"
+    },
+    "receiverInfo": {
+      "name": "Jane Smith",
+      "city": "Chicago",
+      "state": "IL"
+    },
+    "parcelDetails": {
+      "type": "electronics",
+      "weight": 2.5,
+      "description": "Laptop computer for delivery"
+    },
+    "deliveryInfo": {
+      "isUrgent": true,
+      "preferredDeliveryDate": "2024-01-20T14:00:00.000Z"
+    },
+    "statusHistory": [
+      {
+        "status": "requested",
+        "timestamp": "2024-01-15T10:45:00.000Z",
+        "note": "Parcel created"
+      },
+      {
+        "status": "approved",
+        "timestamp": "2024-01-15T11:00:00.000Z",
+        "note": "Approved by admin"
+      },
+      {
+        "status": "dispatched",
+        "timestamp": "2024-01-15T12:00:00.000Z",
+        "location": "New York Distribution Center",
+        "note": "Parcel dispatched for delivery"
+      },
+      {
+        "status": "in-transit",
+        "timestamp": "2024-01-15T14:00:00.000Z",
+        "location": "Highway 95, between NY and IL",
+        "note": "In transit to Chicago"
+      }
+    ],
+    "estimatedDelivery": "2024-01-17T16:00:00.000Z",
+    "createdAt": "2024-01-15T10:45:00.000Z"
+  }
+}
+```
+
+### 3. Get My Parcels
+
+**GET** `/parcels/me`
+
+Get all parcels associated with the current user (sender or receiver).
+
+**Headers:**
+```
+Authorization: Bearer <access_token>
+```
+
+**Query Parameters:**
+- `page` (optional): Page number (default: 1)
+- `limit` (optional): Items per page (default: 10)
+- `status` (optional): Filter by status
+- `isUrgent` (optional): Filter by urgency (true/false)
+- `startDate` (optional): Filter by creation date range
+- `endDate` (optional): Filter by creation date range
+
+**Request Example:**
+```
+GET /parcels/me?page=1&limit=5&status=in-transit&isUrgent=true
+```
+
+**Response (200):**
+```json
+{
+  "statusCode": 200,
+  "success": true,
+  "message": "Parcels retrieved successfully",
+  "data": [
+    {
+      "_id": "507f1f77bcf86cd799439012",
+      "trackingId": "TRK-20240115-ABC123",
+      "currentStatus": "in-transit",
+      "receiverInfo": {
+        "name": "Jane Smith",
+        "email": "jane.smith@example.com"
+      },
+      "parcelDetails": {
+        "type": "electronics",
+        "weight": 2.5,
+        "description": "Laptop computer for delivery"
+      },
+      "deliveryInfo": {
+        "isUrgent": true
+      },
+      "fee": {
+        "totalFee": 200,
+        "isPaid": false
+      },
+      "createdAt": "2024-01-15T10:45:00.000Z"
+    }
+  ],
+  "meta": {
+    "page": 1,
+    "limit": 5,
+    "total": 1,
+    "totalPages": 1
+  }
+}
+```
+
+### 4. Get Parcel Status Log
+
+**GET** `/parcels/:id/status-log`
+
+Get the complete status history of a parcel.
+
+**Headers:**
+```
+Authorization: Bearer <access_token>
+```
+
+**Response (200):**
+```json
+{
+  "statusCode": 200,
+  "success": true,
+  "message": "Parcel status log retrieved successfully",
+  "data": {
+    "trackingId": "TRK-20240115-ABC123",
+    "statusHistory": [
+      {
+        "status": "requested",
+        "timestamp": "2024-01-15T10:45:00.000Z",
+        "updatedBy": "507f1f77bcf86cd799439011",
+        "updatedByType": "sender",
+        "note": "Parcel created"
+      },
+      {
+        "status": "approved",
+        "timestamp": "2024-01-15T11:00:00.000Z",
+        "updatedBy": "admin",
+        "updatedByType": "admin",
+        "note": "Approved by admin for dispatch"
+      },
+      {
+        "status": "dispatched",
+        "timestamp": "2024-01-15T12:00:00.000Z",
+        "updatedBy": "admin",
+        "updatedByType": "admin",
+        "location": "New York Distribution Center",
+        "note": "Parcel dispatched for delivery"
+      },
+      {
+        "status": "in-transit",
+        "timestamp": "2024-01-15T14:00:00.000Z",
+        "updatedBy": "admin",
+        "updatedByType": "admin",
+        "location": "Highway 95, between NY and IL",
+        "note": "In transit to Chicago"
       }
     ]
   }
 }
 ```
 
-## 6. Track Parcel (Public)
+### 5. Cancel Parcel (Sender Only)
 
-**Note:** This endpoint doesn't require authentication and can be accessed by anyone with the tracking ID.
+**PATCH** `/parcels/cancel/:id`
 
-### PowerShell Command:
+Cancel a parcel delivery request (only before dispatch).
 
-```powershell
-Invoke-WebRequest -Uri "http://localhost:5000/api/parcels/track/TRK-20250728-POXPSW" -Method GET | Select-Object -ExpandProperty Content
+**Headers:**
+```
+Authorization: Bearer <sender_access_token>
 ```
 
-### cURL Command:
-
-```bash
-curl -X GET http://localhost:5000/api/parcels/track/TRK-20250728-POXPSW
+**Request Body:**
+```json
+{
+  "note": "Customer requested cancellation"
+}
 ```
 
-### Expected Response:
+**Response (200):**
+```json
+{
+  "statusCode": 200,
+  "success": true,
+  "message": "Parcel cancelled successfully",
+  "data": {
+    "_id": "507f1f77bcf86cd799439012",
+    "trackingId": "TRK-20240115-ABC123",
+    "currentStatus": "cancelled",
+    "statusHistory": [
+      {
+        "status": "requested",
+        "timestamp": "2024-01-15T10:45:00.000Z",
+        "updatedBy": "507f1f77bcf86cd799439011",
+        "note": "Parcel created"
+      },
+      {
+        "status": "cancelled",
+        "timestamp": "2024-01-15T11:30:00.000Z",
+        "updatedBy": "507f1f77bcf86cd799439011",
+        "note": "Customer requested cancellation"
+      }
+    ],
+    "updatedAt": "2024-01-15T11:30:00.000Z"
+  }
+}
+```
+
+### 6. Confirm Delivery (Receiver Only)
+
+**PATCH** `/parcels/:id/confirm-delivery`
+
+Confirm that a parcel has been delivered (receiver only, when status is in-transit).
+
+**Headers:**
+```
+Authorization: Bearer <receiver_access_token>
+```
+
+**Request Body:**
+```json
+{
+  "note": "Package received in good condition"
+}
+```
+
+**Response (200):**
+```json
+{
+  "statusCode": 200,
+  "success": true,
+  "message": "Delivery confirmed successfully",
+  "data": {
+    "_id": "507f1f77bcf86cd799439012",
+    "trackingId": "TRK-20240115-ABC123",
+    "currentStatus": "delivered",
+    "statusHistory": [
+      {
+        "status": "delivered",
+        "timestamp": "2024-01-17T16:00:00.000Z",
+        "updatedBy": "507f1f77bcf86cd799439013",
+        "note": "Package received in good condition"
+      }
+    ],
+    "updatedAt": "2024-01-17T16:00:00.000Z"
+  }
+}
+```
+
+---
+
+## 👨‍💼 Admin-Only Endpoints
+
+### 1. Get All Parcels (Admin Only)
+
+**GET** `/parcels`
+
+Get all parcels in the system with advanced filtering options.
+
+**Headers:**
+```
+Authorization: Bearer <admin_access_token>
+```
+
+**Query Parameters:**
+- `page`, `limit`, `status`, `isUrgent`, `startDate`, `endDate`
+- `search`: Search in tracking ID, names, description
+- `senderId`, `receiverId`, `senderEmail`, `receiverEmail`
+- `isFlagged`, `isHeld`, `isBlocked`
+
+**Request Example:**
+```
+GET /parcels?page=1&limit=10&status=in-transit&isUrgent=true
+```
+
+**Response (200):**
+```json
+{
+  "statusCode": 200,
+  "success": true,
+  "message": "Parcels retrieved successfully",
+  "data": [
+    {
+      "_id": "507f1f77bcf86cd799439012",
+      "trackingId": "TRK-20240115-ABC123",
+      "currentStatus": "in-transit",
+      "senderInfo": {
+        "name": "John Doe",
+        "email": "john.doe@example.com"
+      },
+      "receiverInfo": {
+        "name": "Jane Smith",
+        "email": "jane.smith@example.com"
+      },
+      "parcelDetails": {
+        "type": "electronics",
+        "weight": 2.5,
+        "description": "Laptop computer for delivery"
+      },
+      "deliveryInfo": {
+        "isUrgent": true
+      },
+      "fee": {
+        "totalFee": 200,
+        "isPaid": false
+      },
+      "assignedDeliveryPersonnel": "Mike Johnson",
+      "isFlagged": false,
+      "isHeld": false,
+      "isBlocked": false,
+      "createdAt": "2024-01-15T10:45:00.000Z"
+    }
+  ],
+  "meta": {
+    "page": 1,
+    "limit": 10,
+    "total": 1,
+    "totalPages": 1
+  }
+}
+```
+
+### 2. Get Parcel Statistics (Admin Only)
+
+**GET** `/parcels/admin/stats`
+
+Get comprehensive parcel statistics and analytics.
+
+**Headers:**
+```
+Authorization: Bearer <admin_access_token>
+```
+
+**Response (200):**
+```json
+{
+  "statusCode": 200,
+  "success": true,
+  "message": "Parcel statistics retrieved successfully",
+  "data": {
+    "totalParcels": 1250,
+    "requested": 45,
+    "approved": 23,
+    "dispatched": 67,
+    "inTransit": 89,
+    "delivered": 980,
+    "cancelled": 35,
+    "returned": 11,
+    "urgentParcels": 234,
+    "blockedParcels": 8,
+    "totalRevenue": 125000
+  }
+}
+```
+
+### 3. Update Parcel Status (Admin Only)
+
+**PATCH** `/parcels/:id/status`
+
+Update the status of a parcel with validation for proper workflow.
+
+**Headers:**
+```
+Authorization: Bearer <admin_access_token>
+```
+
+**Request Body:**
+```json
+{
+  "status": "dispatched",
+  "location": "Chicago Distribution Center",
+  "note": "Parcel dispatched to Chicago facility"
+}
+```
+
+**Response (200):**
+```json
+{
+  "statusCode": 200,
+  "success": true,
+  "message": "Parcel status updated successfully",
+  "data": {
+    "_id": "507f1f77bcf86cd799439012",
+    "trackingId": "TRK-20240115-ABC123",
+    "currentStatus": "dispatched",
+    "updatedAt": "2024-01-15T12:00:00.000Z"
+  }
+}
+```
+
+### 4. Flag/Unflag Parcel (Admin Only)
+
+**PATCH** `/parcels/:id/flag`
+
+Flag or unflag a parcel for review or special attention.
+
+**Headers:**
+```
+Authorization: Bearer <admin_access_token>
+```
+
+**Request Body:**
+```json
+{
+  "isFlagged": true,
+  "note": "Parcel flagged for suspicious content"
+}
+```
+
+**Response (200):**
+```json
+{
+  "statusCode": 200,
+  "success": true,
+  "message": "Parcel flagged successfully",
+  "data": {
+    "_id": "507f1f77bcf86cd799439012",
+    "trackingId": "TRK-20240115-ABC123",
+    "isFlagged": true,
+    "updatedAt": "2024-01-15T14:00:00.000Z"
+  }
+}
+```
+
+### 5. Hold/Unhold Parcel (Admin Only)
+
+**PATCH** `/parcels/:id/hold`
+
+Put a parcel on hold or remove the hold status.
+
+**Headers:**
+```
+Authorization: Bearer <admin_access_token>
+```
+
+**Request Body:**
+```json
+{
+  "isHeld": true,
+  "note": "Parcel held pending investigation"
+}
+```
+
+**Response (200):**
+```json
+{
+  "statusCode": 200,
+  "success": true,
+  "message": "Parcel held successfully",
+  "data": {
+    "_id": "507f1f77bcf86cd799439012",
+    "trackingId": "TRK-20240115-ABC123",
+    "isHeld": true,
+    "updatedAt": "2024-01-15T14:30:00.000Z"
+  }
+}
+```
+
+---
+
+## 🚫 Common Error Responses
+
+### 400 - Bad Request (Validation Error)
+```json
+{
+  "statusCode": 400,
+  "success": false,
+  "message": "Validation error",
+  "errorSources": [
+    {
+      "path": "email",
+      "message": "Invalid email format"
+    }
+  ]
+}
+```
+
+### 401 - Unauthorized
+```json
+{
+  "statusCode": 401,
+  "success": false,
+  "message": "Access token is required"
+}
+```
+
+### 403 - Forbidden
+```json
+{
+  "statusCode": 403,
+  "success": false,
+  "message": "Access denied: You can only view status logs of your own parcels"
+}
+```
+
+### 404 - Not Found
+```json
+{
+  "statusCode": 404,
+  "success": false,
+  "message": "Parcel not found"
+}
+```
+
+---
+
+## 🔧 Testing Tools & Setup
+
+### Recommended Tools
+
+1. **Postman** - Full-featured GUI-based API testing
+2. **Thunder Client** - VS Code extension for API testing
+3. **Insomnia** - Beautiful REST client
+4. **curl** - Command-line HTTP client
+
+### Environment Setup
+
+Create these environment variables:
+
+```env
+NODE_ENV=development
+PORT=5000
+MONGODB_URI=mongodb://localhost:27017/parcel-delivery-test
+JWT_SECRET=test-secret-key-change-in-production
+JWT_EXPIRES_IN=15m
+JWT_REFRESH_EXPIRES_IN=7d
+BCRYPT_SALT_ROUNDS=10
+FRONTEND_URL=http://localhost:3000
+```
+
+### Sample Test Users
+
+#### Admin User
+```json
+{
+  "name": "Test Admin",
+  "email": "admin@test.com", 
+  "password": "Admin123!",
+  "phone": "+1000000000",
+  "role": "admin",
+  "address": {
+    "street": "1 Admin Street",
+    "city": "Admin City", 
+    "state": "AC",
+    "zipCode": "00001",
+    "country": "USA"
+  }
+}
+```
+
+#### Sender User
+```json
+{
+  "name": "Test Sender",
+  "email": "sender@test.com",
+  "password": "Sender123!",
+  "phone": "+1111111111", 
+  "role": "sender",
+  "address": {
+    "street": "2 Sender Street",
+    "city": "Sender City",
+    "state": "SC", 
+    "zipCode": "11111",
+    "country": "USA"
+  }
+}
+```
+
+#### Receiver User
+```json
+{
+  "name": "Test Receiver",
+  "email": "receiver@test.com",
+  "password": "Receiver123!",
+  "phone": "+1222222222",
+  "role": "receiver", 
+  "address": {
+    "street": "3 Receiver Street",
+    "city": "Receiver City",
+    "state": "RC",
+    "zipCode": "22222", 
+    "country": "USA"
+  }
+}
+```
+
+### Health Check
+
+Start testing by verifying the server:
+
+**GET** `/health`
 
 ```json
 {
   "success": true,
-  "message": "Parcel tracking information retrieved successfully",
-  "data": {
-    "trackingId": "TRK-20250728-POXPSW",
-    "currentStatus": "requested",
-    "senderInfo": { ... },
-    "receiverInfo": { ... },
-    "parcelDetails": { ... },
-    "deliveryInfo": { ... },
-    "fee": { ... },
-    "statusHistory": [
-      {
-        "status": "requested",
-        "timestamp": "2025-07-28T13:24:57.189Z",
-        "updatedBy": "sender_id",
-        "note": "Parcel created and requested for delivery"
-      }
-    ]
-  }
+  "message": "Parcel Delivery API is running successfully",
+  "timestamp": "2024-01-15T10:00:00.000Z"
 }
 ```
 
-## 7. Get My Parcels (Sender/Receiver)
+---
 
-```bash
-curl -X GET http://localhost:5000/api/parcels/me \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN"
-```
+## 🧪 Testing Scenarios
 
-## 8. Admin Login
+### Authentication Flow Testing
 
-```bash
-curl -X POST http://localhost:5000/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "admin@parceldelivery.com",
-    "password": "Admin123!"
-  }'
-```
+1. **Registration Testing**
+   - Valid registration with all required fields
+   - Invalid email format
+   - Weak password
+   - Missing required fields
+   - Duplicate email registration
 
-## 9. Update Parcel Status (Admin)
+2. **Login Testing**
+   - Valid credentials
+   - Invalid email
+   - Invalid password
+   - Blocked user login attempt
 
-```bash
-curl -X PATCH http://localhost:5000/api/parcels/PARCEL_ID/status \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer ADMIN_JWT_TOKEN" \
-  -d '{
-    "status": "approved",
-    "location": "Dhaka Hub",
-    "note": "Parcel approved and ready for dispatch"
-  }'
-```
+3. **Token Management**
+   - Token refresh with valid refresh token
+   - Token refresh with expired refresh token
+   - Accessing protected routes without token
+   - Accessing protected routes with expired token
 
-## 10. Get All Users (Admin)
+### Role-Based Access Testing
 
-```bash
-curl -X GET http://localhost:5000/api/users \
-  -H "Authorization: Bearer ADMIN_JWT_TOKEN"
-```
+1. **Sender Operations**
+   - Create parcel with valid data
+   - Cancel own parcel before dispatch
+   - Attempt to cancel dispatched parcel
+   - View own parcels only
+   - Attempt admin operations (should fail)
 
-## 11. Get Parcel Statistics (Admin)
+2. **Receiver Operations**
+   - View parcels addressed to them
+   - Confirm delivery of in-transit parcel
+   - Attempt to confirm non-existent parcel
+   - Attempt sender operations (should fail)
 
-```bash
-curl -X GET http://localhost:5000/api/parcels/admin/stats \
-  -H "Authorization: Bearer ADMIN_JWT_TOKEN"
-```
+3. **Admin Operations**
+   - View all users and parcels
+   - Update parcel status
+   - Block/unblock users and parcels
+   - Flag/hold parcels
+   - Access statistics
 
-## 12. Cancel Parcel (Sender)
+### Data Validation Testing
 
-```bash
-curl -X PATCH http://localhost:5000/api/parcels/PARCEL_ID/cancel \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer SENDER_JWT_TOKEN" \
-  -d '{
-    "note": "Changed my mind about delivery"
-  }'
-```
+1. **Parcel Creation**
+   - Valid parcel with all optional fields
+   - Missing required fields
+   - Invalid weight (negative, zero, over limit)
+   - Invalid dimensions
+   - Future date validation for delivery
 
-## 13. Confirm Delivery (Receiver)
+2. **Status Updates**
+   - Valid status transitions
+   - Invalid status transitions
+   - Status updates on flagged/held parcels
 
-```bash
-curl -X PATCH http://localhost:5000/api/parcels/PARCEL_ID/confirm-delivery \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer RECEIVER_JWT_TOKEN" \
-  -d '{
-    "note": "Package received in good condition"
-  }'
-```
+### Error Handling Testing
 
-## Notes:
+1. **Invalid IDs**
+   - Non-existent parcel IDs
+   - Malformed ObjectIDs
+   - Invalid tracking ID format
 
-- Replace `YOUR_JWT_TOKEN`, `ADMIN_JWT_TOKEN`, `SENDER_JWT_TOKEN`, `RECEIVER_JWT_TOKEN` with actual tokens from login responses
-- Replace `PARCEL_ID` with actual parcel IDs from create/list responses
-- Replace tracking IDs with actual tracking IDs from parcel creation responses
-- The server should be running on `http://localhost:5000`
+2. **Permission Errors**
+   - Cross-user access attempts
+   - Wrong role access attempts
+   - Blocked user operations
+
+---
+
+## 📊 Testing Checklist
+
+### ✅ Basic Functionality
+- [ ] User registration with all roles
+- [ ] User login and logout
+- [ ] Token refresh mechanism
+- [ ] Parcel creation and tracking
+- [ ] Status workflow compliance
+- [ ] Public tracking functionality
+
+### ✅ Security Testing
+- [ ] JWT token validation
+- [ ] Role-based access control
+- [ ] Resource ownership validation
+- [ ] Input sanitization
+- [ ] Error message security
+
+### ✅ Edge Cases
+- [ ] Extremely long input values
+- [ ] Special characters in inputs
+- [ ] Concurrent operations
+- [ ] Large file uploads (if applicable)
+- [ ] Rate limiting (if implemented)
+
+### ✅ Performance Testing
+- [ ] Response times under load
+- [ ] Database query performance
+- [ ] Pagination efficiency
+- [ ] Search functionality performance
+
+---
+
+**Happy Testing! 🚀**
+
+For any issues or questions, please refer to the main [README.md](./README.md) or contact the development team.
