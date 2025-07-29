@@ -1,7 +1,7 @@
 import { Document } from 'mongoose';
 
 export interface IStatusLog {
-    status: 'requested' | 'approved' | 'dispatched' | 'in-transit' | 'delivered' | 'cancelled' | 'returned' | 'flagged' | 'held' | 'unflagged' | 'unheld';
+    status: 'requested' | 'approved' | 'dispatched' | 'in-transit' | 'delivered' | 'cancelled' | 'returned' | 'flagged' | 'held' | 'unflagged' | 'unheld' | 'unblocked';
     timestamp: Date;
     updatedBy: string;
     location?: string;

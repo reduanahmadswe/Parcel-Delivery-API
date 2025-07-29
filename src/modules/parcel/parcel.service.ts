@@ -264,6 +264,9 @@ export class ParcelService {
             throw new AppError('Access denied: You can only cancel your own parcels', 403);
         }
 
+        // Check if parcel can be cancelled (not flagged or held)
+        this.validateParcelCanBeUpdated(parcel);
+
         // Check if parcel can be cancelled (not dispatched yet)
         if (['dispatched', 'in-transit', 'delivered'].includes(parcel.currentStatus)) {
             throw new AppError('Cannot cancel parcel that is already dispatched or in transit', 400);
@@ -304,15 +307,15 @@ export class ParcelService {
             throw new AppError('Invalid parcel ID format', 400);
         }
 
-        const parcel = await Parcel.findByIdAndUpdate(
-            id,
-            { assignedDeliveryPersonnel: deliveryPersonnel },
-            { new: true, runValidators: true }
-        );
-
+        const parcel = await Parcel.findById(id);
         if (!parcel) {
             throw new AppError('Parcel not found', 404);
         }
+
+        // Check if parcel can be updated (not flagged or held)
+        this.validateParcelCanBeUpdated(parcel);
+
+        parcel.assignedDeliveryPersonnel = deliveryPersonnel;
 
         // Add status log entry
         parcel.statusHistory.push({
@@ -482,10 +485,10 @@ export class ParcelService {
         }
     }
 
-    // Check if parcel can be updated (not held)
+    // Check if parcel can be updated (not flagged or held)
     private static validateParcelCanBeUpdated(parcel: any): void {
-        if (parcel.isHeld) {
-            throw new AppError('Cannot update status of a held parcel. Please unhold the parcel first.', 400);
+        if (parcel.isFlagged || parcel.isHeld) {
+            throw new AppError('Parcel is flagged or held. No further actions allowed.', 403);
         }
         if (parcel.isBlocked) {
             throw new AppError('Cannot update status of a blocked parcel. Please unblock the parcel first.', 400);
