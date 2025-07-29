@@ -84,7 +84,22 @@ export class ParcelController {
 
     // Get all parcels (admin only)
     static getAllParcels = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-        const { page, limit, status, isUrgent, startDate, endDate } = req.query as any;
+        const {
+            page,
+            limit,
+            status,
+            isUrgent,
+            startDate,
+            endDate,
+            search,
+            senderId,
+            receiverId,
+            senderEmail,
+            receiverEmail,
+            isFlagged,
+            isHeld,
+            isBlocked
+        } = req.query as any;
 
         const result = await ParcelService.getAllParcels(
             page,
@@ -92,7 +107,15 @@ export class ParcelController {
             status,
             isUrgent,
             startDate,
-            endDate
+            endDate,
+            search,
+            senderId,
+            receiverId,
+            senderEmail,
+            receiverEmail,
+            isFlagged,
+            isHeld,
+            isBlocked
         );
 
         res.status(200).json({

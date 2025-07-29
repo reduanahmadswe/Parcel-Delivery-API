@@ -182,11 +182,20 @@ export class ParcelService {
         status?: string,
         isUrgent?: boolean,
         startDate?: Date,
-        endDate?: Date
+        endDate?: Date,
+        search?: string,
+        senderId?: string,
+        receiverId?: string,
+        senderEmail?: string,
+        receiverEmail?: string,
+        isFlagged?: boolean,
+        isHeld?: boolean,
+        isBlocked?: boolean
     ): Promise<{ parcels: IParcelResponse[]; totalCount: number; totalPages: number }> {
         const skip = (page - 1) * limit;
         const filter: any = {};
 
+        // Basic filters
         if (status) {
             filter.currentStatus = status;
         }
@@ -195,10 +204,51 @@ export class ParcelService {
             filter['deliveryInfo.isUrgent'] = isUrgent;
         }
 
+        if (typeof isFlagged === 'boolean') {
+            filter.isFlagged = isFlagged;
+        }
+
+        if (typeof isHeld === 'boolean') {
+            filter.isHeld = isHeld;
+        }
+
+        if (typeof isBlocked === 'boolean') {
+            filter.isBlocked = isBlocked;
+        }
+
+        // Date range filters
         if (startDate || endDate) {
             filter.createdAt = {};
             if (startDate) filter.createdAt.$gte = startDate;
             if (endDate) filter.createdAt.$lte = endDate;
+        }
+
+        // Advanced search filters
+        if (search) {
+            // Search by tracking ID, sender name, receiver name, or description
+            filter.$or = [
+                { trackingId: { $regex: search, $options: 'i' } },
+                { 'senderInfo.name': { $regex: search, $options: 'i' } },
+                { 'receiverInfo.name': { $regex: search, $options: 'i' } },
+                { 'parcelDetails.description': { $regex: search, $options: 'i' } }
+            ];
+        }
+
+        // Specific user filters
+        if (senderId) {
+            filter.senderId = senderId;
+        }
+
+        if (receiverId) {
+            filter.receiverId = receiverId;
+        }
+
+        if (senderEmail) {
+            filter['senderInfo.email'] = { $regex: senderEmail, $options: 'i' };
+        }
+
+        if (receiverEmail) {
+            filter['receiverInfo.email'] = { $regex: receiverEmail, $options: 'i' };
         }
 
         const [parcels, totalCount] = await Promise.all([

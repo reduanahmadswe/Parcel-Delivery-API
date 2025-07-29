@@ -164,6 +164,11 @@ const statusLogSchema = new Schema<IStatusLog>({
         type: String,
         required: true
     },
+    updatedByType: {
+        type: String,
+        enum: ['admin', 'sender', 'receiver', 'system', 'delivery_agent'],
+        default: 'system'
+    },
     location: {
         type: String,
         trim: true

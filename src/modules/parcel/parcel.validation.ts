@@ -70,7 +70,16 @@ export const parcelQueryValidation = z.object({
         status: z.enum(['requested', 'approved', 'dispatched', 'in-transit', 'delivered', 'cancelled', 'returned']).optional(),
         isUrgent: z.string().transform((val) => val === 'true' ? true : val === 'false' ? false : undefined).optional(),
         startDate: z.string().datetime().optional().transform((date) => date ? new Date(date) : undefined),
-        endDate: z.string().datetime().optional().transform((date) => date ? new Date(date) : undefined)
+        endDate: z.string().datetime().optional().transform((date) => date ? new Date(date) : undefined),
+        // Enhanced admin filters
+        search: z.string().trim().optional(),
+        senderId: z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid sender ID format').optional(),
+        receiverId: z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid receiver ID format').optional(),
+        senderEmail: z.string().email('Invalid sender email format').optional(),
+        receiverEmail: z.string().email('Invalid receiver email format').optional(),
+        isFlagged: z.string().transform((val) => val === 'true' ? true : val === 'false' ? false : undefined).optional(),
+        isHeld: z.string().transform((val) => val === 'true' ? true : val === 'false' ? false : undefined).optional(),
+        isBlocked: z.string().transform((val) => val === 'true' ? true : val === 'false' ? false : undefined).optional()
     })
 });
 

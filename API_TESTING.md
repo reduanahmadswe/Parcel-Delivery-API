@@ -335,57 +335,150 @@ _Requires Admin Authentication_
 }
 ```
 
-### 2. Get All Parcels
+### 2. Get All Parcels (Admin Only)
 
-**GET** `/parcels?page=1&limit=10&status=requested&search=TRK-20240115`
+**GET** `/parcels?page=1&limit=10&status=requested&search=TRK-20240115&senderEmail=john@example.com`
 
-_Requires Authentication (Access level varies by role)_
+_Requires Admin Authentication_
 
-**Query Parameters:**
+**Enhanced Query Parameters:**
+
+**Basic Filters:**
 
 - `page` (optional): Page number (default: 1)
 - `limit` (optional): Items per page (default: 10)
 - `status` (optional): Filter by status
-- `search` (optional): Search by tracking ID
-- `startDate` (optional): Filter by creation date (from)
-- `endDate` (optional): Filter by creation date (to)
+- `isUrgent` (optional): Filter by urgency (true/false)
+- `startDate` (optional): Filter by creation date (from) - ISO 8601 format
+- `endDate` (optional): Filter by creation date (to) - ISO 8601 format
+
+**Advanced Admin Filters:**
+
+- `search` (optional): Search by tracking ID, sender name, receiver name, or description
+- `senderId` (optional): Filter by specific sender user ID
+- `receiverId` (optional): Filter by specific receiver user ID
+- `senderEmail` (optional): Filter by sender email address
+- `receiverEmail` (optional): Filter by receiver email address
+- `isFlagged` (optional): Filter by flagged status (true/false)
+- `isHeld` (optional): Filter by held status (true/false)
+- `isBlocked` (optional): Filter by blocked status (true/false)
+
+**Example Admin Query:**
+
+```
+GET /parcels?status=in-transit&search=electronics&senderEmail=john@example.com&isFlagged=false&page=1&limit=20
+```
 
 **Response (200):**
 
 ```json
 {
   "success": true,
-  "data": {
-    "parcels": [
-      {
-        "_id": "507f1f77bcf86cd799439012",
-        "trackingId": "TRK-20240115-001234",
-        "senderInfo": {
-          "name": "John Doe",
-          "email": "john.doe@example.com"
-        },
-        "receiverInfo": {
-          "name": "Jane Smith",
-          "email": "jane.smith@example.com"
-        },
-        "currentStatus": "requested",
-        "createdAt": "2024-01-15T10:30:00.000Z",
-        "fee": {
-          "totalFee": 12.5,
-          "isPaid": false
-        }
+  "message": "All parcels retrieved successfully",
+  "data": [
+    {
+      "_id": "507f1f77bcf86cd799439012",
+      "trackingId": "TRK-20240115-001234",
+      "senderId": "507f1f77bcf86cd799439011",
+      "receiverId": "507f1f77bcf86cd799439013",
+      "senderInfo": {
+        "name": "John Doe",
+        "email": "john.doe@example.com"
+      },
+      "receiverInfo": {
+        "name": "Jane Smith",
+        "email": "jane.smith@example.com"
+      },
+      "currentStatus": "requested",
+      "isFlagged": false,
+      "isHeld": false,
+      "isBlocked": false,
+      "createdAt": "2024-01-15T10:30:00.000Z",
+      "fee": {
+        "totalFee": 12.5,
+        "isPaid": false
       }
-    ],
-    "pagination": {
-      "currentPage": 1,
-      "totalPages": 1,
-      "totalParcels": 1,
-      "hasNextPage": false,
-      "hasPrevPage": false
     }
+  ],
+  "pagination": {
+    "currentPage": 1,
+    "totalPages": 1,
+    "totalCount": 1,
+    "limit": 10
   }
 }
 ```
+
+---
+
+## 🔍 **Admin Advanced Search Examples**
+
+### Basic Status Filtering
+
+```bash
+GET /parcels?status=in-transit&page=1&limit=20
+```
+
+### Search by Text
+
+```bash
+# Search across tracking ID, names, and descriptions
+GET /parcels?search=electronics&limit=50
+```
+
+### User-Specific Filters
+
+```bash
+# Filter by specific sender
+GET /parcels?senderId=507f1f77bcf86cd799439011
+
+# Filter by sender email
+GET /parcels?senderEmail=john.doe@example.com
+
+# Filter by receiver email
+GET /parcels?receiverEmail=jane@example.com
+```
+
+### Management Status Filters
+
+```bash
+# Show only flagged parcels
+GET /parcels?isFlagged=true
+
+# Show only held parcels
+GET /parcels?isHeld=true
+
+# Show only blocked parcels
+GET /parcels?isBlocked=true
+
+# Show unflagged, unheld, unblocked parcels
+GET /parcels?isFlagged=false&isHeld=false&isBlocked=false
+```
+
+### Complex Combined Filters
+
+```bash
+# Urgent parcels from specific sender in last 7 days
+GET /parcels?isUrgent=true&senderEmail=sender@example.com&startDate=2024-01-08T00:00:00.000Z&endDate=2024-01-15T23:59:59.999Z
+
+# Search for flagged electronics deliveries
+GET /parcels?search=electronics&isFlagged=true&status=in-transit
+
+# All delivered parcels to specific receiver
+GET /parcels?receiverEmail=receiver@example.com&status=delivered&limit=100
+```
+
+### Date Range Filtering
+
+```bash
+# Parcels created this month
+GET /parcels?startDate=2024-01-01T00:00:00.000Z&endDate=2024-01-31T23:59:59.999Z
+
+# Recent parcels (last 24 hours)
+GET /parcels?startDate=2024-01-14T10:00:00.000Z
+```
+
+---
 
 ### 3. Get Parcel by ID
 
@@ -1043,6 +1136,7 @@ Every parcel is assigned a **unique tracking ID** that follows this format:
 - **XXXXXX**: 6-character random alphanumeric code (uppercase)
 
 **Examples**:
+
 - `TRK-20250729-A8B2C4`
 - `TRK-20250730-X9Y7Z1`
 
@@ -1057,7 +1151,7 @@ Each parcel maintains a comprehensive **statusHistory** array containing all tra
       "status": "requested",
       "timestamp": "2025-07-29T10:30:00.000Z",
       "updatedBy": "668779a234c2156b621d73ef",
-      "location": "Dhaka, Bangladesh", 
+      "location": "Dhaka, Bangladesh",
       "note": "Parcel created and requested for delivery"
     },
     {
@@ -1119,6 +1213,7 @@ The tracking system provides:
 **Request**: `GET /parcels/track/TRK-20250729-A8B2C4`
 
 **Response**:
+
 ```json
 {
   "success": true,
@@ -1131,7 +1226,7 @@ The tracking system provides:
       "email": "sender@example.com"
     },
     "receiverInfo": {
-      "name": "Jane Receiver", 
+      "name": "Jane Receiver",
       "email": "receiver@example.com"
     },
     "parcelDetails": {
@@ -1148,7 +1243,7 @@ The tracking system provides:
         "note": "Parcel created and requested for delivery"
       },
       {
-        "status": "approved", 
+        "status": "approved",
         "timestamp": "2025-07-29T11:00:00.000Z",
         "updatedBy": "admin_id",
         "location": "Dhaka Distribution Center",
@@ -1156,7 +1251,7 @@ The tracking system provides:
       },
       {
         "status": "dispatched",
-        "timestamp": "2025-07-29T14:00:00.000Z", 
+        "timestamp": "2025-07-29T14:00:00.000Z",
         "updatedBy": "admin_id",
         "location": "Dhaka Distribution Center",
         "note": "Parcel dispatched to destination"
@@ -1164,7 +1259,7 @@ The tracking system provides:
       {
         "status": "in-transit",
         "timestamp": "2025-07-29T18:00:00.000Z",
-        "updatedBy": "admin_id", 
+        "updatedBy": "admin_id",
         "location": "Chittagong Hub",
         "note": "Parcel in transit to final destination"
       },
