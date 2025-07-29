@@ -31,32 +31,52 @@ export class ParcelService {
                 receiverId = receiver._id.toString();
             }
 
-            // Create parcel
-            const parcel = new Parcel({
-                senderId,
-                receiverId,
-                senderInfo: {
-                    name: sender.name,
-                    email: sender.email,
-                    phone: sender.phone,
-                    address: sender.address
-                },
-                receiverInfo: parcelData.receiverInfo,
-                parcelDetails: parcelData.parcelDetails,
-                deliveryInfo: parcelData.deliveryInfo,
-                fee: {
-                    baseFee: 0,
-                    weightFee: 0,
-                    urgentFee: 0,
-                    totalFee: 0,
-                    isPaid: false
+            // Create parcel with retry logic for tracking ID uniqueness
+            let parcel;
+            let retryCount = 0;
+            const maxRetries = 5;
+
+            while (retryCount < maxRetries) {
+                try {
+                    parcel = new Parcel({
+                        senderId,
+                        receiverId,
+                        senderInfo: {
+                            name: sender.name,
+                            email: sender.email,
+                            phone: sender.phone,
+                            address: sender.address
+                        },
+                        receiverInfo: parcelData.receiverInfo,
+                        parcelDetails: parcelData.parcelDetails,
+                        deliveryInfo: parcelData.deliveryInfo,
+                        fee: {
+                            baseFee: 0,
+                            weightFee: 0,
+                            urgentFee: 0,
+                            totalFee: 0,
+                            isPaid: false
+                        }
+                    });
+
+                    await parcel.save({ session });
+                    break; // Success, exit retry loop
+                } catch (error: any) {
+                    if (error.code === 11000 && error.keyPattern?.trackingId) {
+                        // Duplicate tracking ID error, retry with new ID
+                        retryCount++;
+                        if (retryCount >= maxRetries) {
+                            throw new AppError('Failed to generate unique tracking ID after multiple attempts', 500);
+                        }
+                        // The pre-save hook will generate a new tracking ID on next attempt
+                        continue;
+                    }
+                    throw error; // Re-throw non-duplicate errors
                 }
-            });
+            }
 
-            await parcel.save({ session });
             await session.commitTransaction();
-
-            return parcel.toJSON();
+            return parcel!.toJSON();
         } catch (error) {
             await session.abortTransaction();
             throw error;

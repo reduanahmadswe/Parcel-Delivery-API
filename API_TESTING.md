@@ -1030,7 +1030,161 @@ Use the registration endpoint to create test users with different roles:
 
 ---
 
-## 📝 Notes
+## � Tracking System Specifications
+
+### Unique Tracking IDs
+
+Every parcel is assigned a **unique tracking ID** that follows this format:
+
+**Format**: `TRK-YYYYMMDD-XXXXXX`
+
+- **TRK**: Fixed prefix for all tracking IDs
+- **YYYYMMDD**: Date of creation (Year-Month-Day)
+- **XXXXXX**: 6-character random alphanumeric code (uppercase)
+
+**Examples**:
+- `TRK-20250729-A8B2C4`
+- `TRK-20250730-X9Y7Z1`
+
+### Tracking Events (statusHistory)
+
+Each parcel maintains a comprehensive **statusHistory** array containing all tracking events:
+
+```json
+{
+  "statusHistory": [
+    {
+      "status": "requested",
+      "timestamp": "2025-07-29T10:30:00.000Z",
+      "updatedBy": "668779a234c2156b621d73ef",
+      "location": "Dhaka, Bangladesh", 
+      "note": "Parcel created and requested for delivery"
+    },
+    {
+      "status": "approved",
+      "timestamp": "2025-07-29T11:00:00.000Z",
+      "updatedBy": "admin_id",
+      "location": "Dhaka Distribution Center",
+      "note": "Parcel approved for shipment"
+    },
+    {
+      "status": "dispatched",
+      "timestamp": "2025-07-29T14:00:00.000Z",
+      "updatedBy": "admin_id",
+      "location": "Dhaka Distribution Center",
+      "note": "Parcel dispatched to destination"
+    }
+  ]
+}
+```
+
+### Status Log Properties
+
+Each tracking event contains:
+
+- **status**: Current status of the parcel
+  - Standard: `requested`, `approved`, `dispatched`, `in-transit`, `delivered`, `cancelled`, `returned`
+  - Management: `flagged`, `unflagged`, `held`, `unheld`, `unblocked`
+- **timestamp**: ISO 8601 timestamp of when the status changed
+- **updatedBy**: User ID of who performed the action (sender/receiver/admin)
+- **location**: Physical location where the event occurred (optional)
+- **note**: Additional information about the status change (optional, max 200 chars)
+
+### Uniqueness Guarantees
+
+1. **Database Index**: `trackingId` field has a unique index in MongoDB
+2. **Format Validation**: Regex validation ensures proper format: `/^TRK-\d{8}-[A-Z0-9]{6}$/`
+3. **Auto-Generation**: Tracking IDs are automatically generated on parcel creation using robust random character selection
+4. **Collision Handling**: Database constraints prevent duplicate tracking IDs with retry logic (up to 5 attempts)
+5. **Retry Logic**: If a duplicate tracking ID is generated (rare), the system automatically retries with a new ID
+
+### Technical Implementation
+
+- **Pre-Save Hook**: MongoDB pre-save middleware generates unique tracking IDs
+- **Character Set**: Uses uppercase letters (A-Z) and digits (0-9) for maximum readability
+- **Date Component**: YYYYMMDD format allows for easy sorting and filtering by creation date
+- **Collision Rate**: With 36^6 possible combinations per day (≈2.1 billion), collisions are extremely rare
+
+### Public Tracking
+
+The tracking system provides:
+
+- **Public endpoint**: `/parcels/track/:trackingId` (no authentication required)
+- **Complete history**: Full status log from creation to delivery
+- **Real-time updates**: Status changes are immediately reflected
+- **Location tracking**: Geographic progression of the parcel
+
+### Complete Tracking Example
+
+**Request**: `GET /parcels/track/TRK-20250729-A8B2C4`
+
+**Response**:
+```json
+{
+  "success": true,
+  "message": "Parcel tracking information retrieved successfully",
+  "data": {
+    "trackingId": "TRK-20250729-A8B2C4",
+    "currentStatus": "delivered",
+    "senderInfo": {
+      "name": "John Sender",
+      "email": "sender@example.com"
+    },
+    "receiverInfo": {
+      "name": "Jane Receiver", 
+      "email": "receiver@example.com"
+    },
+    "parcelDetails": {
+      "type": "electronics",
+      "weight": 2.5,
+      "description": "Laptop computer"
+    },
+    "statusHistory": [
+      {
+        "status": "requested",
+        "timestamp": "2025-07-29T10:30:00.000Z",
+        "updatedBy": "668779a234c2156b621d73ef",
+        "location": "Dhaka, Bangladesh",
+        "note": "Parcel created and requested for delivery"
+      },
+      {
+        "status": "approved", 
+        "timestamp": "2025-07-29T11:00:00.000Z",
+        "updatedBy": "admin_id",
+        "location": "Dhaka Distribution Center",
+        "note": "Parcel approved for shipment"
+      },
+      {
+        "status": "dispatched",
+        "timestamp": "2025-07-29T14:00:00.000Z", 
+        "updatedBy": "admin_id",
+        "location": "Dhaka Distribution Center",
+        "note": "Parcel dispatched to destination"
+      },
+      {
+        "status": "in-transit",
+        "timestamp": "2025-07-29T18:00:00.000Z",
+        "updatedBy": "admin_id", 
+        "location": "Chittagong Hub",
+        "note": "Parcel in transit to final destination"
+      },
+      {
+        "status": "delivered",
+        "timestamp": "2025-07-30T10:30:00.000Z",
+        "updatedBy": "delivery_person_id",
+        "location": "Chittagong, Bangladesh",
+        "note": "Parcel successfully delivered to receiver"
+      }
+    ],
+    "estimatedDelivery": "2025-07-30T10:30:00.000Z",
+    "actualDelivery": "2025-07-30T10:30:00.000Z"
+  }
+}
+```
+
+---
+
+## �📝 Notes
 
 - All endpoints that require authentication need valid JWT tokens in HTTP-only cookies
 - Timestamps are in ISO 8601 format (UTC)

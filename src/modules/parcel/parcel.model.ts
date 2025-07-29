@@ -243,10 +243,10 @@ parcelSchema.index({ createdAt: -1 });
 
 
 parcelSchema.pre('save', function (next) {
-    if (!this.trackingId) {
+    // Always generate a new tracking ID if not present or if this is a retry attempt
+    if (!this.trackingId || this.isNew) {
         this.trackingId = generateTrackingId();
     }
-
 
     if (!this.fee.totalFee) {
         this.fee.baseFee = 50;
@@ -255,8 +255,7 @@ parcelSchema.pre('save', function (next) {
         this.fee.totalFee = this.fee.baseFee + this.fee.weightFee + this.fee.urgentFee;
     }
 
-
-    if (this.isNew) {
+    if (this.isNew && this.statusHistory.length === 0) {
         this.statusHistory.push({
             status: 'requested',
             timestamp: new Date(),
