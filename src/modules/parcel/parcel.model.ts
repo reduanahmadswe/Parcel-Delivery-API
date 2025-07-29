@@ -153,7 +153,7 @@ const feeSchema = new Schema({
 const statusLogSchema = new Schema<IStatusLog>({
     status: {
         type: String,
-        enum: ['requested', 'approved', 'dispatched', 'in-transit', 'delivered', 'cancelled', 'returned'],
+        enum: ['requested', 'approved', 'dispatched', 'in-transit', 'delivered', 'cancelled', 'returned', 'flagged', 'unflagged', 'held', 'unheld', 'unblocked'],
         required: true
     },
     timestamp: {
@@ -215,6 +215,14 @@ const parcelSchema = new Schema<IParcel>({
         type: String,
         trim: true,
         default: null
+    },
+    isFlagged: {
+        type: Boolean,
+        default: false
+    },
+    isHeld: {
+        type: Boolean,
+        default: false
     },
     isBlocked: {
         type: Boolean,

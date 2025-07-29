@@ -214,6 +214,9 @@ export class ParcelService {
             throw new AppError('Parcel not found', 404);
         }
 
+        // Check if parcel can be updated (not held or blocked)
+        this.validateParcelCanBeUpdated(parcel);
+
         // Validate status transition
         this.validateStatusTransition(parcel.currentStatus, statusData.status);
 
@@ -391,6 +394,74 @@ export class ParcelService {
         };
     }
 
+    // Flag/Unflag parcel (admin only)
+    static async flagParcel(id: string, isFlagged: boolean, adminId: string, note?: string): Promise<IParcelResponse> {
+        const parcel = await Parcel.findById(id);
+        if (!parcel) {
+            throw new AppError('Parcel not found', 404);
+        }
+
+        // Add status log for flag/unflag action
+        const statusLog = {
+            status: isFlagged ? 'flagged' : 'unflagged',
+            timestamp: new Date(),
+            updatedBy: adminId,
+            note: note || (isFlagged ? 'Parcel flagged by admin' : 'Parcel unflagged by admin')
+        };
+
+        parcel.isFlagged = isFlagged;
+        parcel.statusHistory.push(statusLog as any);
+
+        await parcel.save();
+        return parcel.toObject() as IParcelResponse;
+    }
+
+    // Hold/Unhold parcel (admin only)
+    static async holdParcel(id: string, isHeld: boolean, adminId: string, note?: string): Promise<IParcelResponse> {
+        const parcel = await Parcel.findById(id);
+        if (!parcel) {
+            throw new AppError('Parcel not found', 404);
+        }
+
+        // Add status log for hold/unhold action
+        const statusLog = {
+            status: isHeld ? 'held' : 'unheld',
+            timestamp: new Date(),
+            updatedBy: adminId,
+            note: note || (isHeld ? 'Parcel held by admin' : 'Parcel unheld by admin')
+        };
+
+        parcel.isHeld = isHeld;
+        parcel.statusHistory.push(statusLog as any);
+
+        await parcel.save();
+        return parcel.toObject() as IParcelResponse;
+    }
+
+    // Unblock parcel (admin only)
+    static async unblockParcel(id: string, adminId: string, note?: string): Promise<IParcelResponse> {
+        const parcel = await Parcel.findById(id);
+        if (!parcel) {
+            throw new AppError('Parcel not found', 404);
+        }
+
+        // Add status log for unblock action
+        const statusLog = {
+            status: 'unblocked',
+            timestamp: new Date(),
+            updatedBy: adminId,
+            note: note || 'Parcel unblocked by admin'
+        };
+
+        parcel.isBlocked = false;
+        parcel.isFlagged = false; // Also unflag when unblocking
+        parcel.isHeld = false; // Also unhold when unblocking
+        parcel.statusHistory.push(statusLog as any);
+
+        await parcel.save();
+        return parcel.toObject() as IParcelResponse;
+    }
+
     // Validate status transition
     private static validateStatusTransition(currentStatus: string, newStatus: string): void {
         const validTransitions: { [key: string]: string[] } = {
@@ -408,6 +479,34 @@ export class ParcelService {
                 `Invalid status transition from ${currentStatus} to ${newStatus}`,
                 400
             );
+        }
+    }
+
+    // Check if parcel can be updated (not held)
+    private static validateParcelCanBeUpdated(parcel: any): void {
+        if (parcel.isHeld) {
+            throw new AppError('Cannot update status of a held parcel. Please unhold the parcel first.', 400);
+        }
+        if (parcel.isBlocked) {
+            throw new AppError('Cannot update status of a blocked parcel. Please unblock the parcel first.', 400);
+        }
+    }
+
+    // Delete a parcel (admin only)
+    static async deleteParcel(parcelId: string): Promise<void> {
+        try {
+            const parcel = await Parcel.findById(parcelId);
+
+            if (!parcel) {
+                throw new AppError('Parcel not found', 404);
+            }
+
+            await Parcel.findByIdAndDelete(parcelId);
+        } catch (error) {
+            if (error instanceof AppError) {
+                throw error;
+            }
+            throw new AppError('Error deleting parcel', 500);
         }
     }
 }

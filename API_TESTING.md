@@ -716,6 +716,118 @@ _Requires Admin Authentication_
 }
 ```
 
+### 11. Flag/Unflag Parcel (Admin Only)
+
+**PATCH** `/parcels/507f1f77bcf86cd799439012/flag`
+
+_Requires Admin Authentication_
+
+```json
+{
+  "isFlagged": true,
+  "note": "Suspicious parcel contents detected"
+}
+```
+
+**Response (200):**
+
+```json
+{
+  "success": true,
+  "message": "Parcel flagged successfully",
+  "data": {
+    "parcel": {
+      "_id": "507f1f77bcf86cd799439012",
+      "trackingId": "TRK-20240115-001234",
+      "isFlagged": true,
+      "statusHistory": [
+        {
+          "status": "flagged",
+          "timestamp": "2024-01-16T10:00:00.000Z",
+          "updatedBy": "admin_id",
+          "note": "Suspicious parcel contents detected"
+        }
+      ]
+    }
+  }
+}
+```
+
+### 12. Hold/Unhold Parcel (Admin Only)
+
+**PATCH** `/parcels/507f1f77bcf86cd799439012/hold`
+
+_Requires Admin Authentication_
+
+```json
+{
+  "isHeld": true,
+  "note": "Holding parcel for further inspection"
+}
+```
+
+**Response (200):**
+
+```json
+{
+  "success": true,
+  "message": "Parcel held successfully",
+  "data": {
+    "parcel": {
+      "_id": "507f1f77bcf86cd799439012",
+      "trackingId": "TRK-20240115-001234",
+      "isHeld": true,
+      "statusHistory": [
+        {
+          "status": "held",
+          "timestamp": "2024-01-16T10:00:00.000Z",
+          "updatedBy": "admin_id",
+          "note": "Holding parcel for further inspection"
+        }
+      ]
+    }
+  }
+}
+```
+
+### 13. Unblock Parcel (Admin Only)
+
+**PATCH** `/parcels/507f1f77bcf86cd799439012/unblock`
+
+_Requires Admin Authentication_
+
+```json
+{
+  "note": "All issues resolved, parcel cleared for delivery"
+}
+```
+
+**Response (200):**
+
+```json
+{
+  "success": true,
+  "message": "Parcel unblocked successfully",
+  "data": {
+    "parcel": {
+      "_id": "507f1f77bcf86cd799439012",
+      "trackingId": "TRK-20240115-001234",
+      "isBlocked": false,
+      "isFlagged": false,
+      "isHeld": false,
+      "statusHistory": [
+        {
+          "status": "unblocked",
+          "timestamp": "2024-01-16T11:00:00.000Z",
+          "updatedBy": "admin_id",
+          "note": "All issues resolved, parcel cleared for delivery"
+        }
+      ]
+    }
+  }
+}
+```
+
 ---
 
 ## 📊 Statistics & Reports (Admin Only)
@@ -871,6 +983,10 @@ Use the registration endpoint to create test users with different roles:
 - Tracking IDs follow the format: `TRK-YYYYMMDD-XXXXXX`
 - Status transitions follow a specific workflow: `requested → approved → dispatched → in-transit → delivered`
 - Only certain operations are allowed based on user roles and parcel status
+- **Parcel Hold System**: Held parcels cannot proceed to next status until unheld by admin
+- **Parcel Flag System**: Flagged parcels are marked as suspicious for admin review
+- **Status Restrictions**: Blocked or held parcels cannot have their status updated until unblocked/unheld
+- **Admin Override**: Only admins can flag, hold, or unblock parcels
 
 ---
 

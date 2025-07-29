@@ -5,10 +5,13 @@ import { ParcelController } from './parcel.controller';
 import {
     assignDeliveryPersonnelValidation,
     createParcelValidation,
+    flagParcelValidation,
+    holdParcelValidation,
     parcelIdValidation,
     parcelQueryValidation,
     toggleParcelBlockStatusValidation,
     trackingIdValidation,
+    unblockParcelValidation,
     updateParcelStatusValidation
 } from './parcel.validation';
 
@@ -84,6 +87,29 @@ router.patch('/:id/assign-personnel',
     validateRequest(parcelIdValidation),
     validateRequest(assignDeliveryPersonnelValidation),
     ParcelController.assignDeliveryPersonnel
+);
+
+router.patch('/:id/flag',
+    validateRequest(parcelIdValidation),
+    validateRequest(flagParcelValidation),
+    ParcelController.flagParcel
+);
+
+router.patch('/:id/hold',
+    validateRequest(parcelIdValidation),
+    validateRequest(holdParcelValidation),
+    ParcelController.holdParcel
+);
+
+router.patch('/:id/unblock',
+    validateRequest(parcelIdValidation),
+    validateRequest(unblockParcelValidation),
+    ParcelController.unblockParcel
+);
+
+router.delete('/:id',
+    validateRequest(parcelIdValidation),
+    ParcelController.deleteParcel
 );
 
 export const parcelRoutes = router;

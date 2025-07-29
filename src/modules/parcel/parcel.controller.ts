@@ -210,4 +210,65 @@ export class ParcelController {
             data: parcel
         });
     });
+
+    // Flag/Unflag parcel (admin only)
+    static flagParcel = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+        const { id } = req.params;
+        const { isFlagged, note } = req.body;
+        const adminId = (req as any).user.userId;
+
+        const parcel = await ParcelService.flagParcel(id, isFlagged, adminId, note);
+
+        sendResponse(res, {
+            statuscode: 200,
+            success: true,
+            message: `Parcel ${isFlagged ? 'flagged' : 'unflagged'} successfully`,
+            data: parcel
+        });
+    });
+
+    // Hold/Unhold parcel (admin only)
+    static holdParcel = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+        const { id } = req.params;
+        const { isHeld, note } = req.body;
+        const adminId = (req as any).user.userId;
+
+        const parcel = await ParcelService.holdParcel(id, isHeld, adminId, note);
+
+        sendResponse(res, {
+            statuscode: 200,
+            success: true,
+            message: `Parcel ${isHeld ? 'held' : 'unheld'} successfully`,
+            data: parcel
+        });
+    });
+
+    // Unblock parcel (admin only)
+    static unblockParcel = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+        const { id } = req.params;
+        const { note } = req.body;
+        const adminId = (req as any).user.userId;
+
+        const parcel = await ParcelService.unblockParcel(id, adminId, note);
+
+        sendResponse(res, {
+            statuscode: 200,
+            success: true,
+            message: 'Parcel unblocked successfully',
+            data: parcel
+        });
+    });
+
+    // Delete parcel (admin only)
+    static deleteParcel = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+        const { id } = req.params;
+        await ParcelService.deleteParcel(id);
+
+        sendResponse(res, {
+            statuscode: 200,
+            success: true,
+            message: 'Parcel deleted successfully',
+            data: null
+        });
+    });
 }

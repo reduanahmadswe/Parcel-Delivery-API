@@ -85,3 +85,23 @@ export const assignDeliveryPersonnelValidation = z.object({
         deliveryPersonnel: z.string().min(1, 'Delivery personnel name is required').max(100, 'Name cannot exceed 100 characters').trim()
     })
 });
+
+export const flagParcelValidation = z.object({
+    body: z.object({
+        isFlagged: z.boolean({ message: 'isFlagged field is required and must be a boolean' }),
+        note: z.string().max(200, 'Note cannot exceed 200 characters').trim().optional()
+    })
+});
+
+export const holdParcelValidation = z.object({
+    body: z.object({
+        isHeld: z.boolean({ message: 'isHeld field is required and must be a boolean' }),
+        note: z.string().max(200, 'Note cannot exceed 200 characters').trim().optional()
+    })
+});
+
+export const unblockParcelValidation = z.object({
+    body: z.object({
+        note: z.string().max(200, 'Note cannot exceed 200 characters').trim().optional()
+    })
+});

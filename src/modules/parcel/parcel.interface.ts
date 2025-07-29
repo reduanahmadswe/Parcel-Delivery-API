@@ -1,7 +1,7 @@
 import { Document } from 'mongoose';
 
 export interface IStatusLog {
-    status: 'requested' | 'approved' | 'dispatched' | 'in-transit' | 'delivered' | 'cancelled' | 'returned';
+    status: 'requested' | 'approved' | 'dispatched' | 'in-transit' | 'delivered' | 'cancelled' | 'returned' | 'flagged' | 'held' | 'unflagged' | 'unheld';
     timestamp: Date;
     updatedBy: string;
     location?: string;
@@ -64,6 +64,8 @@ export interface IParcel extends Document {
     currentStatus: 'requested' | 'approved' | 'dispatched' | 'in-transit' | 'delivered' | 'cancelled' | 'returned';
     statusHistory: IStatusLog[];
     assignedDeliveryPersonnel?: string;
+    isFlagged: boolean;
+    isHeld: boolean;
     isBlocked: boolean;
     createdAt: Date;
     updatedAt: Date;
@@ -106,6 +108,16 @@ export interface IUpdateParcelStatus {
     note?: string;
 }
 
+export interface IFlagParcel {
+    isFlagged: boolean;
+    note?: string;
+}
+
+export interface IHoldParcel {
+    isHeld: boolean;
+    note?: string;
+}
+
 export interface IParcelResponse {
     _id: string;
     trackingId: string;
@@ -119,6 +131,8 @@ export interface IParcelResponse {
     currentStatus: string;
     statusHistory: IStatusLog[];
     assignedDeliveryPersonnel?: string;
+    isFlagged: boolean;
+    isHeld: boolean;
     isBlocked: boolean;
     createdAt: Date;
     updatedAt: Date;
