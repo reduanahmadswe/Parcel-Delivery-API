@@ -103,5 +103,11 @@ export const holdParcelValidation = z.object({
 export const unblockParcelValidation = z.object({
     body: z.object({
         note: z.string().max(200, 'Note cannot exceed 200 characters').trim().optional()
-    })
+    }).optional().default({})
+});
+
+export const returnParcelValidation = z.object({
+    body: z.object({
+        note: z.string().max(200, 'Note cannot exceed 200 characters').trim().optional()
+    }).optional().default({})
 });

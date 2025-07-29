@@ -224,10 +224,14 @@ export class ParcelService {
         if (userRole === 'sender') {
             // Senders can only cancel if not dispatched
             if (statusData.status !== 'cancelled' ||
-                ['dispatched', 'in-transit', 'delivered'].includes(parcel.currentStatus)) {
+                ['dispatched', 'in-transit', 'delivered', 'returned'].includes(parcel.currentStatus)) {
                 throw new AppError('Senders can only cancel parcels that are not yet dispatched', 403);
             }
         } else if (userRole === 'receiver') {
+            // Block all receiver actions on returned parcels
+            if (parcel.currentStatus === 'returned') {
+                throw new AppError('Cannot perform actions on returned parcels', 403);
+            }
             // Receivers can only confirm delivery
             if (statusData.status !== 'delivered' || parcel.currentStatus !== 'in-transit') {
                 throw new AppError('Receivers can only confirm delivery of in-transit parcels', 403);
@@ -268,8 +272,8 @@ export class ParcelService {
         this.validateParcelCanBeUpdated(parcel);
 
         // Check if parcel can be cancelled (not dispatched yet)
-        if (['dispatched', 'in-transit', 'delivered'].includes(parcel.currentStatus)) {
-            throw new AppError('Cannot cancel parcel that is already dispatched or in transit', 400);
+        if (['dispatched', 'in-transit', 'delivered', 'returned'].includes(parcel.currentStatus)) {
+            throw new AppError('Cannot cancel parcel that is already dispatched, in transit, delivered, or returned', 403);
         }
 
         if (parcel.currentStatus === 'cancelled') {
@@ -511,5 +515,37 @@ export class ParcelService {
             }
             throw new AppError('Error deleting parcel', 500);
         }
+    }
+
+    // Return parcel (admin only)
+    static async returnParcel(id: string, adminId: string, note?: string): Promise<IParcelResponse> {
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            throw new AppError('Invalid parcel ID format', 400);
+        }
+
+        const parcel = await Parcel.findById(id);
+        if (!parcel) {
+            throw new AppError('Parcel not found', 404);
+        }
+
+        // Check if parcel can be returned (must be dispatched or in-transit)
+        if (!['dispatched', 'in-transit'].includes(parcel.currentStatus)) {
+            throw new AppError('Parcel can only be returned if it is dispatched or in-transit', 400);
+        }
+
+        // Check if parcel can be updated (not flagged or held)
+        this.validateParcelCanBeUpdated(parcel);
+
+        // Update status to returned
+        parcel.currentStatus = 'returned';
+        parcel.statusHistory.push({
+            status: 'returned',
+            timestamp: new Date(),
+            updatedBy: adminId,
+            note: note || 'Parcel returned'
+        });
+
+        await parcel.save();
+        return parcel.toJSON();
     }
 }

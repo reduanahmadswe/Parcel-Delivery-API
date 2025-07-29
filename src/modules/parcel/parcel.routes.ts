@@ -9,6 +9,7 @@ import {
     holdParcelValidation,
     parcelIdValidation,
     parcelQueryValidation,
+    returnParcelValidation,
     toggleParcelBlockStatusValidation,
     trackingIdValidation,
     unblockParcelValidation,
@@ -105,6 +106,12 @@ router.patch('/:id/unblock',
     validateRequest(parcelIdValidation),
     validateRequest(unblockParcelValidation),
     ParcelController.unblockParcel
+);
+
+router.patch('/:id/return',
+    validateRequest(parcelIdValidation),
+    validateRequest(returnParcelValidation),
+    ParcelController.returnParcel
 );
 
 router.delete('/:id',

@@ -828,6 +828,62 @@ _Requires Admin Authentication_
 }
 ```
 
+### 14. Return Parcel (Admin Only)
+
+**PATCH** `/parcels/507f1f77bcf86cd799439012/return`
+
+_Requires Admin Authentication_
+
+**Request Body (Optional):**
+
+```json
+{
+  "note": "Receiver was unavailable for delivery"
+}
+```
+
+**Note:** The request body is optional. If no body is provided, a default note "Parcel returned" will be used.
+
+**Example without body:**
+
+```bash
+curl -X PATCH http://localhost:5000/api/parcels/6887d7e57f6b918d0ed42d44/return \
+  -H "Authorization: Bearer ADMIN_JWT_TOKEN"
+```
+
+**Example with body:**
+
+```bash
+curl -X PATCH http://localhost:5000/api/parcels/6887d7e57f6b918d0ed42d44/return \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer ADMIN_JWT_TOKEN" \
+  -d '{"note": "Receiver was unavailable for delivery"}'
+```
+
+**Response (200):**
+
+```json
+{
+  "success": true,
+  "message": "Parcel marked as returned successfully",
+  "data": {
+    "parcel": {
+      "_id": "507f1f77bcf86cd799439012",
+      "trackingId": "TRK-20240115-001234",
+      "currentStatus": "returned",
+      "statusHistory": [
+        {
+          "status": "returned",
+          "timestamp": "2024-01-16T12:00:00.000Z",
+          "updatedBy": "admin_id",
+          "note": "Receiver was unavailable for delivery"
+        }
+      ]
+    }
+  }
+}
+```
+
 ---
 
 ## 📊 Statistics & Reports (Admin Only)
@@ -985,8 +1041,10 @@ Use the registration endpoint to create test users with different roles:
 - Only certain operations are allowed based on user roles and parcel status
 - **Parcel Hold System**: Held parcels cannot proceed to next status until unheld by admin
 - **Parcel Flag System**: Flagged parcels are marked as suspicious for admin review
+- **Parcel Return System**: Returned parcels cannot be cancelled by sender or confirmed by receiver
 - **Status Restrictions**: Blocked or held parcels cannot have their status updated until unblocked/unheld
-- **Admin Override**: Only admins can flag, hold, or unblock parcels
+- **Return Restrictions**: Once marked as returned, only admin can re-dispatch the parcel
+- **Admin Override**: Only admins can flag, hold, unblock, or return parcels
 
 ---
 

@@ -259,6 +259,22 @@ export class ParcelController {
         });
     });
 
+    // Return parcel (admin only)
+    static returnParcel = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+        const { id } = req.params;
+        const adminId = (req as any).user.userId;
+        const { note } = req.body;
+
+        const parcel = await ParcelService.returnParcel(id, adminId, note);
+
+        sendResponse(res, {
+            statuscode: 200,
+            success: true,
+            message: 'Parcel marked as returned successfully',
+            data: parcel
+        });
+    });
+
     // Delete parcel (admin only)
     static deleteParcel = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
         const { id } = req.params;
