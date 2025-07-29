@@ -607,7 +607,59 @@ _Public endpoint - No authentication required_
 }
 ```
 
-### 5. Update Parcel Status (Admin Only)
+### 5. Get Parcel Status Log
+
+**GET** `/parcels/507f1f77bcf86cd799439012/status-log`
+
+_Requires Authentication (Sender, Receiver, or Admin)_
+
+**Response (200):**
+
+```json
+{
+  "success": true,
+  "message": "Parcel status log retrieved successfully",
+  "data": {
+    "trackingId": "TRK-20240115-001234",
+    "statusHistory": [
+      {
+        "status": "requested",
+        "timestamp": "2024-01-15T10:30:00.000Z",
+        "updatedBy": "507f1f77bcf86cd799439011",
+        "updatedByType": "sender",
+        "location": "New York, NY",
+        "note": "Parcel created and requested for delivery"
+      },
+      {
+        "status": "approved",
+        "timestamp": "2024-01-15T11:00:00.000Z",
+        "updatedBy": "admin_id",
+        "updatedByType": "admin",
+        "location": "New York Distribution Center",
+        "note": "Parcel approved for shipment"
+      },
+      {
+        "status": "dispatched",
+        "timestamp": "2024-01-15T14:00:00.000Z",
+        "updatedBy": "admin_id",
+        "updatedByType": "admin",
+        "location": "New York Distribution Center",
+        "note": "Parcel dispatched from origin"
+      },
+      {
+        "status": "in-transit",
+        "timestamp": "2024-01-16T09:00:00.000Z",
+        "updatedBy": "delivery_agent_id",
+        "updatedByType": "delivery_agent",
+        "location": "Chicago Distribution Center",
+        "note": "Parcel in transit to destination"
+      }
+    ]
+  }
+}
+```
+
+### 6. Update Parcel Status (Admin Only)
 
 **PATCH** `/parcels/507f1f77bcf86cd799439012/status`
 
@@ -651,9 +703,9 @@ _Requires Admin Authentication_
 }
 ```
 
-### 6. Cancel Parcel (Sender Only)
+### 7. Cancel Parcel (Sender Only)
 
-**PATCH** `/parcels/507f1f77bcf86cd799439012/cancel`
+**PATCH** `/parcels/cancel/507f1f77bcf86cd799439012`
 
 _Requires Sender Authentication (Only if status is 'requested')_
 

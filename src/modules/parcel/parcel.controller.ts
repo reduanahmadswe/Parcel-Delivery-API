@@ -25,8 +25,9 @@ export class ParcelController {
         const { id } = req.params;
         const userId = (req as any).user.userId;
         const userRole = (req as any).user.role;
+        const userEmail = (req as any).user.email;
 
-        const parcel = await ParcelService.getParcelById(id, userId, userRole);
+        const parcel = await ParcelService.getParcelById(id, userId, userRole, userEmail);
 
         sendResponse(res, {
             statuscode: 200,
@@ -46,6 +47,23 @@ export class ParcelController {
             success: true,
             message: 'Parcel tracking information retrieved successfully',
             data: parcel
+        });
+    });
+
+    // Get parcel status log
+    static getParcelStatusLog = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+        const { id } = req.params;
+        const userId = (req as any).user.userId;
+        const userRole = (req as any).user.role;
+        const userEmail = (req as any).user.email;
+
+        const statusLog = await ParcelService.getParcelStatusLog(id, userId, userRole, userEmail);
+
+        sendResponse(res, {
+            statuscode: 200,
+            success: true,
+            message: 'Parcel status log retrieved successfully',
+            data: statusLog
         });
     });
 

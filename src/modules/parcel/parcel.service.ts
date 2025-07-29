@@ -86,7 +86,7 @@ export class ParcelService {
     }
 
     // Get parcel by ID
-    static async getParcelById(id: string, userId: string, userRole: string): Promise<IParcelResponse | null> {
+    static async getParcelById(id: string, userId: string, userRole: string, userEmail?: string): Promise<IParcelResponse | null> {
         if (!mongoose.Types.ObjectId.isValid(id)) {
             throw new AppError('Invalid parcel ID format', 400);
         }
@@ -98,12 +98,17 @@ export class ParcelService {
 
         // Check access permissions
         if (userRole !== 'admin') {
-            const hasAccess = parcel.senderId === userId ||
-                parcel.receiverId === userId ||
-                parcel.receiverInfo.email === userId; // For email tracking
+            // Convert ObjectIds to strings for proper comparison
+            const parcelSenderId = parcel.senderId?.toString();
+            const parcelReceiverId = parcel.receiverId?.toString();
+            const userIdString = userId?.toString();
+
+            const hasAccess = parcelSenderId === userIdString ||
+                parcelReceiverId === userIdString ||
+                (userEmail && parcel.receiverInfo.email === userEmail); // For email tracking
 
             if (!hasAccess) {
-                throw new AppError('Access denied', 403);
+                throw new AppError('Access denied: You can only view your own parcels', 403);
             }
         }
 
@@ -118,6 +123,39 @@ export class ParcelService {
         }
 
         return parcel.toJSON();
+    }
+
+    // Get parcel status log
+    static async getParcelStatusLog(id: string, userId: string, userRole: string, userEmail?: string): Promise<{ trackingId: string; statusHistory: any[] }> {
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            throw new AppError('Invalid parcel ID format', 400);
+        }
+
+        const parcel = await Parcel.findById(id).select('trackingId statusHistory senderId receiverId receiverInfo.email');
+        if (!parcel) {
+            throw new AppError('Parcel not found', 404);
+        }
+
+        // Check access permissions
+        if (userRole !== 'admin') {
+            // Convert ObjectIds to strings for proper comparison
+            const parcelSenderId = parcel.senderId?.toString();
+            const parcelReceiverId = parcel.receiverId?.toString();
+            const userIdString = userId?.toString();
+
+            const hasAccess = parcelSenderId === userIdString ||
+                parcelReceiverId === userIdString ||
+                (userEmail && parcel.receiverInfo.email === userEmail); // For email tracking
+
+            if (!hasAccess) {
+                throw new AppError('Access denied: You can only view status logs of your own parcels', 403);
+            }
+        }
+
+        return {
+            trackingId: parcel.trackingId,
+            statusHistory: parcel.statusHistory
+        };
     }
 
     // Get user's parcels
@@ -292,12 +330,20 @@ export class ParcelService {
 
         // Role-based permissions for status updates
         if (userRole === 'sender') {
+            // Check if the user is the sender of this parcel
+            if (parcel.senderId.toString() !== updatedBy.toString()) {
+                throw new AppError('Access denied: You can only update your own parcels', 403);
+            }
             // Senders can only cancel if not dispatched
             if (statusData.status !== 'cancelled' ||
                 ['dispatched', 'in-transit', 'delivered', 'returned'].includes(parcel.currentStatus)) {
                 throw new AppError('Senders can only cancel parcels that are not yet dispatched', 403);
             }
         } else if (userRole === 'receiver') {
+            // Check if the user is the receiver of this parcel
+            if (parcel.receiverId?.toString() !== updatedBy.toString()) {
+                throw new AppError('Access denied: You can only update parcels addressed to you', 403);
+            }
             // Block all receiver actions on returned parcels
             if (parcel.currentStatus === 'returned') {
                 throw new AppError('Cannot perform actions on returned parcels', 403);

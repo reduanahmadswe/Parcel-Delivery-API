@@ -34,7 +34,7 @@ router.post('/',
     ParcelController.createParcel
 );
 
-router.patch('/:id/cancel',
+router.patch('/cancel/:id',
     authorize('sender'),
     validateRequest(parcelIdValidation),
     ParcelController.cancelParcel
@@ -58,6 +58,12 @@ router.get('/:id',
     authorize('sender', 'receiver', 'admin'),
     validateRequest(parcelIdValidation),
     ParcelController.getParcelById
+);
+
+router.get('/:id/status-log',
+    authorize('sender', 'receiver', 'admin'),
+    validateRequest(parcelIdValidation),
+    ParcelController.getParcelStatusLog
 );
 
 // Admin routes
