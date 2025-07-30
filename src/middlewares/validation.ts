@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextFunction, Request, Response } from 'express';
 import { ZodSchema } from 'zod';
 
@@ -7,7 +8,7 @@ export const validateRequest = (schema: ZodSchema) => {
             const validation = schema.safeParse({
                 body: req.body,
                 params: req.params,
-                query: req.query
+                query: req.query,
             });
 
             if (!validation.success) {

@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import * as jwt from 'jsonwebtoken';
 import { IUser } from '../modules/user/user.interface';
 import { User } from '../modules/user/user.model';
@@ -12,7 +14,7 @@ export const createUserTokens = (user: Partial<IUser>) => {
     const jwtPayload: IJWTPayload = {
         userId: user._id!,
         email: user.email!,
-        role: user.role!
+        role: user.role!,
     };
 
     const accessSecret = process.env.JWT_ACCESS_SECRET || 'access-secret';
@@ -26,7 +28,7 @@ export const createUserTokens = (user: Partial<IUser>) => {
 
     return {
         accessToken,
-        refreshToken
+        refreshToken,
     };
 };
 
@@ -51,7 +53,7 @@ export const createNewAccessTokenWithRefreshToken = async (refreshToken: string)
         const jwtPayload: IJWTPayload = {
             userId: isUserExist._id,
             email: isUserExist.email,
-            role: isUserExist.role
+            role: isUserExist.role,
         };
 
         const accessSecret = process.env.JWT_ACCESS_SECRET || 'access-secret';

@@ -1,4 +1,4 @@
-import { Response } from "express";
+import { Response } from 'express';
 
 interface TMeta {
     total?: number;
@@ -22,6 +22,6 @@ export const sendResponse = <T>(res: Response, data: TResponse<T>) => {
         success: data.success,
         message: data.message,
         meta: data.meta,
-        data: data.data
-    })
-}
+        data: data.data,
+    });
+};

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import mongoose from 'mongoose';
 import { AppError } from '../../utils/AppError';
 import { ICreateUser, IUpdateUser, IUser, IUserResponse } from './user.interface';
@@ -45,7 +46,7 @@ export class UserService {
         const user = await User.findByIdAndUpdate(
             id,
             { $set: updateData },
-            { new: true, runValidators: true }
+            { new: true, runValidators: true },
         );
 
         if (!user) {
@@ -57,11 +58,11 @@ export class UserService {
 
     // Get all users (admin only)
     static async getAllUsers(
-        page: number = 1,
-        limit: number = 10,
+        page = 1,
+        limit = 10,
         role?: string,
         isBlocked?: boolean,
-        excludeAdminId?: string
+        excludeAdminId?: string,
     ): Promise<{ users: IUserResponse[]; totalCount: number; totalPages: number }> {
         const skip = (page - 1) * limit;
         const filter: any = {};
@@ -85,7 +86,7 @@ export class UserService {
                 .sort({ createdAt: -1 })
                 .skip(skip)
                 .limit(limit),
-            User.countDocuments(filter)
+            User.countDocuments(filter),
         ]);
 
         const totalPages = Math.ceil(totalCount / limit);
@@ -93,7 +94,7 @@ export class UserService {
         return {
             users: users.map(user => user.toJSON()),
             totalCount,
-            totalPages
+            totalPages,
         };
     }
 
@@ -106,7 +107,7 @@ export class UserService {
         const user = await User.findByIdAndUpdate(
             id,
             { isBlocked },
-            { new: true, runValidators: true }
+            { new: true, runValidators: true },
         );
 
         if (!user) {
@@ -143,22 +144,22 @@ export class UserService {
                     _id: null,
                     totalUsers: { $sum: 1 },
                     senders: {
-                        $sum: { $cond: [{ $eq: ['$role', 'sender'] }, 1, 0] }
+                        $sum: { $cond: [{ $eq: ['$role', 'sender'] }, 1, 0] },
                     },
                     receivers: {
-                        $sum: { $cond: [{ $eq: ['$role', 'receiver'] }, 1, 0] }
+                        $sum: { $cond: [{ $eq: ['$role', 'receiver'] }, 1, 0] },
                     },
                     admins: {
-                        $sum: { $cond: [{ $eq: ['$role', 'admin'] }, 1, 0] }
+                        $sum: { $cond: [{ $eq: ['$role', 'admin'] }, 1, 0] },
                     },
                     blockedUsers: {
-                        $sum: { $cond: ['$isBlocked', 1, 0] }
+                        $sum: { $cond: ['$isBlocked', 1, 0] },
                     },
                     verifiedUsers: {
-                        $sum: { $cond: ['$isVerified', 1, 0] }
-                    }
-                }
-            }
+                        $sum: { $cond: ['$isVerified', 1, 0] },
+                    },
+                },
+            },
         ]);
 
         return stats[0] || {
@@ -167,7 +168,7 @@ export class UserService {
             receivers: 0,
             admins: 0,
             blockedUsers: 0,
-            verifiedUsers: 0
+            verifiedUsers: 0,
         };
     }
 }

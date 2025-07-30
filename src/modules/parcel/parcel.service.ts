@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import mongoose from 'mongoose';
 import { AppError } from '../../utils/AppError';
 import { User } from '../user/user.model';
@@ -45,7 +47,7 @@ export class ParcelService {
                             name: sender.name,
                             email: sender.email,
                             phone: sender.phone,
-                            address: sender.address
+                            address: sender.address,
                         },
                         receiverInfo: parcelData.receiverInfo,
                         parcelDetails: parcelData.parcelDetails,
@@ -55,8 +57,8 @@ export class ParcelService {
                             weightFee: 0,
                             urgentFee: 0,
                             totalFee: 0,
-                            isPaid: false
-                        }
+                            isPaid: false,
+                        },
                     });
 
                     await parcel.save({ session });
@@ -154,7 +156,7 @@ export class ParcelService {
 
         return {
             trackingId: parcel.trackingId,
-            statusHistory: parcel.statusHistory
+            statusHistory: parcel.statusHistory,
         };
     }
 
@@ -163,12 +165,12 @@ export class ParcelService {
         userId: string,
         userRole: string,
         userEmail: string,
-        page: number = 1,
-        limit: number = 10,
+        page = 1,
+        limit = 10,
         status?: string,
         isUrgent?: boolean,
         startDate?: Date,
-        endDate?: Date
+        endDate?: Date,
     ): Promise<{ parcels: IParcelResponse[]; totalCount: number; totalPages: number }> {
         const skip = (page - 1) * limit;
         const filter: any = {};
@@ -201,7 +203,7 @@ export class ParcelService {
                 .sort({ createdAt: -1 })
                 .skip(skip)
                 .limit(limit),
-            Parcel.countDocuments(filter)
+            Parcel.countDocuments(filter),
         ]);
 
         const totalPages = Math.ceil(totalCount / limit);
@@ -209,14 +211,14 @@ export class ParcelService {
         return {
             parcels: parcels.map(parcel => parcel.toJSON()),
             totalCount,
-            totalPages
+            totalPages,
         };
     }
 
     // Get all parcels (admin only)
     static async getAllParcels(
-        page: number = 1,
-        limit: number = 10,
+        page = 1,
+        limit = 10,
         status?: string,
         isUrgent?: boolean,
         startDate?: Date,
@@ -228,7 +230,7 @@ export class ParcelService {
         receiverEmail?: string,
         isFlagged?: boolean,
         isHeld?: boolean,
-        isBlocked?: boolean
+        isBlocked?: boolean,
     ): Promise<{ parcels: IParcelResponse[]; totalCount: number; totalPages: number }> {
         const skip = (page - 1) * limit;
         const filter: any = {};
@@ -268,7 +270,7 @@ export class ParcelService {
                 { trackingId: { $regex: search, $options: 'i' } },
                 { 'senderInfo.name': { $regex: search, $options: 'i' } },
                 { 'receiverInfo.name': { $regex: search, $options: 'i' } },
-                { 'parcelDetails.description': { $regex: search, $options: 'i' } }
+                { 'parcelDetails.description': { $regex: search, $options: 'i' } },
             ];
         }
 
@@ -294,7 +296,7 @@ export class ParcelService {
                 .sort({ createdAt: -1 })
                 .skip(skip)
                 .limit(limit),
-            Parcel.countDocuments(filter)
+            Parcel.countDocuments(filter),
         ]);
 
         const totalPages = Math.ceil(totalCount / limit);
@@ -302,7 +304,7 @@ export class ParcelService {
         return {
             parcels: parcels.map(parcel => parcel.toJSON()),
             totalCount,
-            totalPages
+            totalPages,
         };
     }
 
@@ -311,7 +313,7 @@ export class ParcelService {
         id: string,
         statusData: IUpdateParcelStatus,
         updatedBy: string,
-        userRole: string
+        userRole: string,
     ): Promise<IParcelResponse> {
         if (!mongoose.Types.ObjectId.isValid(id)) {
             throw new AppError('Invalid parcel ID format', 400);
@@ -361,7 +363,7 @@ export class ParcelService {
             timestamp: new Date(),
             updatedBy,
             location: statusData.location,
-            note: statusData.note
+            note: statusData.note,
         });
 
         await parcel.save();
@@ -398,7 +400,7 @@ export class ParcelService {
 
         return this.updateParcelStatus(id, {
             status: 'cancelled',
-            note: note || 'Cancelled by sender'
+            note: note || 'Cancelled by sender',
         }, senderId, 'sender');
     }
 
@@ -411,7 +413,7 @@ export class ParcelService {
         const parcel = await Parcel.findByIdAndUpdate(
             id,
             { isBlocked },
-            { new: true, runValidators: true }
+            { new: true, runValidators: true },
         );
 
         if (!parcel) {
@@ -442,7 +444,7 @@ export class ParcelService {
             status: parcel.currentStatus as any,
             timestamp: new Date(),
             updatedBy: 'admin',
-            note: `Delivery personnel assigned: ${deliveryPersonnel}`
+            note: `Delivery personnel assigned: ${deliveryPersonnel}`,
         });
 
         await parcel.save();
@@ -469,37 +471,37 @@ export class ParcelService {
                     _id: null,
                     totalParcels: { $sum: 1 },
                     requested: {
-                        $sum: { $cond: [{ $eq: ['$currentStatus', 'requested'] }, 1, 0] }
+                        $sum: { $cond: [{ $eq: ['$currentStatus', 'requested'] }, 1, 0] },
                     },
                     approved: {
-                        $sum: { $cond: [{ $eq: ['$currentStatus', 'approved'] }, 1, 0] }
+                        $sum: { $cond: [{ $eq: ['$currentStatus', 'approved'] }, 1, 0] },
                     },
                     dispatched: {
-                        $sum: { $cond: [{ $eq: ['$currentStatus', 'dispatched'] }, 1, 0] }
+                        $sum: { $cond: [{ $eq: ['$currentStatus', 'dispatched'] }, 1, 0] },
                     },
                     inTransit: {
-                        $sum: { $cond: [{ $eq: ['$currentStatus', 'in-transit'] }, 1, 0] }
+                        $sum: { $cond: [{ $eq: ['$currentStatus', 'in-transit'] }, 1, 0] },
                     },
                     delivered: {
-                        $sum: { $cond: [{ $eq: ['$currentStatus', 'delivered'] }, 1, 0] }
+                        $sum: { $cond: [{ $eq: ['$currentStatus', 'delivered'] }, 1, 0] },
                     },
                     cancelled: {
-                        $sum: { $cond: [{ $eq: ['$currentStatus', 'cancelled'] }, 1, 0] }
+                        $sum: { $cond: [{ $eq: ['$currentStatus', 'cancelled'] }, 1, 0] },
                     },
                     returned: {
-                        $sum: { $cond: [{ $eq: ['$currentStatus', 'returned'] }, 1, 0] }
+                        $sum: { $cond: [{ $eq: ['$currentStatus', 'returned'] }, 1, 0] },
                     },
                     urgentParcels: {
-                        $sum: { $cond: ['$deliveryInfo.isUrgent', 1, 0] }
+                        $sum: { $cond: ['$deliveryInfo.isUrgent', 1, 0] },
                     },
                     blockedParcels: {
-                        $sum: { $cond: ['$isBlocked', 1, 0] }
+                        $sum: { $cond: ['$isBlocked', 1, 0] },
                     },
                     totalRevenue: {
-                        $sum: { $cond: ['$fee.isPaid', '$fee.totalFee', 0] }
-                    }
-                }
-            }
+                        $sum: { $cond: ['$fee.isPaid', '$fee.totalFee', 0] },
+                    },
+                },
+            },
         ]);
 
         return stats[0] || {
@@ -513,7 +515,7 @@ export class ParcelService {
             returned: 0,
             urgentParcels: 0,
             blockedParcels: 0,
-            totalRevenue: 0
+            totalRevenue: 0,
         };
     }
 
@@ -529,7 +531,7 @@ export class ParcelService {
             status: isFlagged ? 'flagged' : 'unflagged',
             timestamp: new Date(),
             updatedBy: adminId,
-            note: note || (isFlagged ? 'Parcel flagged by admin' : 'Parcel unflagged by admin')
+            note: note || (isFlagged ? 'Parcel flagged by admin' : 'Parcel unflagged by admin'),
         };
 
         parcel.isFlagged = isFlagged;
@@ -551,7 +553,7 @@ export class ParcelService {
             status: isHeld ? 'held' : 'unheld',
             timestamp: new Date(),
             updatedBy: adminId,
-            note: note || (isHeld ? 'Parcel held by admin' : 'Parcel unheld by admin')
+            note: note || (isHeld ? 'Parcel held by admin' : 'Parcel unheld by admin'),
         };
 
         parcel.isHeld = isHeld;
@@ -573,7 +575,7 @@ export class ParcelService {
             status: 'unblocked',
             timestamp: new Date(),
             updatedBy: adminId,
-            note: note || 'Parcel unblocked by admin'
+            note: note || 'Parcel unblocked by admin',
         };
 
         parcel.isBlocked = false;
@@ -587,20 +589,20 @@ export class ParcelService {
 
     // Validate status transition
     private static validateStatusTransition(currentStatus: string, newStatus: string): void {
-        const validTransitions: { [key: string]: string[] } = {
+        const validTransitions: Record<string, string[]> = {
             'requested': ['approved', 'cancelled'],
             'approved': ['dispatched', 'cancelled'],
             'dispatched': ['in-transit', 'returned'],
             'in-transit': ['delivered', 'returned'],
             'delivered': [],
             'cancelled': [],
-            'returned': ['dispatched']
+            'returned': ['dispatched'],
         };
 
         if (!validTransitions[currentStatus]?.includes(newStatus)) {
             throw new AppError(
                 `Invalid status transition from ${currentStatus} to ${newStatus}`,
-                400
+                400,
             );
         }
     }
@@ -658,7 +660,7 @@ export class ParcelService {
             status: 'returned',
             timestamp: new Date(),
             updatedBy: adminId,
-            note: note || 'Parcel returned'
+            note: note || 'Parcel returned',
         });
 
         await parcel.save();

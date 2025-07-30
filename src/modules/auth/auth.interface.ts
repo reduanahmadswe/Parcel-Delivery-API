@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-empty-object-type */
 import { ICreateUser } from '../user/user.interface';
 
 export interface IAuthResponse {

@@ -30,9 +30,9 @@ const seedAdmin = async () => {
                 city: 'Dhaka',
                 state: 'Dhaka Division',
                 zipCode: '1000',
-                country: 'Bangladesh'
+                country: 'Bangladesh',
             },
-            isVerified: true
+            isVerified: true,
         });
 
         await adminUser.save();

@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { NextFunction, Request, Response } from 'express';
 import { AppError } from '../../utils/AppError';
 import { catchAsync } from '../../utils/catchAsync';
@@ -6,9 +8,9 @@ import { sendResponse } from '../../utils/sendResponse';
 import { UserService } from './user.service';
 
 // Extend Request interface locally for authenticated requests
-interface AuthenticatedRequest extends Request {
-    user: IJWTPayload;
-}
+// interface AuthenticatedRequest extends Request {
+//     user: IJWTPayload;
+// }
 
 export class UserController {
     // Get current user profile
@@ -20,7 +22,7 @@ export class UserController {
             statuscode: 200,
             success: true,
             message: 'Profile retrieved successfully',
-            data: user
+            data: user,
         });
     });
 
@@ -35,7 +37,7 @@ export class UserController {
             statuscode: 200,
             success: true,
             message: 'Profile updated successfully',
-            data: updatedUser
+            data: updatedUser,
         });
     });
 
@@ -59,8 +61,8 @@ export class UserController {
                 page: page,
                 limit: limit,
                 total: result.totalCount,
-                totalPages: result.totalPages
-            }
+                totalPages: result.totalPages,
+            },
         });
     });
 
@@ -73,7 +75,7 @@ export class UserController {
             statuscode: 200,
             success: true,
             message: 'User retrieved successfully',
-            data: user
+            data: user,
         });
     });
 
@@ -88,7 +90,7 @@ export class UserController {
             statuscode: 200,
             success: true,
             message: 'User updated successfully',
-            data: updatedUser
+            data: updatedUser,
         });
     });
 
@@ -107,7 +109,7 @@ export class UserController {
             statuscode: 200,
             success: true,
             message: `User ${isBlocked ? 'blocked' : 'unblocked'} successfully`,
-            data: updatedUser
+            data: updatedUser,
         });
     });
 
@@ -120,7 +122,7 @@ export class UserController {
             statuscode: 200,
             success: true,
             message: 'User deleted successfully',
-            data: null
+            data: null,
         });
     });
 
@@ -132,7 +134,7 @@ export class UserController {
             statuscode: 200,
             success: true,
             message: 'User statistics retrieved successfully',
-            data: stats
+            data: stats,
         });
     });
 }

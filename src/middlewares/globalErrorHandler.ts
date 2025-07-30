@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { TErrorSources } from '@/types/error.types';
 import { NextFunction, Request, Response } from 'express';
 import { handleCastError } from '../helpers/handleCastError';
@@ -11,7 +13,7 @@ export const globalErrorHandler = (
     error: Error,
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
 ): void => {
     let statusCode = 500;
     let message = 'Internal Server Error';
@@ -45,7 +47,7 @@ export const globalErrorHandler = (
         statusCode = 401;
         message = 'Token has expired';
     } 
-    else if (error.name === "ZodError") {
+    else if (error.name === 'ZodError') {
         const simplifiedError = handlerZodError(error);
         statusCode = simplifiedError.statusCode;
         message = simplifiedError.message;
@@ -64,7 +66,7 @@ export const globalErrorHandler = (
         message,
         data: {
             errorSources: errorSources.length > 0 ? errorSources : undefined,
-            ...(process.env.NODE_ENV === 'development' && { stack: error.stack })
-        }
+            ...(process.env.NODE_ENV === 'development' && { stack: error.stack }),
+        },
     });
 };

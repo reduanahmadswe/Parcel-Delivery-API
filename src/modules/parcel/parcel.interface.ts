@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Document } from 'mongoose';
 
 export interface IStatusLog {

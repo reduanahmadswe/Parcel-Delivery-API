@@ -7,10 +7,12 @@
     "start": "node dist/server.js",
     "dev": "nodemon src/server.ts",
     "clean": "rimraf dist",
+    "lint": "npx eslint ./src",
+    "lint:fix": "npx eslint ./src --fix",
+    "lint:check": "npx eslint ./src --max-warnings 0",
     "prebuild": "npm run clean",
     "postbuild": "echo Build completed successfully",
     "seed:admin": "ts-node src/scripts/seedAdmin.ts",
-    "lint": "echo No linting configured",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -35,6 +37,7 @@
     "zod": "^4.0.10"
   },
   "devDependencies": {
+    "@eslint/js": "^9.32.0",
     "@types/bcryptjs": "^2.4.6",
     "@types/cookie-parser": "^1.4.9",
     "@types/cors": "^2.8.19",
@@ -42,9 +45,15 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/mongoose": "^5.11.96",
     "@types/node": "^24.1.0",
+    "@typescript-eslint/eslint-plugin": "^8.38.0",
+    "@typescript-eslint/parser": "^8.38.0",
+    "eslint": "^9.32.0",
+    "eslint-plugin-react": "^7.37.5",
+    "globals": "^16.3.0",
     "nodemon": "^3.1.10",
     "rimraf": "^6.0.1",
     "ts-node": "^10.9.2",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.38.0"
   }
 }

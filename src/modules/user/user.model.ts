@@ -1,3 +1,4 @@
+/* eslint-disable no-useless-escape */
 import bcrypt from 'bcryptjs';
 import { Schema, model } from 'mongoose';
 import { IUser } from './user.interface';
@@ -6,29 +7,29 @@ const addressSchema = new Schema({
     street: {
         type: String,
         required: [true, 'Street address is required'],
-        trim: true
+        trim: true,
     },
     city: {
         type: String,
         required: [true, 'City is required'],
-        trim: true
+        trim: true,
     },
     state: {
         type: String,
         required: [true, 'State is required'],
-        trim: true
+        trim: true,
     },
     zipCode: {
         type: String,
         required: [true, 'ZIP code is required'],
-        trim: true
+        trim: true,
     },
     country: {
         type: String,
         required: [true, 'Country is required'],
         trim: true,
-        default: 'Bangladesh'
-    }
+        default: 'Bangladesh',
+    },
 }, { _id: false });
 
 const userSchema = new Schema<IUser>({
@@ -38,47 +39,47 @@ const userSchema = new Schema<IUser>({
         unique: true,
         lowercase: true,
         trim: true,
-        match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, 'Please enter a valid email']
+        match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, 'Please enter a valid email'],
     },
     password: {
         type: String,
         required: [true, 'Password is required'],
         minlength: [6, 'Password must be at least 6 characters'],
-        select: false
+        select: false,
     },
     name: {
         type: String,
         required: [true, 'Name is required'],
         trim: true,
-        maxlength: [100, 'Name cannot exceed 100 characters']
+        maxlength: [100, 'Name cannot exceed 100 characters'],
     },
     phone: {
         type: String,
         required: [true, 'Phone number is required'],
         trim: true,
-        match: [/^[\+]?[1-9][\d]{0,15}$/, 'Please enter a valid phone number']
+        match: [/^[\+]?[1-9][\d]{0,15}$/, 'Please enter a valid phone number'],
     },
     role: {
         type: String,
         enum: ['admin', 'sender', 'receiver'],
         required: [true, 'Role is required'],
-        default: 'receiver'
+        default: 'receiver',
     },
     address: {
         type: addressSchema,
-        required: [true, 'Address is required']
+        required: [true, 'Address is required'],
     },
     isBlocked: {
         type: Boolean,
-        default: false
+        default: false,
     },
     isVerified: {
         type: Boolean,
-        default: false
-    }
+        default: false,
+    },
 }, {
     timestamps: true,
-    versionKey: false
+    versionKey: false,
 });
 
 // Index for better query performance

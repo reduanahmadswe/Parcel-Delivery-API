@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextFunction, Request, Response } from 'express';
 import * as jwt from 'jsonwebtoken';
 import { UserService } from '../modules/user/user.service';
@@ -6,9 +7,9 @@ import { catchAsync } from '../utils/catchAsync';
 import { IJWTPayload } from '../utils/helpers';
 
 // Extend Request interface locally
-interface AuthenticatedRequest extends Request {
-    user: IJWTPayload;
-}
+// interface AuthenticatedRequest extends Request {
+//     user: IJWTPayload;
+// }
 
 export const authenticate = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const authHeader = req.headers.authorization;
@@ -33,7 +34,7 @@ export const authenticate = catchAsync(async (req: Request, res: Response, next:
     (req as any).user = {
         userId: user._id,
         email: user.email,
-        role: user.role
+        role: user.role,
     };
 
     next();

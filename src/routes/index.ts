@@ -9,16 +9,16 @@ const router = Router();
 const moduleRoutes = [
     {
         path: '/auth',
-        route: authRoutes
+        route: authRoutes,
     },
     {
         path: '/users',
-        route: userRoutes
+        route: userRoutes,
     },
     {
         path: '/parcels',
-        route: parcelRoutes
-    }
+        route: parcelRoutes,
+    },
 ];
 
 // Register all module routes

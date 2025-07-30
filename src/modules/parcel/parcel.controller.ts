@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { NextFunction, Request, Response } from 'express';
 import { AppError } from '../../utils/AppError';
 import { catchAsync } from '../../utils/catchAsync';
@@ -16,7 +18,7 @@ export class ParcelController {
             statuscode: 201,
             success: true,
             message: 'Parcel created successfully',
-            data: parcel
+            data: parcel,
         });
     });
 
@@ -33,7 +35,7 @@ export class ParcelController {
             statuscode: 200,
             success: true,
             message: 'Parcel retrieved successfully',
-            data: parcel
+            data: parcel,
         });
     });
 
@@ -46,7 +48,7 @@ export class ParcelController {
             statuscode: 200,
             success: true,
             message: 'Parcel tracking information retrieved successfully',
-            data: parcel
+            data: parcel,
         });
     });
 
@@ -63,7 +65,7 @@ export class ParcelController {
             statuscode: 200,
             success: true,
             message: 'Parcel status log retrieved successfully',
-            data: statusLog
+            data: statusLog,
         });
     });
 
@@ -83,7 +85,7 @@ export class ParcelController {
             status,
             isUrgent,
             startDate,
-            endDate
+            endDate,
         );
 
         sendResponse(res, {
@@ -95,13 +97,13 @@ export class ParcelController {
                 page: page || 1,
                 limit: limit || 10,
                 total: result.totalCount,
-                totalPages: result.totalPages
-            }
+                totalPages: result.totalPages,
+            },
         });
     });
 
     // Get all parcels (admin only)
-    static getAllParcels = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    static getAllParcels = catchAsync(async (req: Request, res: Response) => {
         const {
             page,
             limit,
@@ -116,7 +118,7 @@ export class ParcelController {
             receiverEmail,
             isFlagged,
             isHeld,
-            isBlocked
+            isBlocked,
         } = req.query as any;
 
         const result = await ParcelService.getAllParcels(
@@ -133,7 +135,7 @@ export class ParcelController {
             receiverEmail,
             isFlagged,
             isHeld,
-            isBlocked
+            isBlocked,
         );
 
         res.status(200).json({
@@ -144,13 +146,13 @@ export class ParcelController {
                 currentPage: page || 1,
                 totalPages: result.totalPages,
                 totalCount: result.totalCount,
-                limit: limit || 10
-            }
+                limit: limit || 10,
+            },
         });
     });
 
     // Update parcel status
-    static updateParcelStatus = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    static updateParcelStatus = catchAsync(async (req: Request, res: Response) => {
         const { id } = req.params;
         const statusData = req.body;
         const updatedBy = (req as any).user.userId;
@@ -161,12 +163,12 @@ export class ParcelController {
         res.status(200).json({
             success: true,
             message: 'Parcel status updated successfully',
-            data: parcel
+            data: parcel,
         });
     });
 
     // Cancel parcel (sender only)
-    static cancelParcel = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    static cancelParcel = catchAsync(async (req: Request, res: Response) => {
         const { id } = req.params;
         const senderId = (req as any).user.userId;
         const { note } = req.body;
@@ -177,12 +179,12 @@ export class ParcelController {
             statuscode: 200,
             success: true,
             message: 'Parcel cancelled successfully',
-            data: parcel
+            data: parcel,
         });
     });
 
     // Block/Unblock parcel (admin only)
-    static toggleParcelBlockStatus = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    static toggleParcelBlockStatus = catchAsync(async (req: Request, res: Response) => {
         const { id } = req.params;
         const { isBlocked } = req.body;
 
@@ -195,7 +197,7 @@ export class ParcelController {
         res.status(200).json({
             success: true,
             message: `Parcel ${isBlocked ? 'blocked' : 'unblocked'} successfully`,
-            data: parcel
+            data: parcel,
         });
     });
 
@@ -206,7 +208,7 @@ export class ParcelController {
         res.status(200).json({
             success: true,
             message: 'Parcel statistics retrieved successfully',
-            data: stats
+            data: stats,
         });
     });
 
@@ -220,16 +222,16 @@ export class ParcelController {
             id,
             {
                 status: 'delivered',
-                note: note || 'Delivery confirmed by receiver'
+                note: note || 'Delivery confirmed by receiver',
             },
             receiverId,
-            'receiver'
+            'receiver',
         );
 
         res.status(200).json({
             success: true,
             message: 'Delivery confirmed successfully',
-            data: parcel
+            data: parcel,
         });
     });
 
@@ -248,7 +250,7 @@ export class ParcelController {
             statuscode: 200,
             success: true,
             message: 'Delivery personnel assigned successfully',
-            data: parcel
+            data: parcel,
         });
     });
 
@@ -264,7 +266,7 @@ export class ParcelController {
             statuscode: 200,
             success: true,
             message: `Parcel ${isFlagged ? 'flagged' : 'unflagged'} successfully`,
-            data: parcel
+            data: parcel,
         });
     });
 
@@ -280,7 +282,7 @@ export class ParcelController {
             statuscode: 200,
             success: true,
             message: `Parcel ${isHeld ? 'held' : 'unheld'} successfully`,
-            data: parcel
+            data: parcel,
         });
     });
 
@@ -296,7 +298,7 @@ export class ParcelController {
             statuscode: 200,
             success: true,
             message: 'Parcel unblocked successfully',
-            data: parcel
+            data: parcel,
         });
     });
 
@@ -312,7 +314,7 @@ export class ParcelController {
             statuscode: 200,
             success: true,
             message: 'Parcel marked as returned successfully',
-            data: parcel
+            data: parcel,
         });
     });
 
@@ -325,7 +327,7 @@ export class ParcelController {
             statuscode: 200,
             success: true,
             message: 'Parcel deleted successfully',
-            data: null
+            data: null,
         });
     });
 }

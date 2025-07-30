@@ -19,10 +19,10 @@ export class AuthService {
                 name: user.name,
                 role: user.role,
                 isBlocked: user.isBlocked,
-                isVerified: user.isVerified
+                isVerified: user.isVerified,
             },
             accessToken: tokens.accessToken,
-            refreshToken: tokens.refreshToken
+            refreshToken: tokens.refreshToken,
         };
     }
 
@@ -57,10 +57,10 @@ export class AuthService {
                 name: user.name,
                 role: user.role,
                 isBlocked: user.isBlocked,
-                isVerified: user.isVerified
+                isVerified: user.isVerified,
             },
             accessToken: tokens.accessToken,
-            refreshToken: tokens.refreshToken
+            refreshToken: tokens.refreshToken,
         };
     }
 

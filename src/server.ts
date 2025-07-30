@@ -1,4 +1,5 @@
-import { Server } from "http";
+/* eslint-disable no-console */
+import { Server } from 'http';
 import app from './app';
 import { connectDB } from './config/database';
 
@@ -28,8 +29,8 @@ const startServer = async () => {
  */
 
 // Unhandled promise rejection
-process.on("unhandledRejection", (error) => {
-    console.log("Unhandled rejection detected .. server shutting down..", error);
+process.on('unhandledRejection', (error) => {
+    console.log('Unhandled rejection detected .. server shutting down..', error);
 
     if (server) {
         server.close(() => {
@@ -41,8 +42,8 @@ process.on("unhandledRejection", (error) => {
 });
 
 // Uncaught exception
-process.on("uncaughtException", (error) => {
-    console.log("Uncaught exception detected... server shutting down..", error);
+process.on('uncaughtException', (error) => {
+    console.log('Uncaught exception detected... server shutting down..', error);
 
     if (server) {
         server.close(() => {
@@ -54,8 +55,8 @@ process.on("uncaughtException", (error) => {
 });
 
 // Graceful shutdown (SIGTERM)
-process.on("SIGTERM", (error) => {
-    console.log("SIGTERM signal received... server shutting down..", error);
+process.on('SIGTERM', (error) => {
+    console.log('SIGTERM signal received... server shutting down..', error);
 
     if (server) {
         server.close(() => {

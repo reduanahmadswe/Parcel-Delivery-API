@@ -13,7 +13,7 @@ import {
     toggleParcelBlockStatusValidation,
     trackingIdValidation,
     unblockParcelValidation,
-    updateParcelStatusValidation
+    updateParcelStatusValidation,
 } from './parcel.validation';
 
 const router = Router();
@@ -21,7 +21,7 @@ const router = Router();
 // Public routes
 router.get('/track/:trackingId',
     validateRequest(trackingIdValidation),
-    ParcelController.getParcelByTrackingId
+    ParcelController.getParcelByTrackingId,
 );
 
 // Protected routes
@@ -31,39 +31,39 @@ router.use(authenticate);
 router.post('/',
     authorize('sender'),
     validateRequest(createParcelValidation),
-    ParcelController.createParcel
+    ParcelController.createParcel,
 );
 
 router.patch('/cancel/:id',
     authorize('sender'),
     validateRequest(parcelIdValidation),
-    ParcelController.cancelParcel
+    ParcelController.cancelParcel,
 );
 
 // Receiver routes
 router.patch('/:id/confirm-delivery',
     authorize('receiver'),
     validateRequest(parcelIdValidation),
-    ParcelController.confirmDelivery
+    ParcelController.confirmDelivery,
 );
 
 // Shared routes (sender and receiver)
 router.get('/me',
     authorize('sender', 'receiver'),
     validateRequest(parcelQueryValidation),
-    ParcelController.getMyParcels
+    ParcelController.getMyParcels,
 );
 
 router.get('/:id',
     authorize('sender', 'receiver', 'admin'),
     validateRequest(parcelIdValidation),
-    ParcelController.getParcelById
+    ParcelController.getParcelById,
 );
 
 router.get('/:id/status-log',
     authorize('sender', 'receiver', 'admin'),
     validateRequest(parcelIdValidation),
-    ParcelController.getParcelStatusLog
+    ParcelController.getParcelStatusLog,
 );
 
 // Admin routes
@@ -71,58 +71,58 @@ router.use(authorize('admin'));
 
 router.get('/',
     validateRequest(parcelQueryValidation),
-    ParcelController.getAllParcels
+    ParcelController.getAllParcels,
 );
 
 router.get('/admin/stats',
-    ParcelController.getParcelStats
+    ParcelController.getParcelStats,
 );
 
 router.patch('/:id/status',
     validateRequest(parcelIdValidation),
     validateRequest(updateParcelStatusValidation),
-    ParcelController.updateParcelStatus
+    ParcelController.updateParcelStatus,
 );
 
 router.patch('/:id/block-status',
     validateRequest(parcelIdValidation),
     validateRequest(toggleParcelBlockStatusValidation),
-    ParcelController.toggleParcelBlockStatus
+    ParcelController.toggleParcelBlockStatus,
 );
 
 router.patch('/:id/assign-personnel',
     validateRequest(parcelIdValidation),
     validateRequest(assignDeliveryPersonnelValidation),
-    ParcelController.assignDeliveryPersonnel
+    ParcelController.assignDeliveryPersonnel,
 );
 
 router.patch('/:id/flag',
     validateRequest(parcelIdValidation),
     validateRequest(flagParcelValidation),
-    ParcelController.flagParcel
+    ParcelController.flagParcel,
 );
 
 router.patch('/:id/hold',
     validateRequest(parcelIdValidation),
     validateRequest(holdParcelValidation),
-    ParcelController.holdParcel
+    ParcelController.holdParcel,
 );
 
 router.patch('/:id/unblock',
     validateRequest(parcelIdValidation),
     validateRequest(unblockParcelValidation),
-    ParcelController.unblockParcel
+    ParcelController.unblockParcel,
 );
 
 router.patch('/:id/return',
     validateRequest(parcelIdValidation),
     validateRequest(returnParcelValidation),
-    ParcelController.returnParcel
+    ParcelController.returnParcel,
 );
 
 router.delete('/:id',
     validateRequest(parcelIdValidation),
-    ParcelController.deleteParcel
+    ParcelController.deleteParcel,
 );
 
 export const parcelRoutes = router;
