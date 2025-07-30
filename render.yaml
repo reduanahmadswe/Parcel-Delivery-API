@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: parcel-delivery-api
+    env: node
+    plan: free
+    buildCommand: npm run build:render
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: BCRYPT_SALT_ROUNDS
+        value: "12"
+    autoDeploy: true
+    branch: master
