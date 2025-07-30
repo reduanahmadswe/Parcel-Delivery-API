@@ -183,7 +183,6 @@ const statusLogSchema = new Schema<IStatusLog>({
 const parcelSchema = new Schema<IParcel>({
     trackingId: {
         type: String,
-        unique: true,
     },
     senderId: {
         type: String,
@@ -238,8 +237,7 @@ const parcelSchema = new Schema<IParcel>({
     versionKey: false,
 });
 
-
-parcelSchema.index({ trackingId: 1 });
+parcelSchema.index({ trackingId: 1 }, { unique: true });
 parcelSchema.index({ senderId: 1 });
 parcelSchema.index({ receiverId: 1 });
 parcelSchema.index({ currentStatus: 1 });

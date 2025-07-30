@@ -16,14 +16,14 @@ const startServer = async () => {
         console.log(`📊 Environment: ${process.env.NODE_ENV}`);
         console.log(`🔗 API Base URL: http://localhost:${PORT}/api`);
     });
+
+    return server;
 };
 
 // Start the application
 (async () => {
     await startServer();
 })();
-
-
 /**
  * Process event handlers for graceful shutdown
  */
@@ -67,5 +67,6 @@ process.on('SIGTERM', (error) => {
     process.exit(1);
 });
 
-export { server };
+// export default { app, server };
 
+export default app; 
