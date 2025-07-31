@@ -1,18 +1,14 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "src/serverless.ts",
-      "use": "@vercel/node"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "src/serverless.js"
-    }
-  ],
-  "env": {
-    "NODE_ENV": "production"
-  }
+    "version": 2,
+    "functions": {
+        "api/index.ts": {
+            "runtime": "@vercel/node"
+        }
+    },
+    "routes": [
+        {
+            "src": "/(.*)",
+            "dest": "/api/index.ts"
+        }
+    ]
 }
