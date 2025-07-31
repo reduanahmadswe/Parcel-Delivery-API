@@ -4,10 +4,10 @@ import { Document } from 'mongoose';
 export interface IStatusLog {
     status: 'requested' | 'approved' | 'dispatched' | 'in-transit' | 'delivered' | 'cancelled' | 'returned' | 'flagged' | 'held' | 'unflagged' | 'unheld' | 'unblocked';
     timestamp: Date;
-    updatedBy: string; 
-    updatedByType?: 'admin' | 'sender' | 'receiver' | 'system' | 'delivery_agent'; 
-    location?: string; 
-    note?: string; 
+    updatedBy: string;
+    updatedByType?: 'admin' | 'sender' | 'receiver' | 'system' | 'delivery_agent';
+    location?: string;
+    note?: string;
 }
 
 export interface IParcel extends Document {
@@ -74,11 +74,10 @@ export interface IParcel extends Document {
 }
 
 export interface ICreateParcel {
-    receiverInfo: {
-        name: string;
-        email: string;
-        phone: string;
-        address: {
+    receiverEmail: string; // Required receiver email - must be a valid registered user email
+    receiverInfo?: { // Optional additional contact info - sender can override phone/address
+        phone?: string; // Optional phone override
+        address?: { // Optional address override
             street: string;
             city: string;
             state: string;

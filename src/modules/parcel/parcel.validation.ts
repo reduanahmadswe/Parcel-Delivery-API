@@ -8,11 +8,9 @@ const addressSchema = z.object({
     country: z.string().min(1, 'Country is required').trim().default('Bangladesh'),
 });
 
-const personInfoSchema = z.object({
-    name: z.string().min(1, 'Name is required').trim(),
-    email: z.string().email('Please enter a valid email').toLowerCase().trim(),
-    phone: z.string().min(1, 'Phone number is required').trim(),
-    address: addressSchema,
+const receiverInfoSchema = z.object({
+    phone: z.string().min(1, 'Phone number is required').trim().optional(),
+    address: addressSchema.optional(),
 });
 
 const dimensionsSchema = z.object({
@@ -37,7 +35,12 @@ const deliveryInfoSchema = z.object({
 
 export const createParcelValidation = z.object({
     body: z.object({
-        receiverInfo: personInfoSchema,
+        receiverEmail: z.string()
+            .min(1, 'Receiver email is required')
+            .email('Please enter a valid email address')
+            .toLowerCase()
+            .trim(),
+        receiverInfo: receiverInfoSchema.optional(),
         parcelDetails: parcelDetailsSchema,
         deliveryInfo: deliveryInfoSchema,
     }),

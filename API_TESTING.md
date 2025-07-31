@@ -405,7 +405,16 @@ Authorization: Bearer <admin_access_token>
 
 **POST** `/parcels`
 
-Create a new parcel delivery request.
+Create a new parcel delivery request. Only users with 'sender' role can create parcels.
+
+**Important Requirements:**
+
+- The receiver must have a valid registered account in the system
+- `receiverEmail` is **required** - you must specify an existing receiver's email address
+- The system will automatically find the receiver by email and fetch their information
+- Receiver's name and email are automatically fetched from the database (non-editable)
+- You can optionally override the receiver's phone and/or address
+- If not overridden, the receiver's default phone and address from their profile will be used
 
 **Headers:**
 
@@ -413,14 +422,37 @@ Create a new parcel delivery request.
 Authorization: Bearer <sender_access_token>
 ```
 
-**Request Body:**
+**Request Body - Basic (using receiver's default contact info):**
 
 ```json
 {
+  "receiverEmail": "jane.smith@example.com",
+  "parcelDetails": {
+    "type": "electronics",
+    "weight": 2.5,
+    "dimensions": {
+      "length": 30,
+      "width": 20,
+      "height": 15
+    },
+    "description": "Laptop computer for delivery",
+    "value": 1200
+  },
+  "deliveryInfo": {
+    "preferredDeliveryDate": "2024-01-20T14:00:00.000Z",
+    "deliveryInstructions": "Please ring the doorbell twice",
+    "isUrgent": true
+  }
+}
+```
+
+**Request Body - With Contact Info Override:**
+
+```json
+{
+  "receiverEmail": "jane.smith@example.com",
   "receiverInfo": {
-    "name": "Jane Smith",
-    "email": "jane.smith@example.com",
-    "phone": "+0987654321",
+    "phone": "+1-555-0199",
     "address": {
       "street": "789 Pine Street",
       "city": "Chicago",
@@ -522,6 +554,98 @@ Authorization: Bearer <sender_access_token>
     "createdAt": "2024-01-15T10:45:00.000Z",
     "updatedAt": "2024-01-15T10:45:00.000Z"
   }
+}
+```
+
+**Error Responses:**
+
+**403 - Only Senders Can Create Parcels:**
+
+```json
+{
+  "statusCode": 403,
+  "success": false,
+  "message": "Only users with sender role can create parcels"
+}
+```
+
+**400 - Receiver Not Found:**
+
+```json
+{
+  "statusCode": 400,
+  "success": false,
+  "message": "Validation Error",
+  "data": {
+    "errors": [
+      {
+        "path": "receiverEmail",
+        "message": "Receiver with this email does not exist"
+      }
+    ]
+  }
+}
+```
+
+**400 - Missing Required Field:**
+
+```json
+{
+  "statusCode": 400,
+  "success": false,
+  "message": "Validation error",
+  "errorSources": [
+    {
+      "path": ["receiverEmail"],
+      "message": "Receiver email is required"
+    }
+  ]
+}
+```
+
+**400 - Invalid Email Format:**
+
+```json
+{
+  "statusCode": 400,
+  "success": false,
+  "message": "Validation error",
+  "errorSources": [
+    {
+      "path": ["receiverEmail"],
+      "message": "Please enter a valid email address"
+    }
+  ]
+}
+```
+
+**400 - Invalid Receiver Role:**
+
+```json
+{
+  "statusCode": 400,
+  "success": false,
+  "message": "Selected user is not registered as a receiver"
+}
+```
+
+**400 - Blocked Receiver:**
+
+```json
+{
+  "statusCode": 400,
+  "success": false,
+  "message": "The receiver account is blocked and cannot receive parcels"
+}
+```
+
+**400 - Cannot Send to Self:**
+
+```json
+{
+  "statusCode": 400,
+  "success": false,
+  "message": "You cannot send a parcel to yourself"
 }
 ```
 

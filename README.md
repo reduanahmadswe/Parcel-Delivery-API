@@ -28,6 +28,8 @@ A comprehensive, secure, and role-based backend API for a parcel delivery system
 ### 📦 Parcel Management
 
 - **Comprehensive Tracking**: Unique tracking IDs with format `TRK-YYYYMMDD-XXXXXX`
+- **Email-Based Receiver Identification**: Simple, user-friendly receiver selection using email addresses
+- **Flexible Contact Information**: Override receiver's phone/address for specific deliveries while maintaining data integrity
 - **Status Workflow**: Complete lifecycle management with validated transitions:
   - `requested` → `approved` → `dispatched` → `in-transit` → `delivered`
   - Cancellation and return flows with proper validation
@@ -303,7 +305,51 @@ interface IParcel {
 }
 ```
 
-## 🔒 Authentication Flow
+## � Receiver Information System
+
+### Email-Based Identification
+
+The system uses a user-friendly email-based approach for receiver identification:
+
+- **Simple Input**: Senders only need to provide the receiver's email address
+- **Automatic Lookup**: System automatically finds the receiver in the database
+- **Data Integrity**: Receiver's name and email are always fetched from their profile (non-editable)
+- **Flexible Contact Info**: Phone and address can be optionally overridden for specific deliveries
+
+### Request Structure
+
+```json
+{
+  "receiverEmail": "receiver@example.com", // Required: receiver's email
+  "receiverInfo": {
+    // Optional: contact overrides
+    "phone": "+1-555-0199", // Override receiver's phone
+    "address": {
+      // Override receiver's address
+      "street": "123 Temporary St",
+      "city": "New York",
+      "state": "NY",
+      "zipCode": "10001",
+      "country": "USA"
+    }
+  },
+  "parcelDetails": {
+    /* ... */
+  },
+  "deliveryInfo": {
+    /* ... */
+  }
+}
+```
+
+### Benefits
+
+- **User-Friendly**: Email addresses are more memorable than database IDs
+- **Data Accuracy**: Always uses verified receiver information from profiles
+- **Flexibility**: Allows temporary contact information for special deliveries
+- **Security**: Only registered receivers can receive parcels
+
+## �🔒 Authentication Flow
 
 1. **Registration/Login**: User provides credentials
 2. **Token Generation**: Server generates access (15min) and refresh (7d) tokens
@@ -338,12 +384,19 @@ npm start
 
 Comprehensive API testing examples are available in `API_TESTING.md`. The file includes:
 
-- Complete endpoint documentation
-- Request/response examples
-- Authentication flows
-- Error handling scenarios
+- Complete endpoint documentation with examples
+- Authentication flows and token management
+- Email-based parcel creation examples
+- Receiver contact information override scenarios
+- Error handling for invalid receiver emails
+- Role-based access testing scenarios
 
+### Key Testing Areas
 
+- **Email-Based Receiver Identification**: Test parcel creation using receiver email addresses
+- **Contact Information Override**: Test phone and address override functionality
+- **Data Integrity**: Verify that receiver name/email come from database profiles
+- **Validation**: Test email format validation and receiver existence checks
 
 ## 🆘 Support
 
@@ -425,18 +478,19 @@ src/
 | **Environment**    | Dotenv              | Environment variable management   |
 | **Process Mgmt**   | Nodemon             | Development auto-reload           |
 
-
 ## 🎭 Role-Based Access Control
 
 ### 👤 Sender Permissions
 
-- ✅ Create new parcel delivery requests
+- ✅ Create new parcel delivery requests using receiver email addresses
 - ✅ View all their created parcels
 - ✅ Cancel parcels (only before dispatch)
 - ✅ View complete status history of own parcels
 - ✅ Update own profile information
+- ✅ Override receiver contact information (phone/address) for specific deliveries
 - ❌ Cannot access other users' parcels
 - ❌ Cannot perform admin functions
+- ❌ Cannot edit receiver's name or email (automatically fetched from database)
 
 ### 📨 Receiver Permissions
 
@@ -550,7 +604,8 @@ The system automatically calculates parcel fees based on:
 
 #### Input Validation
 
-- **Email**: RFC-compliant format validation
+- **Email**: RFC-compliant format validation with automatic lookup for receiver verification
+- **Receiver Verification**: Database lookup to ensure receiver exists with proper role
 - **Phone**: International format support with regex validation
 - **Addresses**: Complete address requirements with country defaults
 - **Weights**: Range validation (0.1kg - 50kg)
@@ -560,10 +615,12 @@ The system automatically calculates parcel fees based on:
 
 #### Business Logic Validation
 
+- **Receiver Existence**: Email-based lookup ensures receiver has valid account
+- **Role Verification**: Confirms target user has 'receiver' role
+- **Account Status**: Prevents sending to blocked receivers
 - **Status Transitions**: Enforced workflow compliance
 - **Permission Checks**: Role-based operation validation
 - **Resource Ownership**: User-resource relationship verification
-- **Account Status**: Blocked user operation prevention
 
 ### 🛠️ Admin Management Tools
 
@@ -586,7 +643,6 @@ The system automatically calculates parcel fees based on:
 | `BCRYPT_SALT_ROUNDS`     | Password hashing rounds   | 12                                        | No       |
 | `FRONTEND_URL`           | Frontend application URL  | http://localhost:3000                     | No       |
 
-
 ## 🔧 Testing
 
 For comprehensive API testing, refer to the [API_TESTING.md](./API_TESTING.md) file which includes:
@@ -607,7 +663,6 @@ For comprehensive API testing, refer to the [API_TESTING.md](./API_TESTING.md) f
 4. **CORS**: Configure appropriate CORS origins for your frontend
 5. **Logging**: Implement proper logging for production monitoring
 6. **Process Management**: Use PM2 or similar for process management
-
 
 ## 🤝 Contributing
 
@@ -636,7 +691,8 @@ For support, please contact the development team or create an issue in the repos
 
 ## 🔗 Related Documentation
 
-- [API Testing Guide](./API_TESTING.md) - Comprehensive API testing examples
+- [API Testing Guide](./API_TESTING.md) - Comprehensive API testing examples with email-based parcel creation
+- [Receiver Info Implementation](./RECEIVER_INFO_IMPLEMENTATION.md) - Detailed guide for email-based receiver identification
 - [Database Schema](./docs/schema.md) - Detailed database schema documentation
 - [Deployment Guide](./docs/deployment.md) - Production deployment instructions
 
@@ -680,3 +736,5 @@ This project is licensed under the ISC License - see the [LICENSE](LICENSE) file
 **Built with ❤️ using TypeScript, Express.js, and MongoDB**
 
 _For API testing examples and detailed endpoint documentation, see [API_TESTING.md](API_TESTING.md)_
+
+_For receiver information implementation details, see [RECEIVER_INFO_IMPLEMENTATION.md](RECEIVER_INFO_IMPLEMENTATION.md)_

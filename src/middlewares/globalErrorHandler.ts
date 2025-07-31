@@ -23,6 +23,16 @@ export const globalErrorHandler = (
     if (error instanceof AppError) {
         statusCode = error.statusCode;
         message = error.message;
+        // If AppError has custom data, use it instead of default error structure
+        if (error.data) {
+            sendResponse(res, {
+                statuscode: statusCode,
+                success: false,
+                message,
+                data: error.data,
+            });
+            return;
+        }
     }
     else if (error.name === 'ValidationError') {
         const simplifiedError = handlerValidationError(error as any);
