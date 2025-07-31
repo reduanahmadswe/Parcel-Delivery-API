@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "dist/server.js",
   "scripts": {
-    "start": "node dist/server.js",
+    "start": "node dist/api/index.js",
     "dev": "nodemon src/server.ts",
     "build": "tsc",
     "clean": "node -e \"require('fs').rmSync('dist', { recursive: true, force: true })\"",
