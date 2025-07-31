@@ -5,7 +5,7 @@ This comprehensive guide provides detailed examples for testing all API endpoint
 ## 🚀 Base URL
 
 ```
-http://localhost:5000/api
+http://https://parcel-delivery-api-umber.vercel.app/api
 ```
 
 ## 🔐 Authentication Overview
@@ -28,6 +28,7 @@ Both tokens are stored as HTTP-only cookies for enhanced security.
 Register a new user in the system.
 
 **Request Body:**
+
 ```json
 {
   "name": "John Doe",
@@ -46,6 +47,7 @@ Register a new user in the system.
 ```
 
 **Response (201):**
+
 ```json
 {
   "statusCode": 201,
@@ -73,6 +75,7 @@ Register a new user in the system.
 ```
 
 **Validation Errors (400):**
+
 ```json
 {
   "statusCode": 400,
@@ -94,6 +97,7 @@ Register a new user in the system.
 Authenticate a user and receive JWT tokens.
 
 **Request Body:**
+
 ```json
 {
   "email": "john.doe@example.com",
@@ -102,6 +106,7 @@ Authenticate a user and receive JWT tokens.
 ```
 
 **Response (200):**
+
 ```json
 {
   "statusCode": 200,
@@ -127,6 +132,7 @@ Refresh the access token using the refresh token stored in cookies.
 **Request:** No body required (uses refresh token from HTTP-only cookie)
 
 **Response (200):**
+
 ```json
 {
   "statusCode": 200,
@@ -144,6 +150,7 @@ Log out the user and invalidate tokens.
 **Request:** No body required
 
 **Response (200):**
+
 ```json
 {
   "statusCode": 200,
@@ -159,11 +166,13 @@ Log out the user and invalidate tokens.
 Get the profile information of the currently authenticated user.
 
 **Headers:**
+
 ```
 Authorization: Bearer <access_token>
 ```
 
 **Response (200):**
+
 ```json
 {
   "statusCode": 200,
@@ -201,11 +210,13 @@ Authorization: Bearer <access_token>
 Get the current user's profile information.
 
 **Headers:**
+
 ```
 Authorization: Bearer <access_token>
 ```
 
 **Response (200):**
+
 ```json
 {
   "statusCode": 200,
@@ -239,11 +250,13 @@ Authorization: Bearer <access_token>
 Update the current user's profile information.
 
 **Headers:**
+
 ```
 Authorization: Bearer <access_token>
 ```
 
 **Request Body:**
+
 ```json
 {
   "name": "John Updated Doe",
@@ -259,6 +272,7 @@ Authorization: Bearer <access_token>
 ```
 
 **Response (200):**
+
 ```json
 {
   "statusCode": 200,
@@ -292,20 +306,24 @@ Authorization: Bearer <access_token>
 Retrieve all users in the system (admin access required).
 
 **Headers:**
+
 ```
 Authorization: Bearer <admin_access_token>
 ```
 
 **Query Parameters:**
+
 - `page` (optional): Page number (default: 1)
 - `limit` (optional): Items per page (default: 10)
 
 **Request Example:**
+
 ```
 GET /users?page=1&limit=10
 ```
 
 **Response (200):**
+
 ```json
 {
   "statusCode": 200,
@@ -339,11 +357,13 @@ GET /users?page=1&limit=10
 Get comprehensive user statistics.
 
 **Headers:**
+
 ```
 Authorization: Bearer <admin_access_token>
 ```
 
 **Response (200):**
+
 ```json
 {
   "statusCode": 200,
@@ -372,11 +392,13 @@ Authorization: Bearer <admin_access_token>
 Create a new parcel delivery request.
 
 **Headers:**
+
 ```
 Authorization: Bearer <sender_access_token>
 ```
 
 **Request Body:**
+
 ```json
 {
   "receiverInfo": {
@@ -411,6 +433,7 @@ Authorization: Bearer <sender_access_token>
 ```
 
 **Response (201):**
+
 ```json
 {
   "statusCode": 201,
@@ -493,11 +516,13 @@ Authorization: Bearer <sender_access_token>
 Track a parcel using its tracking ID (no authentication required).
 
 **Request Example:**
+
 ```
 GET /parcels/track/TRK-20240115-ABC123
 ```
 
 **Response (200):**
+
 ```json
 {
   "statusCode": 200,
@@ -563,11 +588,13 @@ GET /parcels/track/TRK-20240115-ABC123
 Get all parcels associated with the current user (sender or receiver).
 
 **Headers:**
+
 ```
 Authorization: Bearer <access_token>
 ```
 
 **Query Parameters:**
+
 - `page` (optional): Page number (default: 1)
 - `limit` (optional): Items per page (default: 10)
 - `status` (optional): Filter by status
@@ -576,11 +603,13 @@ Authorization: Bearer <access_token>
 - `endDate` (optional): Filter by creation date range
 
 **Request Example:**
+
 ```
 GET /parcels/me?page=1&limit=5&status=in-transit&isUrgent=true
 ```
 
 **Response (200):**
+
 ```json
 {
   "statusCode": 200,
@@ -626,11 +655,13 @@ GET /parcels/me?page=1&limit=5&status=in-transit&isUrgent=true
 Get the complete status history of a parcel.
 
 **Headers:**
+
 ```
 Authorization: Bearer <access_token>
 ```
 
 **Response (200):**
+
 ```json
 {
   "statusCode": 200,
@@ -681,11 +712,13 @@ Authorization: Bearer <access_token>
 Cancel a parcel delivery request (only before dispatch).
 
 **Headers:**
+
 ```
 Authorization: Bearer <sender_access_token>
 ```
 
 **Request Body:**
+
 ```json
 {
   "note": "Customer requested cancellation"
@@ -693,6 +726,7 @@ Authorization: Bearer <sender_access_token>
 ```
 
 **Response (200):**
+
 ```json
 {
   "statusCode": 200,
@@ -728,11 +762,13 @@ Authorization: Bearer <sender_access_token>
 Confirm that a parcel has been delivered (receiver only, when status is in-transit).
 
 **Headers:**
+
 ```
 Authorization: Bearer <receiver_access_token>
 ```
 
 **Request Body:**
+
 ```json
 {
   "note": "Package received in good condition"
@@ -740,6 +776,7 @@ Authorization: Bearer <receiver_access_token>
 ```
 
 **Response (200):**
+
 ```json
 {
   "statusCode": 200,
@@ -773,22 +810,26 @@ Authorization: Bearer <receiver_access_token>
 Get all parcels in the system with advanced filtering options.
 
 **Headers:**
+
 ```
 Authorization: Bearer <admin_access_token>
 ```
 
 **Query Parameters:**
+
 - `page`, `limit`, `status`, `isUrgent`, `startDate`, `endDate`
 - `search`: Search in tracking ID, names, description
 - `senderId`, `receiverId`, `senderEmail`, `receiverEmail`
 - `isFlagged`, `isHeld`, `isBlocked`
 
 **Request Example:**
+
 ```
 GET /parcels?page=1&limit=10&status=in-transit&isUrgent=true
 ```
 
 **Response (200):**
+
 ```json
 {
   "statusCode": 200,
@@ -842,11 +883,13 @@ GET /parcels?page=1&limit=10&status=in-transit&isUrgent=true
 Get comprehensive parcel statistics and analytics.
 
 **Headers:**
+
 ```
 Authorization: Bearer <admin_access_token>
 ```
 
 **Response (200):**
+
 ```json
 {
   "statusCode": 200,
@@ -875,11 +918,13 @@ Authorization: Bearer <admin_access_token>
 Update the status of a parcel with validation for proper workflow.
 
 **Headers:**
+
 ```
 Authorization: Bearer <admin_access_token>
 ```
 
 **Request Body:**
+
 ```json
 {
   "status": "dispatched",
@@ -889,6 +934,7 @@ Authorization: Bearer <admin_access_token>
 ```
 
 **Response (200):**
+
 ```json
 {
   "statusCode": 200,
@@ -910,11 +956,13 @@ Authorization: Bearer <admin_access_token>
 Flag or unflag a parcel for review or special attention.
 
 **Headers:**
+
 ```
 Authorization: Bearer <admin_access_token>
 ```
 
 **Request Body:**
+
 ```json
 {
   "isFlagged": true,
@@ -923,6 +971,7 @@ Authorization: Bearer <admin_access_token>
 ```
 
 **Response (200):**
+
 ```json
 {
   "statusCode": 200,
@@ -944,11 +993,13 @@ Authorization: Bearer <admin_access_token>
 Put a parcel on hold or remove the hold status.
 
 **Headers:**
+
 ```
 Authorization: Bearer <admin_access_token>
 ```
 
 **Request Body:**
+
 ```json
 {
   "isHeld": true,
@@ -957,6 +1008,7 @@ Authorization: Bearer <admin_access_token>
 ```
 
 **Response (200):**
+
 ```json
 {
   "statusCode": 200,
@@ -976,6 +1028,7 @@ Authorization: Bearer <admin_access_token>
 ## 🚫 Common Error Responses
 
 ### 400 - Bad Request (Validation Error)
+
 ```json
 {
   "statusCode": 400,
@@ -991,6 +1044,7 @@ Authorization: Bearer <admin_access_token>
 ```
 
 ### 401 - Unauthorized
+
 ```json
 {
   "statusCode": 401,
@@ -1000,6 +1054,7 @@ Authorization: Bearer <admin_access_token>
 ```
 
 ### 403 - Forbidden
+
 ```json
 {
   "statusCode": 403,
@@ -1009,6 +1064,7 @@ Authorization: Bearer <admin_access_token>
 ```
 
 ### 404 - Not Found
+
 ```json
 {
   "statusCode": 404,
@@ -1046,16 +1102,17 @@ FRONTEND_URL=http://localhost:3000
 ### Sample Test Users
 
 #### Admin User
+
 ```json
 {
   "name": "Test Admin",
-  "email": "admin@test.com", 
+  "email": "admin@test.com",
   "password": "Admin123!",
   "phone": "+1000000000",
   "role": "admin",
   "address": {
     "street": "1 Admin Street",
-    "city": "Admin City", 
+    "city": "Admin City",
     "state": "AC",
     "zipCode": "00001",
     "country": "USA"
@@ -1064,17 +1121,18 @@ FRONTEND_URL=http://localhost:3000
 ```
 
 #### Sender User
+
 ```json
 {
   "name": "Test Sender",
   "email": "sender@test.com",
   "password": "Sender123!",
-  "phone": "+1111111111", 
+  "phone": "+1111111111",
   "role": "sender",
   "address": {
     "street": "2 Sender Street",
     "city": "Sender City",
-    "state": "SC", 
+    "state": "SC",
     "zipCode": "11111",
     "country": "USA"
   }
@@ -1082,18 +1140,19 @@ FRONTEND_URL=http://localhost:3000
 ```
 
 #### Receiver User
+
 ```json
 {
   "name": "Test Receiver",
   "email": "receiver@test.com",
   "password": "Receiver123!",
   "phone": "+1222222222",
-  "role": "receiver", 
+  "role": "receiver",
   "address": {
     "street": "3 Receiver Street",
     "city": "Receiver City",
     "state": "RC",
-    "zipCode": "22222", 
+    "zipCode": "22222",
     "country": "USA"
   }
 }
@@ -1120,6 +1179,7 @@ Start testing by verifying the server:
 ### Authentication Flow Testing
 
 1. **Registration Testing**
+
    - Valid registration with all required fields
    - Invalid email format
    - Weak password
@@ -1127,6 +1187,7 @@ Start testing by verifying the server:
    - Duplicate email registration
 
 2. **Login Testing**
+
    - Valid credentials
    - Invalid email
    - Invalid password
@@ -1141,6 +1202,7 @@ Start testing by verifying the server:
 ### Role-Based Access Testing
 
 1. **Sender Operations**
+
    - Create parcel with valid data
    - Cancel own parcel before dispatch
    - Attempt to cancel dispatched parcel
@@ -1148,6 +1210,7 @@ Start testing by verifying the server:
    - Attempt admin operations (should fail)
 
 2. **Receiver Operations**
+
    - View parcels addressed to them
    - Confirm delivery of in-transit parcel
    - Attempt to confirm non-existent parcel
@@ -1163,6 +1226,7 @@ Start testing by verifying the server:
 ### Data Validation Testing
 
 1. **Parcel Creation**
+
    - Valid parcel with all optional fields
    - Missing required fields
    - Invalid weight (negative, zero, over limit)
@@ -1177,6 +1241,7 @@ Start testing by verifying the server:
 ### Error Handling Testing
 
 1. **Invalid IDs**
+
    - Non-existent parcel IDs
    - Malformed ObjectIDs
    - Invalid tracking ID format
@@ -1191,6 +1256,7 @@ Start testing by verifying the server:
 ## 📊 Testing Checklist
 
 ### ✅ Basic Functionality
+
 - [ ] User registration with all roles
 - [ ] User login and logout
 - [ ] Token refresh mechanism
@@ -1199,6 +1265,7 @@ Start testing by verifying the server:
 - [ ] Public tracking functionality
 
 ### ✅ Security Testing
+
 - [ ] JWT token validation
 - [ ] Role-based access control
 - [ ] Resource ownership validation
@@ -1206,6 +1273,7 @@ Start testing by verifying the server:
 - [ ] Error message security
 
 ### ✅ Edge Cases
+
 - [ ] Extremely long input values
 - [ ] Special characters in inputs
 - [ ] Concurrent operations
@@ -1213,6 +1281,7 @@ Start testing by verifying the server:
 - [ ] Rate limiting (if implemented)
 
 ### ✅ Performance Testing
+
 - [ ] Response times under load
 - [ ] Database query performance
 - [ ] Pagination efficiency

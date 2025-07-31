@@ -68,6 +68,4 @@ process.on('SIGTERM', (error) => {
     process.exit(1);
 });
 
-//export { app, server };
-//export default app;
 

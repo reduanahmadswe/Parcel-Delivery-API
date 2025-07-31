@@ -186,11 +186,11 @@ src/
    npm start
    ```
 
-The server will be available at `http://localhost:5000`
+The server will be available at `http://https://parcel-delivery-api-umber.vercel.app`
 
 ### 🏥 Health Check
 
-Visit `http://localhost:5000/api/health` to verify the server is running.
+Visit `http://https://parcel-delivery-api-umber.vercel.app/api/health` to verify the server is running.
 
 ## 📊 API Endpoints Overview
 
