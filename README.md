@@ -6,13 +6,13 @@ A comprehensive, secure, and role-based backend API for a parcel delivery system
 
 - **🔒 Enterprise Security**: JWT-based dual token authentication with HTTP-only cookies
 - **🎭 Role-Based Access Control**: Granular permissions for Admin, Sender, and Receiver roles
-- **� Real-Time Tracking**: Comprehensive parcel tracking with embedded status history
+- **📱 Real-Time Tracking**: Comprehensive parcel tracking with embedded status history
 - **🏗️ Modular Architecture**: Clean, maintainable code structure following best practices
 - **✅ Data Validation**: Input validation using Zod schemas with detailed error handling
 - **📈 Performance Optimized**: Efficient database operations with proper indexing
 - **🔧 Developer Friendly**: TypeScript, comprehensive error handling, and detailed documentation
 
-## �🚀 Features
+## 🚀 Features
 
 ### 🔐 Authentication & Authorization
 
@@ -37,7 +37,7 @@ A comprehensive, secure, and role-based backend API for a parcel delivery system
 - **Delivery Personnel**: Admin assignment and tracking of delivery staff
 - **Advanced Filtering**: Search, filter, and sort parcels by multiple criteria
 
-### �️ Security Features
+### 🛡️ Security Features
 
 - **Input Validation**: Comprehensive validation using Zod schemas
 - **Error Handling**: Global error handling with consistent response format
@@ -45,9 +45,319 @@ A comprehensive, secure, and role-based backend API for a parcel delivery system
 - **Data Sanitization**: Input sanitization to prevent injection attacks
 - **CORS Configuration**: Secure cross-origin resource sharing setup
 
-### � Admin Dashboard Features
+### 🎛️ Admin Dashboard Features
 
 - **User Management**: Complete user lifecycle management
+- **Parcel Oversight**: Full parcel management with status controls
+- **Analytics**: User and parcel statistics
+- **Flagging System**: Mark suspicious parcels for review
+- **Hold/Block System**: Temporarily halt parcel processing
+
+## 🛠️ Technology Stack
+
+- **Backend**: Node.js, Express.js
+- **Language**: TypeScript
+- **Database**: MongoDB with Mongoose ODM
+- **Authentication**: JWT (JSON Web Tokens)
+- **Validation**: Zod
+- **Security**: bcryptjs, CORS, HTTP-only cookies
+- **Development**: ESLint, Nodemon, TypeScript
+
+## 📋 Prerequisites
+
+- Node.js (v18.0.0 or higher)
+- MongoDB (v6.0 or higher)
+- npm or yarn package manager
+
+## ⚡ Quick Start
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/reduanahmadswe/Parcel-Delivery-API.git
+cd Parcel-Delivery-API
+```
+
+### 2. Install dependencies
+
+```bash
+npm install
+```
+
+### 3. Environment Setup
+
+Create a `.env` file in the root directory:
+
+```env
+NODE_ENV=development
+PORT=5000
+MONGODB_URI=mongodb+srv://your-username:your-password@cluster.mongodb.net/parcel-delivery
+
+# JWT Configuration
+JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
+JWT_EXPIRES_IN=7d
+
+# JWT Access Token Configuration
+JWT_ACCESS_SECRET=access-token-secret-change-this-in-production
+JWT_ACCESS_EXPIRES=15m
+
+# JWT Refresh Token Configuration
+JWT_REFRESH_SECRET=refresh-token-secret-change-this-in-production
+JWT_REFRESH_EXPIRES=7d
+
+BCRYPT_SALT_ROUNDS=12
+FRONTEND_URL=http://localhost:3000
+```
+
+### 4. Create Admin User
+
+```bash
+npm run seed:admin
+```
+
+### 5. Development
+
+```bash
+npm run dev
+```
+
+### 6. Production Build
+
+```bash
+npm run build
+npm start
+```
+
+## 🌐 API Endpoints
+
+### Base URL
+
+```
+http://localhost:5000/api
+```
+
+### 🔐 Authentication Endpoints
+
+| Method | Endpoint              | Description           | Access  |
+| ------ | --------------------- | --------------------- | ------- |
+| POST   | `/auth/register`      | Register new user     | Public  |
+| POST   | `/auth/login`         | User login            | Public  |
+| POST   | `/auth/logout`        | User logout           | Public  |
+| POST   | `/auth/refresh-token` | Refresh access token  | Public  |
+| GET    | `/auth/me`            | Get current user info | Private |
+
+### 👤 User Management Endpoints
+
+| Method | Endpoint                  | Description              | Access |
+| ------ | ------------------------- | ------------------------ | ------ |
+| GET    | `/users/profile`          | Get user profile         | User   |
+| PATCH  | `/users/profile`          | Update user profile      | User   |
+| GET    | `/users`                  | Get all users            | Admin  |
+| GET    | `/users/stats`            | Get user statistics      | Admin  |
+| GET    | `/users/:id`              | Get user by ID           | Admin  |
+| PUT    | `/users/:id`              | Update user by ID        | Admin  |
+| PATCH  | `/users/:id/block-status` | Toggle user block status | Admin  |
+| DELETE | `/users/:id`              | Delete user              | Admin  |
+
+### 📦 Parcel Management Endpoints
+
+#### Public Routes
+
+| Method | Endpoint                     | Description                 | Access |
+| ------ | ---------------------------- | --------------------------- | ------ |
+| GET    | `/parcels/track/:trackingId` | Track parcel by tracking ID | Public |
+
+#### Sender Routes
+
+| Method | Endpoint              | Description       | Access |
+| ------ | --------------------- | ----------------- | ------ |
+| POST   | `/parcels`            | Create new parcel | Sender |
+| PATCH  | `/parcels/cancel/:id` | Cancel parcel     | Sender |
+
+#### Receiver Routes
+
+| Method | Endpoint                        | Description      | Access   |
+| ------ | ------------------------------- | ---------------- | -------- |
+| PATCH  | `/parcels/:id/confirm-delivery` | Confirm delivery | Receiver |
+
+#### Shared Routes (Sender & Receiver)
+
+| Method | Endpoint                  | Description               | Access                |
+| ------ | ------------------------- | ------------------------- | --------------------- |
+| GET    | `/parcels/me`             | Get user's parcels        | Sender/Receiver       |
+| GET    | `/parcels/:id`            | Get parcel by ID          | Sender/Receiver/Admin |
+| GET    | `/parcels/:id/status-log` | Get parcel status history | Sender/Receiver/Admin |
+
+#### Admin Routes
+
+| Method | Endpoint                        | Description                | Access |
+| ------ | ------------------------------- | -------------------------- | ------ |
+| GET    | `/parcels`                      | Get all parcels            | Admin  |
+| GET    | `/parcels/admin/stats`          | Get parcel statistics      | Admin  |
+| PATCH  | `/parcels/:id/status`           | Update parcel status       | Admin  |
+| PATCH  | `/parcels/:id/block-status`     | Toggle parcel block status | Admin  |
+| PATCH  | `/parcels/:id/assign-personnel` | Assign delivery personnel  | Admin  |
+| PATCH  | `/parcels/:id/flag`             | Flag/unflag parcel         | Admin  |
+| PATCH  | `/parcels/:id/hold`             | Hold/unhold parcel         | Admin  |
+| PATCH  | `/parcels/:id/unblock`          | Unblock parcel             | Admin  |
+| PATCH  | `/parcels/:id/return`           | Return parcel              | Admin  |
+| DELETE | `/parcels/:id`                  | Delete parcel              | Admin  |
+
+## 🎯 Available Scripts
+
+```bash
+# Development
+npm run dev          # Start development server with hot reload
+npm run build        # Build TypeScript to JavaScript
+npm start            # Start production server
+
+# Code Quality
+npm run lint         # Check code for linting errors
+npm run lint:fix     # Fix linting errors automatically
+npm run lint:check   # Check linting with zero warnings
+
+# Database
+npm run seed:admin   # Create initial admin user
+
+# Utilities
+npm run clean        # Clean build directory
+```
+
+## 📊 Data Models
+
+### User Model
+
+```typescript
+interface IUser {
+  _id: string;
+  name: string;
+  email: string;
+  password: string;
+  phone: string;
+  role: "admin" | "sender" | "receiver";
+  address: {
+    street: string;
+    city: string;
+    state: string;
+    zipCode: string;
+    country: string;
+  };
+  isBlocked: boolean;
+  isVerified: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+```
+
+### Parcel Model
+
+```typescript
+interface IParcel {
+  _id: string;
+  trackingId: string;
+  senderId: string;
+  receiverId: string;
+  senderInfo: PersonInfo;
+  receiverInfo: PersonInfo;
+  parcelDetails: {
+    type:
+      | "document"
+      | "package"
+      | "fragile"
+      | "electronics"
+      | "clothing"
+      | "other";
+    weight: number;
+    dimensions?: { length: number; width: number; height: number };
+    description: string;
+    value?: number;
+  };
+  deliveryInfo: {
+    preferredDeliveryDate?: Date;
+    deliveryInstructions?: string;
+    isUrgent: boolean;
+  };
+  fee: {
+    baseFee: number;
+    weightFee: number;
+    urgentFee: number;
+    totalFee: number;
+    isPaid: boolean;
+    paymentMethod?: "cash" | "card" | "online";
+  };
+  currentStatus:
+    | "requested"
+    | "approved"
+    | "dispatched"
+    | "in-transit"
+    | "delivered"
+    | "cancelled"
+    | "returned";
+  statusHistory: IStatusLog[];
+  assignedDeliveryPersonnel?: string;
+  isFlagged: boolean;
+  isHeld: boolean;
+  isBlocked: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+```
+
+## 🔒 Authentication Flow
+
+1. **Registration/Login**: User provides credentials
+2. **Token Generation**: Server generates access (15min) and refresh (7d) tokens
+3. **Cookie Storage**: Tokens stored as HTTP-only cookies
+4. **Request Authentication**: Access token validates API requests
+5. **Token Refresh**: Refresh token regenerates expired access tokens
+6. **Logout**: Clears authentication cookies
+
+## 🚀 Deployment
+
+### Vercel (Recommended)
+
+```bash
+# Install Vercel CLI
+npm i -g vercel
+
+# Deploy
+vercel --prod
+```
+
+### Traditional Hosting
+
+```bash
+# Build the project
+npm run build
+
+# Start production server
+npm start
+```
+
+## 🧪 Testing
+
+Comprehensive API testing examples are available in `API_TESTING.md`. The file includes:
+
+- Complete endpoint documentation
+- Request/response examples
+- Authentication flows
+- Error handling scenarios
+
+## 📝 License
+
+This project is licensed under the ISC License.
+
+## 🆘 Support
+
+For support, email your-email@example.com or create an issue in the GitHub repository.
+
+## 🙏 Acknowledgments
+
+- Express.js team for the robust web framework
+- MongoDB team for the flexible database solution
+- TypeScript team for type safety
+- Zod team for runtime validation
+- All contributors and users of this project
 - **Parcel Oversight**: Advanced parcel management with bulk operations
 - **Analytics**: Comprehensive statistics and reporting
 - **System Monitoring**: Health checks and system status monitoring
@@ -186,13 +496,19 @@ src/
    npm start
    ```
 
-The server will be available at `http://https://parcel-delivery-api-umber.vercel.app`
+The server will be available at `http://localhost:5000`
 
 ### 🏥 Health Check
 
-Visit `http://https://parcel-delivery-api-umber.vercel.app/api/health` to verify the server is running.
+Visit `http://localhost:5000/api/health` to verify the server is running.
 
 ## 📊 API Endpoints Overview
+
+### 🏥 Health Check
+
+| Method | Endpoint | Description      | Access Level |
+| ------ | -------- | ---------------- | ------------ |
+| GET    | `/`      | API health check | Public       |
 
 ### 🔐 Authentication Routes (`/api/auth`)
 
@@ -219,25 +535,47 @@ Visit `http://https://parcel-delivery-api-umber.vercel.app/api/health` to verify
 
 ### 📦 Parcel Management Routes (`/api/parcels`)
 
-| Method | Endpoint                | Description                 | Access Level |
-| ------ | ----------------------- | --------------------------- | ------------ |
-| GET    | `/track/:trackingId`    | Track parcel by ID (public) | Public       |
-| POST   | `/`                     | Create new parcel (sender)  | Sender       |
-| GET    | `/me`                   | Get my parcels              | User         |
-| GET    | `/:id`                  | Get parcel by ID            | User/Admin   |
-| GET    | `/:id/status-log`       | Get parcel status history   | User/Admin   |
-| PATCH  | `/cancel/:id`           | Cancel parcel (sender)      | Sender       |
-| PATCH  | `/:id/confirm-delivery` | Confirm delivery (receiver) | Receiver     |
-| GET    | `/` (admin)             | Get all parcels (admin)     | Admin        |
-| GET    | `/admin/stats`          | Get parcel statistics       | Admin        |
-| PATCH  | `/:id/status`           | Update parcel status        | Admin        |
-| PATCH  | `/:id/block-status`     | Block/unblock parcel        | Admin        |
-| PATCH  | `/:id/assign-personnel` | Assign delivery personnel   | Admin        |
-| PATCH  | `/:id/flag`             | Flag/unflag parcel          | Admin        |
-| PATCH  | `/:id/hold`             | Hold/unhold parcel          | Admin        |
-| PATCH  | `/:id/unblock`          | Unblock parcel              | Admin        |
-| PATCH  | `/:id/return`           | Return parcel               | Admin        |
-| DELETE | `/:id`                  | Delete parcel               | Admin        |
+#### Public Access
+
+| Method | Endpoint             | Description        | Access Level |
+| ------ | -------------------- | ------------------ | ------------ |
+| GET    | `/track/:trackingId` | Track parcel by ID | Public       |
+
+#### Sender Access
+
+| Method | Endpoint      | Description              | Access Level |
+| ------ | ------------- | ------------------------ | ------------ |
+| POST   | `/`           | Create new parcel        | Sender       |
+| PATCH  | `/cancel/:id` | Cancel parcel (own only) | Sender       |
+
+#### Receiver Access
+
+| Method | Endpoint                | Description      | Access Level |
+| ------ | ----------------------- | ---------------- | ------------ |
+| PATCH  | `/:id/confirm-delivery` | Confirm delivery | Receiver     |
+
+#### Shared Access (Sender/Receiver/Admin)
+
+| Method | Endpoint          | Description               | Access Level          |
+| ------ | ----------------- | ------------------------- | --------------------- |
+| GET    | `/me`             | Get my parcels            | Sender/Receiver       |
+| GET    | `/:id`            | Get parcel by ID          | Sender/Receiver/Admin |
+| GET    | `/:id/status-log` | Get parcel status history | Sender/Receiver/Admin |
+
+#### Admin Access
+
+| Method | Endpoint                | Description               | Access Level |
+| ------ | ----------------------- | ------------------------- | ------------ |
+| GET    | `/`                     | Get all parcels           | Admin        |
+| GET    | `/admin/stats`          | Get parcel statistics     | Admin        |
+| PATCH  | `/:id/status`           | Update parcel status      | Admin        |
+| PATCH  | `/:id/block-status`     | Block/unblock parcel      | Admin        |
+| PATCH  | `/:id/assign-personnel` | Assign delivery personnel | Admin        |
+| PATCH  | `/:id/flag`             | Flag/unflag parcel        | Admin        |
+| PATCH  | `/:id/hold`             | Hold/unhold parcel        | Admin        |
+| PATCH  | `/:id/unblock`          | Unblock parcel            | Admin        |
+| PATCH  | `/:id/return`           | Return parcel             | Admin        |
+| DELETE | `/:id`                  | Delete parcel             | Admin        |
 
 ## 🎭 Role-Based Access Control
 
@@ -321,98 +659,6 @@ Visit `http://https://parcel-delivery-api-umber.vercel.app/api/health` to verify
 - **Error Handling**: Secure error messages without data leakage
 - **CORS Configuration**: Controlled cross-origin access
 - **Environment Variables**: Sensitive data in environment configuration
-
-## 📋 Parcel Status Workflow
-
-```
-┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐
-│  Requested  │──▶ │  Approved   │──▶ │ Dispatched  │──▶ │ In Transit  │──▶ │ Delivered   │
-└─────────────┘    └─────────────┘    └─────────────┘    └─────────────┘    └─────────────┘
-       │                    │                    │                    │
-       ▼                    ▼                    ▼                    ▼
-┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐
-│  Cancelled  │    │  Cancelled  │    │  Returned   │    │  Returned   │
-└─────────────┘    └─────────────┘    └─────────────┘    └─────────────┘
-```
-
-### Status Descriptions & Permissions
-
-| Status     | Description                         | Who Can Set        |
-| ---------- | ----------------------------------- | ------------------ |
-| Requested  | Parcel created by sender            | System (automatic) |
-| Approved   | Admin approved the delivery request | Admin only         |
-| Dispatched | Parcel picked up for transport      | Admin only         |
-| In Transit | Parcel is being delivered           | Admin only         |
-| Delivered  | Parcel successfully delivered       | Receiver or Admin  |
-| Cancelled  | Delivery request cancelled          | Sender or Admin    |
-| Returned   | Parcel returned to sender           | Admin only         |
-
-## 📊 Data Models
-
-### User Schema
-
-```typescript
-{
-  _id: ObjectId,
-  email: string,        // Unique, indexed
-  password: string,     // bcrypt hashed
-  name: string,
-  phone: string,
-  role: 'admin' | 'sender' | 'receiver',
-  address: {
-    street: string,
-    city: string,
-    state: string,
-    zipCode: string,
-    country: string
-  },
-  isBlocked: boolean,
-  isVerified: boolean,
-  createdAt: Date,
-  updatedAt: Date
-}
-```
-
-### Parcel Schema
-
-```typescript
-{
-  _id: ObjectId,
-  trackingId: string,   // Unique, format: TRK-YYYYMMDD-XXXXXX
-  senderId: string,     // User ObjectId
-  receiverId: string,   // User ObjectId (optional)
-  senderInfo: PersonInfo,
-  receiverInfo: PersonInfo,
-  parcelDetails: {
-    type: 'document' | 'package' | 'fragile' | 'electronics' | 'clothing' | 'other',
-    weight: number,     // in kg
-    dimensions: { length, width, height },
-    description: string,
-    value: number       // estimated value
-  },
-  deliveryInfo: {
-    preferredDeliveryDate: Date,
-    deliveryInstructions: string,
-    isUrgent: boolean
-  },
-  currentStatus: StatusEnum,
-  statusHistory: [StatusLog],
-  fee: {
-    baseFee: number,
-    weightFee: number,
-    urgentFee: number,
-    totalFee: number,
-    isPaid: boolean,
-    paymentMethod: string
-  },
-  assignedDeliveryPersonnel: string,
-  isFlagged: boolean,
-  isHeld: boolean,
-  isBlocked: boolean,
-  createdAt: Date,
-  updatedAt: Date
-}
-```
 
 ## 📈 Advanced Features
 
@@ -509,8 +755,10 @@ npm start
 # Create admin user
 npm run seed:admin
 
-# Lint code (placeholder - configure as needed)
+# Code Quality (placeholder - configure as needed)
 npm run lint
+npm run lint:fix
+npm run lint:check
 
 # Run tests (placeholder - implement as needed)
 npm test
@@ -599,20 +847,7 @@ npm test
 
 ````
 
-## 📝 Environment Variables
-
-| Variable                 | Description               | Default                                   | Required |
-| ------------------------ | ------------------------- | ----------------------------------------- | -------- |
-| `NODE_ENV`               | Environment mode          | development                               | No       |
-| `PORT`                   | Server port               | 5000                                      | No       |
-| `MONGODB_URI`            | MongoDB connection string | mongodb://localhost:27017/parcel-delivery | Yes      |
-| `JWT_SECRET`             | JWT signing secret        | -                                         | Yes      |
-| `JWT_EXPIRES_IN`         | Access token expiration   | 15m                                       | No       |
-| `JWT_REFRESH_EXPIRES_IN` | Refresh token expiration  | 7d                                        | No       |
-| `BCRYPT_SALT_ROUNDS`     | Password hashing rounds   | 12                                        | No       |
-| `FRONTEND_URL`           | Frontend application URL  | http://localhost:3000                     | No       |
-
-## 🗄️ Database Schema
+## ️ Database Schema
 
 ### User Schema
 
@@ -676,23 +911,6 @@ npm test
   updatedAt: Date
 }
 ```
-
-## 🤝 Contributing
-
-1. **Fork the repository**
-2. **Create your feature branch** (`git checkout -b feature/AmazingFeature`)
-3. **Commit your changes** (`git commit -m 'Add some AmazingFeature'`)
-4. **Push to the branch** (`git push origin feature/AmazingFeature`)
-5. **Open a Pull Request**
-
-### Development Guidelines
-
-- Follow TypeScript best practices
-- Maintain consistent code formatting
-- Add proper error handling
-- Include input validation
-- Write descriptive commit messages
-- Test thoroughly before submitting
 
 ## 🛡️ Security Considerations
 

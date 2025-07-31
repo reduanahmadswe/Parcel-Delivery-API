@@ -5,7 +5,23 @@ This comprehensive guide provides detailed examples for testing all API endpoint
 ## 🚀 Base URL
 
 ```
-http://https://parcel-delivery-api-umber.vercel.app/api
+http://localhost:5000/api
+```
+
+## 🏥 Health Check
+
+**GET** `/`
+
+Check if the API server is running and healthy.
+
+**Response (200):**
+
+```json
+{
+  "success": true,
+  "message": "Parcel Delivery API is running successfully",
+  "timestamp": "2024-01-15T10:00:00.000Z"
+}
 ```
 
 ## 🔐 Authentication Overview
@@ -817,15 +833,38 @@ Authorization: Bearer <admin_access_token>
 
 **Query Parameters:**
 
-- `page`, `limit`, `status`, `isUrgent`, `startDate`, `endDate`
-- `search`: Search in tracking ID, names, description
-- `senderId`, `receiverId`, `senderEmail`, `receiverEmail`
-- `isFlagged`, `isHeld`, `isBlocked`
+- `page` (number): Page number for pagination (default: 1)
+- `limit` (number): Number of items per page (default: 10)
+- `status` (string): Filter by parcel status (requested, approved, dispatched, in-transit, delivered, cancelled, returned)
+- `isUrgent` (boolean): Filter by urgent delivery (true/false)
+- `startDate` (ISO string): Filter parcels created after this date
+- `endDate` (ISO string): Filter parcels created before this date
+- `search` (string): Search in tracking ID, sender name, receiver name, or description
+- `senderId` (string): Filter by specific sender ID
+- `receiverId` (string): Filter by specific receiver ID
+- `senderEmail` (string): Filter by sender email
+- `receiverEmail` (string): Filter by receiver email
+- `isFlagged` (boolean): Filter by flagged status (true/false)
+- `isHeld` (boolean): Filter by held status (true/false)
+- `isBlocked` (boolean): Filter by blocked status (true/false)
 
-**Request Example:**
+**Request Examples:**
 
 ```
-GET /parcels?page=1&limit=10&status=in-transit&isUrgent=true
+# Get all in-transit urgent parcels
+GET /parcels?status=in-transit&isUrgent=true
+
+# Search for parcels containing "laptop"
+GET /parcels?search=laptop
+
+# Get parcels from specific date range
+GET /parcels?startDate=2024-01-01T00:00:00.000Z&endDate=2024-01-31T23:59:59.999Z
+
+# Get flagged parcels only
+GET /parcels?isFlagged=true
+
+# Multiple filters with pagination
+GET /parcels?page=2&limit=5&status=delivered&senderEmail=john@example.com
 ```
 
 **Response (200):**
@@ -1022,6 +1061,145 @@ Authorization: Bearer <admin_access_token>
   }
 }
 ```
+
+### 6. Unblock Parcel (Admin Only)
+
+**PATCH** `/parcels/:id/unblock`
+
+Unblock a previously blocked parcel and restore normal operations.
+
+**Headers:**
+
+```
+Authorization: Bearer <admin_access_token>
+```
+
+**Request Body:**
+
+```json
+{
+  "note": "Issue resolved, unblocking parcel"
+}
+```
+
+**Response (200):**
+
+```json
+{
+  "statusCode": 200,
+  "success": true,
+  "message": "Parcel unblocked successfully",
+  "data": {
+    "_id": "507f1f77bcf86cd799439012",
+    "trackingId": "TRK-20240115-ABC123",
+    "isBlocked": false,
+    "isFlagged": false,
+    "isHeld": false,
+    "updatedAt": "2024-01-15T15:00:00.000Z"
+  }
+}
+```
+
+### 7. Return Parcel (Admin Only)
+
+**PATCH** `/parcels/:id/return`
+
+Mark a parcel as returned to sender.
+
+**Headers:**
+
+```
+Authorization: Bearer <admin_access_token>
+```
+
+**Request Body:**
+
+```json
+{
+  "note": "Undeliverable - incorrect address"
+}
+```
+
+**Response (200):**
+
+```json
+{
+  "statusCode": 200,
+  "success": true,
+  "message": "Parcel marked as returned successfully",
+  "data": {
+    "_id": "507f1f77bcf86cd799439012",
+    "trackingId": "TRK-20240115-ABC123",
+    "currentStatus": "returned",
+    "updatedAt": "2024-01-15T15:30:00.000Z"
+  }
+}
+```
+
+### 8. Assign Delivery Personnel (Admin Only)
+
+**PATCH** `/parcels/:id/assign-personnel`
+
+Assign delivery personnel to a parcel.
+
+**Headers:**
+
+```
+Authorization: Bearer <admin_access_token>
+```
+
+**Request Body:**
+
+```json
+{
+  "deliveryPersonnel": "Mike Johnson - Driver ID: D12345"
+}
+```
+
+**Response (200):**
+
+```json
+{
+  "statusCode": 200,
+  "success": true,
+  "message": "Delivery personnel assigned successfully",
+  "data": {
+    "_id": "507f1f77bcf86cd799439012",
+    "trackingId": "TRK-20240115-ABC123",
+    "assignedDeliveryPersonnel": "Mike Johnson - Driver ID: D12345",
+    "updatedAt": "2024-01-15T16:00:00.000Z"
+  }
+}
+```
+
+### 9. Delete Parcel (Admin Only)
+
+**DELETE** `/parcels/:id`
+
+Permanently delete a parcel from the system.
+
+**Headers:**
+
+```
+Authorization: Bearer <admin_access_token>
+```
+
+**Response (200):**
+
+```json
+{
+  "statusCode": 200,
+  "success": true,
+  "message": "Parcel deleted successfully",
+  "data": null
+}
+```
+
+**Important Notes:**
+
+- This action is irreversible
+- Only use for test data or in extreme cases
+- Consider archiving instead of deleting in production
 
 ---
 
