@@ -1,20 +1,18 @@
-import dotenv from 'dotenv';
 import mongoose from 'mongoose';
+import { envVars } from '../config/env';
 import { User } from '../modules/user/user.model';
-
-dotenv.config();
 
 const seedAdmin = async () => {
     try {
         // Connect to database
-        const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/parcel-delivery';
+        const mongoUri = envVars.MONGODB_URI;
         await mongoose.connect(mongoUri);
         console.log('✅ Connected to MongoDB');
 
         // Check if admin already exists
         const existingAdmin = await User.findOne({ role: 'admin' });
         if (existingAdmin) {
-            console.log('ℹ️ Admin user already exists');
+            console.log('Admin user already exists');
             process.exit(0);
         }
 

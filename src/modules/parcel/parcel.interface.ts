@@ -4,10 +4,10 @@ import { Document } from 'mongoose';
 export interface IStatusLog {
     status: 'requested' | 'approved' | 'dispatched' | 'in-transit' | 'delivered' | 'cancelled' | 'returned' | 'flagged' | 'held' | 'unflagged' | 'unheld' | 'unblocked';
     timestamp: Date;
-    updatedBy: string; // User ID (admin/sender/receiver/system)
-    updatedByType?: 'admin' | 'sender' | 'receiver' | 'system' | 'delivery_agent'; // Type of user who made the update
-    location?: string; // Physical location where status change occurred
-    note?: string; // Additional details about the status change (max 200 characters)
+    updatedBy: string; 
+    updatedByType?: 'admin' | 'sender' | 'receiver' | 'system' | 'delivery_agent'; 
+    location?: string; 
+    note?: string; 
 }
 
 export interface IParcel extends Document {

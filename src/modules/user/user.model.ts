@@ -1,6 +1,7 @@
 /* eslint-disable no-useless-escape */
 import bcrypt from 'bcryptjs';
 import { Schema, model } from 'mongoose';
+import { envVars } from '../../config/env';
 import { IUser } from './user.interface';
 
 const addressSchema = new Schema({
@@ -91,7 +92,7 @@ userSchema.pre('save', async function (next) {
     if (!this.isModified('password')) return next();
 
     try {
-        const saltRounds = parseInt(process.env.BCRYPT_SALT_ROUNDS || '12');
+        const saltRounds = parseInt(envVars.BCRYPT_SALT_ROUNDS);
         this.password = await bcrypt.hash(this.password, saltRounds);
         next();
     } catch (error) {

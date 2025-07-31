@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { NextFunction, Request, Response } from 'express';
+import { envVars } from '../config/env';
 import { handleCastError } from '../helpers/handleCastError';
 import { handlerDuplicateError } from '../helpers/handlerDuplicateError';
 import { handlerValidationError } from '../helpers/handlerValidationError';
@@ -55,7 +56,7 @@ export const globalErrorHandler = (
     }
 
     // Log error in development
-    if (process.env.NODE_ENV === 'development') {
+    if (envVars.NODE_ENV === 'development') {
         console.error('Error:', error);
     }
 
@@ -66,7 +67,7 @@ export const globalErrorHandler = (
         message,
         data: {
             errorSources: errorSources.length > 0 ? errorSources : undefined,
-            ...(process.env.NODE_ENV === 'development' && { stack: error.stack }),
+            ...(envVars.NODE_ENV === 'development' && { stack: error.stack }),
         },
     });
 };

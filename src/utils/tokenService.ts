@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import * as jwt from 'jsonwebtoken';
+import { envVars } from '../config/env';
 import { IUser } from '../modules/user/user.interface';
 import { User } from '../modules/user/user.model';
 import { AppError } from '../utils/AppError';
@@ -17,10 +18,10 @@ export const createUserTokens = (user: Partial<IUser>) => {
         role: user.role!,
     };
 
-    const accessSecret = process.env.JWT_ACCESS_SECRET || 'access-secret';
-    const refreshSecret = process.env.JWT_REFRESH_SECRET || 'refresh-secret';
-    const accessExpires = process.env.JWT_ACCESS_EXPIRES || '15m';
-    const refreshExpires = process.env.JWT_REFRESH_EXPIRES || '7d';
+    const accessSecret = envVars.JWT_ACCESS_SECRET;
+    const refreshSecret = envVars.JWT_REFRESH_SECRET;
+    const accessExpires = envVars.JWT_ACCESS_EXPIRES;
+    const refreshExpires = envVars.JWT_REFRESH_EXPIRES;
 
     // Use same pattern as helpers.ts
     const accessToken = jwt.sign(jwtPayload, accessSecret, { expiresIn: accessExpires } as jwt.SignOptions);
@@ -37,7 +38,7 @@ export const createUserTokens = (user: Partial<IUser>) => {
  */
 export const createNewAccessTokenWithRefreshToken = async (refreshToken: string) => {
     try {
-        const refreshSecret = process.env.JWT_REFRESH_SECRET || 'refresh-secret';
+        const refreshSecret = envVars.JWT_REFRESH_SECRET;
         const verifiedRefreshToken = jwt.verify(refreshToken, refreshSecret) as IJWTPayload;
 
         const isUserExist = await User.findOne({ email: verifiedRefreshToken.email });
@@ -56,8 +57,8 @@ export const createNewAccessTokenWithRefreshToken = async (refreshToken: string)
             role: isUserExist.role,
         };
 
-        const accessSecret = process.env.JWT_ACCESS_SECRET || 'access-secret';
-        const accessExpires = process.env.JWT_ACCESS_EXPIRES || '15m';
+        const accessSecret = envVars.JWT_ACCESS_SECRET;
+        const accessExpires = envVars.JWT_ACCESS_EXPIRES;
 
         // Use same pattern as helpers.ts
         const accessToken = jwt.sign(jwtPayload, accessSecret, { expiresIn: accessExpires } as jwt.SignOptions);

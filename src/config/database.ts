@@ -1,8 +1,9 @@
 import mongoose from 'mongoose';
+import { envVars } from './env';
 
 export const connectDB = async (): Promise<void> => {
     try {
-        const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/parcel-delivery';
+        const mongoUri = envVars.MONGODB_URI;
 
         await mongoose.connect(mongoUri, {
             maxPoolSize: 10,
@@ -34,4 +35,4 @@ export const connectDB = async (): Promise<void> => {
     }
 };
 
-//export default connectDB;
+// export default connectDB;

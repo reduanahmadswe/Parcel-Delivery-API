@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import * as jwt from 'jsonwebtoken';
+import { envVars } from '../config/env';
 import { IUser } from '../modules/user/user.interface';
 import { User } from '../modules/user/user.model';
 import { AppError } from './AppError';
@@ -18,13 +19,11 @@ export const generateToken = (user: IUser): string => {
         role: user.role,
     };
 
-    const secret = process.env.JWT_SECRET || 'fallback-secret';
-
-    return jwt.sign(payload, secret, { expiresIn: '7d' });
+    return jwt.sign(payload, envVars.JWT_SECRET, { expiresIn: '7d' });
 };
 
 export const verifyToken = (token: string): IJWTPayload => {
-    const secret = process.env.JWT_SECRET || 'fallback-secret';
+    const secret = envVars.JWT_SECRET;
     return jwt.verify(token, secret) as IJWTPayload;
 };
 

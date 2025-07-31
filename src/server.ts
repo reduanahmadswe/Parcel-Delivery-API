@@ -2,18 +2,19 @@
 import { Server } from 'http';
 import app from './app';
 import { connectDB } from './config/database';
+import { envVars } from './config/env';
 
 let server: Server;
 
 // Start server
-const PORT = process.env.PORT || 5000;
+const PORT = envVars.PORT;
 
 const startServer = async () => {
     await connectDB();
 
     server = app.listen(PORT, () => {
         console.log(`🚀 Server running on port ${PORT}`);
-        console.log(`📊 Environment: ${process.env.NODE_ENV}`);
+        console.log(`📊 Environment: ${envVars.NODE_ENV}`);
         console.log(`🔗 API Base URL: http://localhost:${PORT}/api`);
     });
 
@@ -67,4 +68,6 @@ process.on('SIGTERM', (error) => {
     process.exit(1);
 });
 
-export { app, server };
+//export { app, server };
+//export default app;
+
