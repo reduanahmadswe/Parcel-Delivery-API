@@ -24,7 +24,7 @@ export class ParcelService {
             }
 
             // Check if receiver is a registered user
-            let receiverId = null;
+            let receiverId: string | null = null;
             const receiver = await User.findOne({ email: parcelData.receiverInfo.email }).session(session);
             if (receiver) {
                 if (receiver.isBlocked) {
