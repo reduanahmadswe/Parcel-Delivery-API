@@ -343,13 +343,11 @@ Comprehensive API testing examples are available in `API_TESTING.md`. The file i
 - Authentication flows
 - Error handling scenarios
 
-## 📝 License
 
-This project is licensed under the ISC License.
 
 ## 🆘 Support
 
-For support, email your-email@example.com or create an issue in the GitHub repository.
+For support, email reduanahmadswe@gmail.com or create an issue in the GitHub repository.
 
 ## 🙏 Acknowledgments
 
@@ -427,155 +425,6 @@ src/
 | **Environment**    | Dotenv              | Environment variable management   |
 | **Process Mgmt**   | Nodemon             | Development auto-reload           |
 
-## 🚦 Getting Started
-
-### Prerequisites
-
-- **Node.js** (v16 or higher) - [Download](https://nodejs.org/)
-- **MongoDB** (local installation or cloud instance) - [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
-- **npm** or **yarn** package manager
-
-### 🔧 Installation
-
-1. **Clone the repository**
-
-   ```bash
-   git clone <repository-url>
-   cd parcel-delivery-api
-   ```
-
-2. **Install dependencies**
-
-   ```bash
-   npm install
-   ```
-
-3. **Environment setup**
-
-   Create a `.env` file in the root directory:
-
-   ```env
-   NODE_ENV=development
-   PORT=5000
-   MONGODB_URI=mongodb://localhost:27017/parcel-delivery
-   JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
-   JWT_EXPIRES_IN=15m
-   JWT_REFRESH_EXPIRES_IN=7d
-   BCRYPT_SALT_ROUNDS=12
-   FRONTEND_URL=http://localhost:3000
-   ```
-
-4. **Database setup**
-
-   Make sure MongoDB is running locally or provide a connection string to MongoDB Atlas.
-
-5. **Create admin user (optional)**
-
-   ```bash
-   npm run seed:admin
-   ```
-
-   This creates an admin user with:
-
-   - **Email**: `admin@parceldelivery.com`
-   - **Password**: `Admin123!`
-
-6. **Build the project**
-
-   ```bash
-   npm run build
-   ```
-
-7. **Start the server**
-
-   ```bash
-   # Development mode with auto-reload
-   npm run dev
-
-   # Production mode
-   npm start
-   ```
-
-The server will be available at `http://localhost:5000`
-
-### 🏥 Health Check
-
-Visit `http://localhost:5000/api/health` to verify the server is running.
-
-## 📊 API Endpoints Overview
-
-### 🏥 Health Check
-
-| Method | Endpoint | Description      | Access Level |
-| ------ | -------- | ---------------- | ------------ |
-| GET    | `/`      | API health check | Public       |
-
-### 🔐 Authentication Routes (`/api/auth`)
-
-| Method | Endpoint         | Description           | Access Level |
-| ------ | ---------------- | --------------------- | ------------ |
-| POST   | `/register`      | Register new user     | Public       |
-| POST   | `/login`         | User login            | Public       |
-| POST   | `/logout`        | User logout           | Public       |
-| POST   | `/refresh-token` | Refresh JWT token     | Public       |
-| GET    | `/me`            | Get current user info | Protected    |
-
-### 👤 User Management Routes (`/api/users`)
-
-| Method | Endpoint            | Description                 | Access Level  |
-| ------ | ------------------- | --------------------------- | ------------- |
-| GET    | `/profile`          | Get user profile            | Authenticated |
-| PATCH  | `/profile`          | Update user profile         | Authenticated |
-| GET    | `/`                 | Get all users (admin only)  | Admin         |
-| GET    | `/stats`            | Get user statistics (admin) | Admin         |
-| GET    | `/:id`              | Get user by ID (admin only) | Admin         |
-| PUT    | `/:id`              | Update user by ID (admin)   | Admin         |
-| PATCH  | `/:id/block-status` | Block/unblock user (admin)  | Admin         |
-| DELETE | `/:id`              | Delete user (admin only)    | Admin         |
-
-### 📦 Parcel Management Routes (`/api/parcels`)
-
-#### Public Access
-
-| Method | Endpoint             | Description        | Access Level |
-| ------ | -------------------- | ------------------ | ------------ |
-| GET    | `/track/:trackingId` | Track parcel by ID | Public       |
-
-#### Sender Access
-
-| Method | Endpoint      | Description              | Access Level |
-| ------ | ------------- | ------------------------ | ------------ |
-| POST   | `/`           | Create new parcel        | Sender       |
-| PATCH  | `/cancel/:id` | Cancel parcel (own only) | Sender       |
-
-#### Receiver Access
-
-| Method | Endpoint                | Description      | Access Level |
-| ------ | ----------------------- | ---------------- | ------------ |
-| PATCH  | `/:id/confirm-delivery` | Confirm delivery | Receiver     |
-
-#### Shared Access (Sender/Receiver/Admin)
-
-| Method | Endpoint          | Description               | Access Level          |
-| ------ | ----------------- | ------------------------- | --------------------- |
-| GET    | `/me`             | Get my parcels            | Sender/Receiver       |
-| GET    | `/:id`            | Get parcel by ID          | Sender/Receiver/Admin |
-| GET    | `/:id/status-log` | Get parcel status history | Sender/Receiver/Admin |
-
-#### Admin Access
-
-| Method | Endpoint                | Description               | Access Level |
-| ------ | ----------------------- | ------------------------- | ------------ |
-| GET    | `/`                     | Get all parcels           | Admin        |
-| GET    | `/admin/stats`          | Get parcel statistics     | Admin        |
-| PATCH  | `/:id/status`           | Update parcel status      | Admin        |
-| PATCH  | `/:id/block-status`     | Block/unblock parcel      | Admin        |
-| PATCH  | `/:id/assign-personnel` | Assign delivery personnel | Admin        |
-| PATCH  | `/:id/flag`             | Flag/unflag parcel        | Admin        |
-| PATCH  | `/:id/hold`             | Hold/unhold parcel        | Admin        |
-| PATCH  | `/:id/unblock`          | Unblock parcel            | Admin        |
-| PATCH  | `/:id/return`           | Return parcel             | Admin        |
-| DELETE | `/:id`                  | Delete parcel             | Admin        |
 
 ## 🎭 Role-Based Access Control
 
@@ -737,32 +586,6 @@ The system automatically calculates parcel fees based on:
 | `BCRYPT_SALT_ROUNDS`     | Password hashing rounds   | 12                                        | No       |
 | `FRONTEND_URL`           | Frontend application URL  | http://localhost:3000                     | No       |
 
-## 🧪 Development Commands
-
-```bash
-# Development with auto-reload and TypeScript compilation
-npm run dev
-
-# Build TypeScript to JavaScript
-npm run build
-
-# Clean build directory
-npm run clean
-
-# Start production server
-npm start
-
-# Create admin user
-npm run seed:admin
-
-# Code Quality (placeholder - configure as needed)
-npm run lint
-npm run lint:fix
-npm run lint:check
-
-# Run tests (placeholder - implement as needed)
-npm test
-```
 
 ## 🔧 Testing
 
@@ -785,17 +608,6 @@ For comprehensive API testing, refer to the [API_TESTING.md](./API_TESTING.md) f
 5. **Logging**: Implement proper logging for production monitoring
 6. **Process Management**: Use PM2 or similar for process management
 
-### Docker Deployment (Optional)
-
-```dockerfile
-FROM node:18-alpine
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci --only=production
-COPY dist ./dist
-EXPOSE 5000
-CMD ["npm", "start"]
-```
 
 ## 🤝 Contributing
 
@@ -829,88 +641,6 @@ For support, please contact the development team or create an issue in the repos
 - [Deployment Guide](./docs/deployment.md) - Production deployment instructions
 
 ---
-
-**Built with ❤️ using Node.js, Express.js, TypeScript, and MongoDB**
-npm start
-
-# Create admin user
-
-npm run seed:admin
-
-# Linting (placeholder for future ESLint integration)
-
-npm run lint
-
-# Testing (placeholder for future test implementation)
-
-npm test
-
-````
-
-## ️ Database Schema
-
-### User Schema
-
-```typescript
-{
-  _id: ObjectId,
-  email: string (unique, indexed),
-  password: string (hashed),
-  name: string,
-  phone: string,
-  role: 'sender' | 'receiver' | 'admin',
-  address: {
-    street: string,
-    city: string,
-    state: string,
-    zipCode: string,
-    country: string
-  },
-  isBlocked: boolean,
-  isVerified: boolean,
-  createdAt: Date,
-  updatedAt: Date
-}
-````
-
-### Parcel Schema
-
-```typescript
-{
-  _id: ObjectId,
-  trackingId: string (unique, indexed),
-  senderId: string (indexed),
-  receiverId: string (optional, indexed),
-  senderInfo: PersonInfo,
-  receiverInfo: PersonInfo,
-  parcelDetails: {
-    type: 'document' | 'package' | 'fragile' | 'electronics' | 'clothing' | 'other',
-    weight: number,
-    dimensions: { length: number, width: number, height: number },
-    description: string,
-    value: number
-  },
-  deliveryInfo: {
-    preferredDeliveryDate: Date,
-    deliveryInstructions: string,
-    isUrgent: boolean
-  },
-  fee: {
-    baseFee: number,
-    weightFee: number,
-    urgentFee: number,
-    totalFee: number,
-    isPaid: boolean,
-    paymentMethod: 'cash' | 'card' | 'online'
-  },
-  currentStatus: string (indexed),
-  statusHistory: Array<StatusLog>,
-  assignedDeliveryPersonnel: string,
-  isBlocked: boolean,
-  createdAt: Date (indexed),
-  updatedAt: Date
-}
-```
 
 ## 🛡️ Security Considerations
 
