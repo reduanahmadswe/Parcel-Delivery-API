@@ -67,6 +67,4 @@ process.on('SIGTERM', (error) => {
     process.exit(1);
 });
 
-// export default { app, server };
-
-export default app; 
+export { app, server };

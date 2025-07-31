@@ -24,7 +24,7 @@ app.use(cookieParser());
 app.use('/api', router);
 
 // Health check
-app.get('/api/health', (req, res) => {
+app.get('/', (req, res) => {
     res.status(200).json({
         success: true,
         message: 'Parcel Delivery API is running successfully',
