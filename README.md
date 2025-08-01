@@ -140,70 +140,261 @@ http://localhost:5000/api
 
 ### 🔐 Authentication Endpoints
 
-| Method | Endpoint              | Description           | Access  |
-| ------ | --------------------- | --------------------- | ------- |
-| POST   | `/auth/register`      | Register new user     | Public  |
-| POST   | `/auth/login`         | User login            | Public  |
-| POST   | `/auth/logout`        | User logout           | Public  |
-| POST   | `/auth/refresh-token` | Refresh access token  | Public  |
-| GET    | `/auth/me`            | Get current user info | Private |
+| Method | Endpoint              | Description                         | Access  | Body Required |
+| ------ | --------------------- | ----------------------------------- | ------- | ------------- |
+| POST   | `/auth/register`      | Register new user                   | Public  | ✅            |
+| POST   | `/auth/login`         | User login                          | Public  | ✅            |
+| POST   | `/auth/logout`        | User logout (clears cookies)        | Public  | ❌            |
+| POST   | `/auth/refresh-token` | Refresh access token using cookie   | Public  | ❌            |
+| GET    | `/auth/me`            | Get current authenticated user info | Private | ❌            |
+
+#### 🔐 Authentication Examples
+
+**Register**
+
+```json
+POST /api/auth/register
+{
+  "name": "John Doe",
+  "email": "john@example.com",
+  "password": "Password123!",
+  "phone": "+8801700001001",
+  "role": "sender",
+  "address": {
+    "street": "123 Main St",
+    "city": "Dhaka",
+    "state": "Dhaka Division",
+    "zipCode": "1000",
+    "country": "Bangladesh"
+  }
+}
+```
+
+**Login**
+
+```json
+POST /api/auth/login
+{
+  "email": "john@example.com",
+  "password": "Password123!"
+}
+```
 
 ### 👤 User Management Endpoints
 
-| Method | Endpoint                  | Description              | Access |
-| ------ | ------------------------- | ------------------------ | ------ |
-| GET    | `/users/profile`          | Get user profile         | User   |
-| PATCH  | `/users/profile`          | Update user profile      | User   |
-| GET    | `/users`                  | Get all users            | Admin  |
-| GET    | `/users/stats`            | Get user statistics      | Admin  |
-| GET    | `/users/:id`              | Get user by ID           | Admin  |
-| PUT    | `/users/:id`              | Update user by ID        | Admin  |
-| PATCH  | `/users/:id/block-status` | Toggle user block status | Admin  |
-| DELETE | `/users/:id`              | Delete user              | Admin  |
+| Method | Endpoint                  | Description                       | Access | Body Required | Query Params |
+| ------ | ------------------------- | --------------------------------- | ------ | ------------- | ------------ |
+| GET    | `/users/profile`          | Get current user's profile        | User   | ❌            | ❌           |
+| PATCH  | `/users/profile`          | Update current user's profile     | User   | ✅            | ❌           |
+| GET    | `/users`                  | Get all users (paginated)         | Admin  | ❌            | ✅           |
+| GET    | `/users/stats`            | Get user statistics and analytics | Admin  | ❌            | ❌           |
+| GET    | `/users/:id`              | Get specific user by ID           | Admin  | ❌            | ❌           |
+| PUT    | `/users/:id`              | Update specific user by ID        | Admin  | ✅            | ❌           |
+| PATCH  | `/users/:id/block-status` | Toggle user block/unblock status  | Admin  | ✅            | ❌           |
+| DELETE | `/users/:id`              | Delete user (soft delete)         | Admin  | ❌            | ❌           |
+
+#### 👤 User Management Examples
+
+**Get All Users (Admin)**
+
+```
+GET /api/users?page=1&limit=10&role=sender
+```
+
+**Update Profile**
+
+```json
+PATCH /api/users/profile
+{
+  "name": "John Updated",
+  "phone": "+8801700001002"
+}
+```
+
+**Toggle User Block Status**
+
+```json
+PATCH /api/users/507f1f77bcf86cd799439011/block-status
+{
+  "isBlocked": true,
+  "reason": "Suspicious activity detected"
+}
+```
 
 ### 📦 Parcel Management Endpoints
 
-#### Public Routes
+#### 🌍 Public Routes (No Authentication)
 
-| Method | Endpoint                     | Description                 | Access |
-| ------ | ---------------------------- | --------------------------- | ------ |
-| GET    | `/parcels/track/:trackingId` | Track parcel by tracking ID | Public |
+| Method | Endpoint                     | Description                 | Access | Body Required |
+| ------ | ---------------------------- | --------------------------- | ------ | ------------- |
+| GET    | `/parcels/track/:trackingId` | Track parcel by tracking ID | Public | ❌            |
 
-#### Sender Routes
+**Public Tracking Example**
 
-| Method | Endpoint              | Description       | Access |
-| ------ | --------------------- | ----------------- | ------ |
-| POST   | `/parcels`            | Create new parcel | Sender |
-| PATCH  | `/parcels/cancel/:id` | Cancel parcel     | Sender |
+```
+GET /api/parcels/track/TRK-20250801-ABC123
+```
 
-#### Receiver Routes
+#### 📤 Sender Routes
 
-| Method | Endpoint                        | Description      | Access   |
-| ------ | ------------------------------- | ---------------- | -------- |
-| PATCH  | `/parcels/:id/confirm-delivery` | Confirm delivery | Receiver |
+| Method | Endpoint              | Description                            | Access | Body Required |
+| ------ | --------------------- | -------------------------------------- | ------ | ------------- |
+| POST   | `/parcels`            | Create new parcel using receiver email | Sender | ✅            |
+| PATCH  | `/parcels/cancel/:id` | Cancel parcel (only before dispatch)   | Sender | ✅            |
 
-#### Shared Routes (Sender & Receiver)
+**Create Parcel Example (Email-Based)**
 
-| Method | Endpoint                  | Description               | Access                |
-| ------ | ------------------------- | ------------------------- | --------------------- |
-| GET    | `/parcels/me`             | Get user's parcels        | Sender/Receiver       |
-| GET    | `/parcels/:id`            | Get parcel by ID          | Sender/Receiver/Admin |
-| GET    | `/parcels/:id/status-log` | Get parcel status history | Sender/Receiver/Admin |
+```json
+POST /api/parcels
+{
+  "receiverEmail": "receiver@example.com",
+  "receiverInfo": {
+    "phone": "+8801700004002",
+    "address": {
+      "street": "456 Receiver Ave",
+      "city": "Chittagong",
+      "state": "Chittagong Division",
+      "zipCode": "4000",
+      "country": "Bangladesh"
+    }
+  },
+  "parcelDetails": {
+    "type": "electronics",
+    "weight": 2.5,
+    "dimensions": {
+      "length": 30,
+      "width": 20,
+      "height": 15
+    },
+    "description": "Mobile phone and accessories",
+    "value": 5000
+  },
+  "deliveryInfo": {
+    "preferredDeliveryDate": "2025-08-05T10:00:00.000Z",
+    "deliveryInstructions": "Call before delivery",
+    "isUrgent": false
+  }
+}
+```
 
-#### Admin Routes
+**Cancel Parcel Example**
 
-| Method | Endpoint                        | Description                | Access |
-| ------ | ------------------------------- | -------------------------- | ------ |
-| GET    | `/parcels`                      | Get all parcels            | Admin  |
-| GET    | `/parcels/admin/stats`          | Get parcel statistics      | Admin  |
-| PATCH  | `/parcels/:id/status`           | Update parcel status       | Admin  |
-| PATCH  | `/parcels/:id/block-status`     | Toggle parcel block status | Admin  |
-| PATCH  | `/parcels/:id/assign-personnel` | Assign delivery personnel  | Admin  |
-| PATCH  | `/parcels/:id/flag`             | Flag/unflag parcel         | Admin  |
-| PATCH  | `/parcels/:id/hold`             | Hold/unhold parcel         | Admin  |
-| PATCH  | `/parcels/:id/unblock`          | Unblock parcel             | Admin  |
-| PATCH  | `/parcels/:id/return`           | Return parcel              | Admin  |
-| DELETE | `/parcels/:id`                  | Delete parcel              | Admin  |
+```json
+PATCH /api/parcels/cancel/507f1f77bcf86cd799439012
+{
+  "reason": "Changed delivery plans"
+}
+```
+
+#### 📥 Receiver Routes
+
+| Method | Endpoint                        | Description                     | Access   | Body Required |
+| ------ | ------------------------------- | ------------------------------- | -------- | ------------- |
+| PATCH  | `/parcels/:id/confirm-delivery` | Confirm parcel delivery receipt | Receiver | ✅            |
+
+**Confirm Delivery Example**
+
+```json
+PATCH /api/parcels/507f1f77bcf86cd799439012/confirm-delivery
+{
+  "note": "Package received in excellent condition"
+}
+```
+
+#### 🔄 Shared Routes (Sender & Receiver)
+
+| Method | Endpoint                  | Description                    | Access                | Body Required | Query Params |
+| ------ | ------------------------- | ------------------------------ | --------------------- | ------------- | ------------ |
+| GET    | `/parcels/me`             | Get user's parcels (paginated) | Sender/Receiver       | ❌            | ✅           |
+| GET    | `/parcels/:id`            | Get specific parcel details    | Sender/Receiver/Admin | ❌            | ❌           |
+| GET    | `/parcels/:id/status-log` | Get parcel status history      | Sender/Receiver/Admin | ❌            | ❌           |
+
+**Get My Parcels Example**
+
+```
+GET /api/parcels/me?page=1&limit=10&status=delivered&isUrgent=false&startDate=2025-01-01&endDate=2025-12-31
+```
+
+#### 🛠️ Admin Routes
+
+| Method | Endpoint                        | Description                          | Access | Body Required | Query Params |
+| ------ | ------------------------------- | ------------------------------------ | ------ | ------------- | ------------ |
+| GET    | `/parcels`                      | Get all parcels (paginated)          | Admin  | ❌            | ✅           |
+| GET    | `/parcels/admin/stats`          | Get comprehensive parcel statistics  | Admin  | ❌            | ❌           |
+| PATCH  | `/parcels/:id/status`           | Update parcel status                 | Admin  | ✅            | ❌           |
+| PATCH  | `/parcels/:id/block-status`     | Toggle parcel block status           | Admin  | ✅            | ❌           |
+| PATCH  | `/parcels/:id/assign-personnel` | Assign delivery personnel to parcel  | Admin  | ✅            | ❌           |
+| PATCH  | `/parcels/:id/flag`             | Flag/unflag parcel for review        | Admin  | ✅            | ❌           |
+| PATCH  | `/parcels/:id/hold`             | Put parcel on hold/release from hold | Admin  | ✅            | ❌           |
+| PATCH  | `/parcels/:id/unblock`          | Unblock a blocked parcel             | Admin  | ✅            | ❌           |
+| PATCH  | `/parcels/:id/return`           | Return parcel to sender              | Admin  | ✅            | ❌           |
+| DELETE | `/parcels/:id`                  | Delete parcel (soft delete)          | Admin  | ❌            | ❌           |
+
+#### 🛠️ Admin Examples
+
+**Update Parcel Status**
+
+```json
+PATCH /api/parcels/507f1f77bcf86cd799439012/status
+{
+  "status": "in-transit",
+  "location": "Dhaka Distribution Center",
+  "note": "Parcel is being transported to destination"
+}
+```
+
+**Assign Delivery Personnel**
+
+```json
+PATCH /api/parcels/507f1f77bcf86cd799439012/assign-personnel
+{
+  "deliveryPersonnelId": "507f1f77bcf86cd799439015",
+  "note": "Assigned to John Delivery"
+}
+```
+
+**Flag Parcel**
+
+```json
+PATCH /api/parcels/507f1f77bcf86cd799439012/flag
+{
+  "isFlagged": true,
+  "reason": "Suspicious contents reported"
+}
+```
+
+**Hold Parcel**
+
+```json
+PATCH /api/parcels/507f1f77bcf86cd799439012/hold
+{
+  "isHeld": true,
+  "reason": "Investigation required"
+}
+```
+
+### 📊 Query Parameters
+
+#### Parcel Queries (`/parcels` and `/parcels/me`)
+
+| Parameter   | Type    | Description                             | Example                |
+| ----------- | ------- | --------------------------------------- | ---------------------- |
+| `page`      | number  | Page number for pagination (default: 1) | `page=2`               |
+| `limit`     | number  | Items per page (default: 10, max: 100)  | `limit=20`             |
+| `status`    | string  | Filter by parcel status                 | `status=delivered`     |
+| `isUrgent`  | boolean | Filter by urgency                       | `isUrgent=true`        |
+| `startDate` | string  | Filter by creation date (ISO format)    | `startDate=2025-01-01` |
+| `endDate`   | string  | Filter by creation date (ISO format)    | `endDate=2025-12-31`   |
+| `search`    | string  | Search in tracking ID, description      | `search=electronics`   |
+
+#### User Queries (`/users`)
+
+| Parameter | Type   | Description                             | Example       |
+| --------- | ------ | --------------------------------------- | ------------- |
+| `page`    | number | Page number for pagination (default: 1) | `page=2`      |
+| `limit`   | number | Items per page (default: 10, max: 50)   | `limit=20`    |
+| `role`    | string | Filter by user role                     | `role=sender` |
+| `search`  | string | Search in name, email                   | `search=john` |
 
 ## 🎯 Available Scripts
 
