@@ -89,9 +89,9 @@ export const generateTrackingId = (): string => {
 
 export const calculateDeliveryFee = (weight: number, distance?: number): number => {
     // Base fee calculation
-    const baseFee = 50; // Base fee in BDT
-    const weightFee = weight * 20; // 20 BDT per kg
-    const distanceFee = distance ? distance * 5 : 0; // 5 BDT per km (optional)
+    const baseFee = 50; 
+    const weightFee = weight * 20; 
+    const distanceFee = distance ? distance * 5 : 0; 
 
     return baseFee + weightFee + distanceFee;
 };

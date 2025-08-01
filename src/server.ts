@@ -3,6 +3,7 @@ import { Server } from 'http';
 import app from './app';
 import { connectDB } from './config/database';
 import { envVars } from './config/env';
+import seedAdmin from './scripts/seedAdmin';
 
 let server: Server;
 
@@ -24,6 +25,13 @@ const startServer = async () => {
 // Start the application
 (async () => {
     await startServer();
+
+    // Seed admin user after server starts
+    try {
+        await seedAdmin();
+    } catch (error) {
+        console.error('❌ Admin seeding failed:', error);
+    }
 })();
 /**
  * Process event handlers for graceful shutdown
