@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextFunction, Request, Response } from 'express';
 import * as jwt from 'jsonwebtoken';
+import { envVars } from '../config/env';
 import { UserService } from '../modules/user/user.service';
 import { AppError } from '../utils/AppError';
 import { catchAsync } from '../utils/catchAsync';
@@ -20,7 +21,7 @@ export const authenticate = catchAsync(async (req: Request, res: Response, next:
     }
 
     // Use the same secret as token creation (JWT_SECRET)
-    const decoded = jwt.verify(accessToken, process.env.JWT_SECRET || 'fallback-secret') as IJWTPayload;
+    const decoded = jwt.verify(accessToken, envVars.JWT_SECRET) as IJWTPayload;
     const user = await UserService.getUserById(decoded.userId);
 
     if (!user) {

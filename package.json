@@ -11,7 +11,7 @@
     "lint": "npx eslint ./src",
     "lint:fix": "npx eslint ./src --fix",
     "lint:check": "npx eslint ./src --max-warnings 0",
-    "seed:admin": "ts-node src/scripts/seedAdmin.ts",
+    "seed:admin": "ts-node src/scripts/seedAdminStandalone.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [

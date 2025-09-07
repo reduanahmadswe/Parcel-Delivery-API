@@ -18,8 +18,10 @@ router.use(authorize('admin'));
 router.get('/', UserController.getAllUsers);
 router.get('/stats', UserController.getUserStats);
 router.get('/:id', validateRequest(userIdValidation), UserController.getUserById);
-router.put('/:id', validateRequest(userIdValidation), validateRequest(updateUserValidation), UserController.updateUserById);
-router.patch('/:id/block-status', validateRequest(userIdValidation), validateRequest(toggleUserBlockStatusValidation), UserController.toggleUserBlockStatus);
+router.put('/:id', validateRequest(userIdValidation), validateRequest(updateUserValidation),
+ UserController.updateUserById);
+router.patch('/:id/block-status', validateRequest(userIdValidation), 
+validateRequest(toggleUserBlockStatusValidation), UserController.toggleUserBlockStatus);
 router.delete('/:id', validateRequest(userIdValidation), UserController.deleteUser);
 
 export const userRoutes = router;

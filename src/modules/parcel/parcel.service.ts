@@ -13,25 +13,58 @@ export class ParcelService {
         session.startTransaction();
 
         try {
-            // Get sender information
+            // Get sender information and validate sender role
             const sender = await User.findById(senderId).session(session);
             if (!sender) {
                 throw new AppError('Sender not found', 404);
             }
 
-            if (sender.isBlocked) {
-                throw new AppError('Your account is blocked', 403);
+            // Ensure only senders can create parcels
+            if (sender.role !== 'sender') {
+                throw new AppError('Only users with sender role can create parcels', 403);
             }
 
-            // Check if receiver is a registered user
-            let receiverId: string | null = null;
-            const receiver = await User.findOne({ email: parcelData.receiverInfo.email }).session(session);
-            if (receiver) {
-                if (receiver.isBlocked) {
-                    throw new AppError('Receiver account is blocked', 400);
-                }
-                receiverId = receiver._id.toString();
+            if (sender.isBlocked) {
+                throw new AppError('Your account is blocked and cannot create parcels', 403);
             }
+
+            // Validate and find receiver by email - REQUIRED to exist in database
+            const receiver = await User.findOne({ email: parcelData.receiverEmail }).session(session);
+            if (!receiver) {
+                throw new AppError(
+                    'Validation Error',
+                    400,
+                    {
+                        errors: [
+                            {
+                                path: 'receiverEmail',
+                                message: 'Receiver with this email does not exist',
+                            },
+                        ],
+                    },
+                );
+            }
+
+            // Ensure receiver has receiver role
+            if (receiver.role !== 'receiver') {
+                throw new AppError('Selected user is not registered as a receiver', 400);
+            }
+
+            // Additional receiver validations
+            if (receiver.isBlocked) {
+                throw new AppError('The receiver account is blocked and cannot receive parcels', 400);
+            }
+
+            // Prevent sending parcel to self
+            if (receiver._id.toString() === senderId.toString()) {
+                throw new AppError('You cannot send a parcel to yourself', 400);
+            }
+
+            // Calculate fees
+            const baseFee = 50; // BDT
+            const weightFee = Math.ceil(parcelData.parcelDetails.weight) * 20; // 20 BDT per kg
+            const urgentFee = parcelData.deliveryInfo.isUrgent ? 100 : 0; // 100 BDT for urgent
+            const totalFee = baseFee + weightFee + urgentFee;
 
             // Create parcel with retry logic for tracking ID uniqueness
             let parcel;
@@ -42,23 +75,39 @@ export class ParcelService {
                 try {
                     parcel = new Parcel({
                         senderId,
-                        receiverId,
+                        receiverId: receiver._id.toString(),
                         senderInfo: {
                             name: sender.name,
                             email: sender.email,
                             phone: sender.phone,
                             address: sender.address,
                         },
-                        receiverInfo: parcelData.receiverInfo,
+                        receiverInfo: {
+                            name: receiver.name, // Always from database (non-editable)
+                            email: receiver.email, // Always from database (non-editable)
+                            phone: parcelData.receiverInfo?.phone || receiver.phone, // Override or default
+                            address: parcelData.receiverInfo?.address || receiver.address, // Override or default
+                        },
                         parcelDetails: parcelData.parcelDetails,
                         deliveryInfo: parcelData.deliveryInfo,
                         fee: {
-                            baseFee: 0,
-                            weightFee: 0,
-                            urgentFee: 0,
-                            totalFee: 0,
+                            baseFee,
+                            weightFee,
+                            urgentFee,
+                            totalFee,
                             isPaid: false,
                         },
+                        currentStatus: 'requested',
+                        statusHistory: [{
+                            status: 'requested' as any,
+                            timestamp: new Date(),
+                            updatedBy: senderId,
+                            updatedByType: 'sender',
+                            note: 'Parcel creation requested by sender',
+                        }],
+                        isFlagged: false,
+                        isHeld: false,
+                        isBlocked: false,
                     });
 
                     await parcel.save({ session });

@@ -3,7 +3,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { AppError } from '../../utils/AppError';
 import { catchAsync } from '../../utils/catchAsync';
-import { IJWTPayload } from '../../utils/helpers';
+// import { IJWTPayload } from '../../utils/helpers';
 import { sendResponse } from '../../utils/sendResponse';
 import { UserService } from './user.service';
 

@@ -13,7 +13,7 @@ const startServer = async () => {
 
     server = app.listen(PORT, () => {
         console.log(`🚀 Server running on port ${PORT}`);
-        console.log(`📊 Environment: ${process.env.NODE_ENV}`);
+        console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
         console.log(`🔗 API Base URL: http://localhost:${PORT}/api`);
     });
 
@@ -24,6 +24,7 @@ const startServer = async () => {
 (async () => {
     await startServer();
 })();
+
 /**
  * Process event handlers for graceful shutdown
  */
