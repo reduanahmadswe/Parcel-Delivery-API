@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import { Server } from 'http';
 import app from './app';
-import { connectDB } from './config/database';
+import connectDB from './config/database';
 
 let server: Server;
 
@@ -68,3 +68,4 @@ process.on('SIGTERM', (error) => {
 });
 
 export { app, server };
+
