@@ -264,6 +264,26 @@ export class ParcelService {
         };
     }
 
+    // Get current user's parcels without pagination
+    static async getMyParcelsNoPagination(
+        userId: string,
+        userRole: string,
+        userEmail: string,
+    ): Promise<IParcelResponse[]> {
+        const filter: any = {};
+
+        // Role-based filtering
+        if (userRole === 'sender') {
+            filter.senderId = userId;
+        } else if (userRole === 'receiver') {
+            // For receivers, match against their email in receiverInfo.email
+            filter['receiverInfo.email'] = userEmail;
+        }
+
+        const parcels = await Parcel.find(filter).sort({ createdAt: -1 });
+        return parcels.map(parcel => parcel.toJSON());
+    }
+
     // Get all parcels (admin only)
     static async getAllParcels(
         page = 1,

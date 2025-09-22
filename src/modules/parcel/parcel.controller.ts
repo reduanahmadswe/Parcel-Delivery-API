@@ -102,6 +102,26 @@ export class ParcelController {
         });
     });
 
+    // Get current user's parcels with out pagination
+    static getMyParcelsNoPagination = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+        const userId = (req as any).user.userId;
+        const userRole = (req as any).user.role;
+        const userEmail = (req as any).user.email;
+
+        const result = await ParcelService.getUserParcels(
+            userId,
+            userRole,
+            userEmail,
+        );
+
+        sendResponse(res, {
+            statuscode: 200,
+            success: true,
+            message: 'Parcels retrieved successfully',
+            data: result.parcels,
+        });
+    });
+
     // Get all parcels (admin only)
     static getAllParcels = catchAsync(async (req: Request, res: Response) => {
         const {

@@ -54,6 +54,12 @@ router.get('/me',
     ParcelController.getMyParcels,
 );
 
+// Shared routes (sender, receiver, and admin)
+router.get('/me/no-pagination',
+    authorize('sender', 'receiver', 'admin'),
+    ParcelController.getMyParcelsNoPagination,
+);
+
 router.get('/:id',
     authorize('sender', 'receiver', 'admin'),
     validateRequest(parcelIdValidation),

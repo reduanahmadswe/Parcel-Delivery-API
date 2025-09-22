@@ -102,10 +102,11 @@ const deliveryInfoSchema = new Schema({
     preferredDeliveryDate: {
         type: Date,
         validate: {
-            validator: function (date: Date) {
-                return date > new Date();
+            validator: function (_date: Date) {
+                // Allow any date - remove the future date restriction
+                return true;
             },
-            message: 'Preferred delivery date must be in the future',
+            message: 'Invalid delivery date',
         },
     },
     deliveryInstructions: {
