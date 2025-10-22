@@ -64,6 +64,11 @@ app.get('/', (req, res) => {
 
 // Database connection middleware for API routes only  
 app.use('/api', async (req, res, next) => {
+    // Skip database connection for OPTIONS requests (CORS preflight)
+    if (req.method === 'OPTIONS') {
+        return next();
+    }
+
     // Set a very aggressive timeout for API requests
     const timeout = setTimeout(() => {
         if (!res.headersSent) {
