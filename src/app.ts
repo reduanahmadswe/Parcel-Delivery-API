@@ -10,10 +10,10 @@ import { router } from './routes';
 
 const app = express();
 
-// Trust proxy for Vercel
+// Trust proxy for Render/Vercel
 app.set('trust proxy', 1);
 
-// CORS Configuration
+// CORS Configuration - MUST be first
 const allowedOrigins = [
     'http://localhost:3000',
     'http://localhost:5173',
@@ -25,7 +25,7 @@ if (envVars.FRONTEND_URL) {
     allowedOrigins.push(envVars.FRONTEND_URL);
 }
 
-// Middleware
+// CORS Middleware
 app.use(cors({
     origin: (origin, callback) => {
         // Allow requests with no origin (like mobile apps, Postman, etc.)
@@ -34,7 +34,7 @@ app.use(cors({
         if (allowedOrigins.includes(origin)) {
             callback(null, true);
         } else {
-            console.warn('Blocked origin:', origin);
+            console.warn('⚠️ Blocked origin:', origin);
             callback(new Error('Not allowed by CORS'));
         }
     },
@@ -46,6 +46,10 @@ app.use(cors({
     optionsSuccessStatus: 204,
 }));
 
+// Handle preflight requests immediately
+app.options('*', cors());
+
+// Body parsers
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -62,24 +66,38 @@ app.get('/', (req, res) => {
     });
 });
 
-// Database connection middleware for API routes only  
+// Health check endpoint specifically for monitoring
+app.get('/health', (req, res) => {
+    res.status(200).json({
+        status: 'ok',
+        database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
+    });
+});
+
+// Database connection middleware - OPTIMIZED VERSION
 app.use('/api', async (req, res, next) => {
-    // Skip database connection for OPTIONS requests (CORS preflight)
+    // Skip database check for OPTIONS requests (CORS preflight)
     if (req.method === 'OPTIONS') {
         return next();
     }
 
-    // Set a very aggressive timeout for API requests
+    // If DB is already connected, continue immediately
+    if (mongoose.connection.readyState === 1) {
+        return next();
+    }
+
+    // Only try to connect if not connected
     const timeout = setTimeout(() => {
         if (!res.headersSent) {
-            res.status(408).json({
+            console.error('⚠️ Database connection timeout');
+            res.status(503).json({
                 success: false,
-                message: 'API request timeout - database connection failed',
-                error: 'Database connection timeout',
+                message: 'Service temporarily unavailable - database connection timeout',
+                error: 'DATABASE_TIMEOUT',
                 timestamp: new Date().toISOString(),
             });
         }
-    }, 8000); // 8 second timeout for API routes
+    }, 5000); // Reduced to 5 seconds
 
     try {
         await connectDB();
@@ -89,10 +107,11 @@ app.use('/api', async (req, res, next) => {
         clearTimeout(timeout);
 
         if (!res.headersSent) {
-            res.status(500).json({
+            console.error('❌ Database connection failed:', error);
+            res.status(503).json({
                 success: false,
-                message: 'Database connection failed',
-                error: error instanceof Error ? error.message : 'Unknown error',
+                message: 'Service temporarily unavailable - database connection failed',
+                error: error instanceof Error ? error.message : 'DATABASE_ERROR',
                 timestamp: new Date().toISOString(),
             });
         }
