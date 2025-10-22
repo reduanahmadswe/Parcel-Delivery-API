@@ -3,6 +3,7 @@ import cors from 'cors';
 import express from 'express';
 import mongoose from 'mongoose';
 import connectDB from './config/database';
+import { envVars } from './config/env';
 import { globalErrorHandler } from './middlewares/globalErrorHandler';
 import { notFoundHandler } from './middlewares/notFoundHandler';
 import { router } from './routes';
@@ -12,17 +13,37 @@ const app = express();
 // Trust proxy for Vercel
 app.set('trust proxy', 1);
 
+// CORS Configuration
+const allowedOrigins = [
+    'http://localhost:3000',
+    'http://localhost:5173',
+    'https://parcel-delivery-frontend.onrender.com',
+];
+
+// Add FRONTEND_URL from environment if it exists
+if (envVars.FRONTEND_URL) {
+    allowedOrigins.push(envVars.FRONTEND_URL);
+}
+
 // Middleware
 app.use(cors({
-    origin: [
-        'http://localhost:3000',
-        'http://localhost:5173',
-        'https://parcel-delivery-frontend-gold.vercel.app',
-    ],
+    origin: (origin, callback) => {
+        // Allow requests with no origin (like mobile apps, Postman, etc.)
+        if (!origin) return callback(null, true);
+
+        if (allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            console.warn('Blocked origin:', origin);
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'x-refresh-token'],
     exposedHeaders: ['x-refresh-token'],
+    preflightContinue: false,
+    optionsSuccessStatus: 204,
 }));
 
 app.use(express.json({ limit: '10mb' }));
