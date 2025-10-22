@@ -1,70 +1,36 @@
 {
   "name": "parcel-delivery-api",
   "version": "1.0.0",
-  "main": "dist/server.js",
   "scripts": {
-    "start": "node dist/api/index.js",
     "dev": "nodemon src/server.ts",
     "build": "tsc",
-    "vercel-build": "tsc",
-    "clean": "node -e \"require('fs').rmSync('dist', { recursive: true, force: true })\"",
-    "lint": "npx eslint ./src",
-    "lint:fix": "npx eslint ./src --fix",
-    "lint:check": "npx eslint ./src --max-warnings 0",
-    "seed:admin": "ts-node src/scripts/seedAdminStandalone.ts",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node dist/server.js",
+    "clean": "node -e \"require('fs').rmSync('dist', { recursive: true, force: true })\""
   },
-  "keywords": [
-    "express",
-    "mongodb",
-    "typescript",
-    "jwt",
-    "parcel-delivery",
-    "api"
-  ],
-  "author": "",
-  "license": "ISC",
-  "description": "A secure, modular, and role-based backend API for a parcel delivery system",
   "dependencies": {
     "bcryptjs": "^3.0.2",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
+    "express-rate-limit": "^7.3.0",
+    "helmet": "^7.2.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.17.0",
-    "serverless-http": "^3.2.0",
+    "morgan": "^1.10.0",
     "zod": "^4.0.14"
   },
   "devDependencies": {
-    "@eslint/js": "^9.32.0",
     "@types/bcryptjs": "^2.4.6",
     "@types/cookie-parser": "^1.4.9",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/mongoose": "^5.11.96",
+    "@types/morgan": "^1.9.7",
     "@types/node": "^24.1.0",
-    "@typescript-eslint/eslint-plugin": "^8.38.0",
-    "@typescript-eslint/parser": "^8.38.0",
-    "@vercel/node": "^5.3.7",
-    "eslint": "^9.32.0",
-    "eslint-plugin-react": "^7.37.5",
-    "globals": "^16.3.0",
     "nodemon": "^3.1.10",
-    "rimraf": "^6.0.1",
-    "ts-node": "^10.9.2",
-    "tsx": "^4.20.3",
     "typescript": "^5.8.3",
-    "typescript-eslint": "^8.38.0"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/reduanahmadswe/Parcel-Delivery-API.git"
-  },
-  "types": "./dist/server.d.ts",
-  "bugs": {
-    "url": "https://github.com/reduanahmadswe/Parcel-Delivery-API/issues"
-  },
-  "homepage": "https://github.com/reduanahmadswe/Parcel-Delivery-API#readme"
+    "@vercel/node": "^5.3.7"
+  }
 }

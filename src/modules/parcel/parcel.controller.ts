@@ -7,6 +7,18 @@ import { sendResponse } from '../../utils/sendResponse';
 import { ParcelService } from './parcel.service';
 
 export class ParcelController {
+
+    // Get delivery history for receiver
+    static getReceiverDeliveryHistory = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+        const receiverId = (req as any).user.userId;
+        const parcels = await ParcelService.getReceiverDeliveryHistory(receiverId);
+        sendResponse(res, {
+            statuscode: 200,
+            success: true,
+            message: 'Receiver delivery history fetched successfully',
+            data: parcels,
+        });
+    });
     // Create new parcel (sender only)
     static createParcel = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
         const senderId = (req as any).user.userId;

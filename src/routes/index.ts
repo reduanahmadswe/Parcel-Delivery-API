@@ -5,6 +5,22 @@ import { userRoutes } from '../modules/user/user.routes';
 
 const router = Router();
 
+// API Welcome endpoint
+router.get('/', (req, res) => {
+    res.status(200).json({
+        success: true,
+        message: 'Welcome to Parcel Delivery API',
+        version: '1.0.0',
+        endpoints: {
+            auth: '/api/auth',
+            users: '/api/users',
+            parcels: '/api/parcels',
+        },
+        documentation: 'https://github.com/reduanahmadswe/Parcel-Delivery-API',
+        timestamp: new Date().toISOString(),
+    });
+});
+
 // Module routes
 const moduleRoutes = [
     {

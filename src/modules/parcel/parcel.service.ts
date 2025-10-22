@@ -7,6 +7,13 @@ import { ICreateParcel, IParcelResponse, IUpdateParcelStatus } from './parcel.in
 import { Parcel } from './parcel.model';
 
 export class ParcelService {
+    // Get delivery history for receiver
+    static async getReceiverDeliveryHistory(receiverId: string) {
+        // Only delivered parcels for this receiver, most recent first
+        return Parcel.find({ receiverId, currentStatus: 'delivered' })
+            .sort({ createdAt: -1 })
+            .lean();
+    }
     // Create new parcel (sender only)
     static async createParcel(senderId: string, parcelData: ICreateParcel): Promise<IParcelResponse> {
         const session = await mongoose.startSession();

@@ -41,6 +41,13 @@ router.patch('/cancel/:id',
 );
 
 // Receiver routes
+
+// Receiver: View delivery history
+router.get('/receiver/delivery-history',
+    authorize('receiver'),
+    ParcelController.getReceiverDeliveryHistory,
+);
+
 router.patch('/:id/confirm-delivery',
     authorize('receiver'),
     validateRequest(parcelIdValidation),

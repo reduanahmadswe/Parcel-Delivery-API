@@ -14,10 +14,15 @@ app.set('trust proxy', 1);
 
 // Middleware
 app.use(cors({
-    origin: process.env.FRONTEND_URL || ['http://localhost:3000', 'https://your-frontend-domain.vercel.app'],
+    origin: [
+        'http://localhost:3000',
+        'http://localhost:5173',
+        'https://parcel-delivery-frontend-gold.vercel.app',
+    ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'x-refresh-token'],
+    exposedHeaders: ['x-refresh-token'],
 }));
 
 app.use(express.json({ limit: '10mb' }));
