@@ -15,10 +15,6 @@ router.get('/', (req, res) => {
             auth: '/api/auth',
             users: '/api/users',
             parcels: '/api/parcels',
-            admin: {
-                users: '/api/admin/users',
-                parcels: '/api/admin/parcels',
-            },
         },
         documentation: 'https://github.com/reduanahmadswe/Parcel-Delivery-API',
         timestamp: new Date().toISOString(),
@@ -41,26 +37,9 @@ const moduleRoutes = [
     },
 ];
 
-// Admin alias routes (for backward compatibility with frontend)
-const adminRoutes = [
-    {
-        path: '/admin/users',
-        route: userRoutes,
-    },
-    {
-        path: '/admin/parcels',
-        route: parcelRoutes,
-    },
-];
-
 // Register all module routes
 moduleRoutes.forEach((moduleRoute) => {
     router.use(moduleRoute.path, moduleRoute.route);
-});
-
-// Register admin alias routes
-adminRoutes.forEach((adminRoute) => {
-    router.use(adminRoute.path, adminRoute.route);
 });
 
 export { router };
