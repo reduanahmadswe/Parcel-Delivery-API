@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import * as jwt from 'jsonwebtoken';
 import { envVars } from '../config/env';
 import { IUser } from '../modules/user/user.interface';
@@ -19,7 +19,7 @@ export const generateToken = (user: IUser): string => {
         role: user.role,
     };
 
-    return jwt.sign(payload, envVars.JWT_SECRET, { expiresIn: '7d' });
+    return jwt.sign(payload, envVars.JWT_SECRET as jwt.Secret, { expiresIn: '7d' } as jwt.SignOptions);
 };
 
 export const verifyToken = (token: string): IJWTPayload => {
@@ -31,15 +31,20 @@ export const verifyToken = (token: string): IJWTPayload => {
  * Create access and refresh tokens for a user
  */
 export const createUserTokens = (user: Partial<IUser>) => {
-    // For now, create simple tokens using the existing generateToken function
-    const userForToken = {
-        _id: user._id!,
+    const payload: IJWTPayload = {
+        userId: user._id!,
         email: user.email!,
         role: user.role!,
-    } as IUser;
+    };
 
-    const accessToken = generateToken(userForToken);
-    const refreshToken = generateToken(userForToken);
+    // Create separate access and refresh tokens with different expiration times
+    const accessToken = jwt.sign(payload, envVars.JWT_ACCESS_SECRET as jwt.Secret, {
+        expiresIn: envVars.JWT_ACCESS_EXPIRES,
+    } as jwt.SignOptions);
+
+    const refreshToken = jwt.sign(payload, envVars.JWT_REFRESH_SECRET as jwt.Secret, {
+        expiresIn: envVars.JWT_REFRESH_EXPIRES,
+    } as jwt.SignOptions);
 
     return {
         accessToken,
@@ -48,26 +53,45 @@ export const createUserTokens = (user: Partial<IUser>) => {
 };
 
 /**
- * Create new access token using refresh token (simplified version)
+ * Create new access token using refresh token
  */
 export const createNewAccessTokenWithRefreshToken = async (refreshToken: string) => {
     try {
-        const verifiedRefreshToken = verifyToken(refreshToken);
+        // Verify refresh token with refresh secret
+        const decoded = jwt.verify(refreshToken, envVars.JWT_REFRESH_SECRET as jwt.Secret) as IJWTPayload;
 
-        const isUserExist = await User.findOne({ email: verifiedRefreshToken.email });
+        // Check if user exists
+        const user = await User.findById(decoded.userId);
 
-        if (!isUserExist) {
-            throw new AppError('User does not exist', 400);
+        if (!user) {
+            throw new AppError('User does not exist', 401);
         }
 
-        if (isUserExist.isBlocked) {
-            throw new AppError('User is blocked', 400);
+        // Check if user is blocked
+        if (user.isBlocked) {
+            throw new AppError('User is blocked', 403);
         }
 
-        const accessToken = generateToken(isUserExist);
+        // Generate new access token only (not refresh token)
+        const payload: IJWTPayload = {
+            userId: user._id,
+            email: user.email,
+            role: user.role,
+        };
+
+        const accessToken = jwt.sign(payload, envVars.JWT_ACCESS_SECRET as jwt.Secret, {
+            expiresIn: envVars.JWT_ACCESS_EXPIRES,
+        } as jwt.SignOptions);
+
         return accessToken;
     } catch (error) {
-        throw new AppError('Invalid refresh token', 401);
+        if (error instanceof jwt.TokenExpiredError) {
+            throw new AppError('Refresh token has expired', 401);
+        }
+        if (error instanceof jwt.JsonWebTokenError) {
+            throw new AppError('Invalid refresh token', 401);
+        }
+        throw error;
     }
 };
 
@@ -89,9 +113,9 @@ export const generateTrackingId = (): string => {
 
 export const calculateDeliveryFee = (weight: number, distance?: number): number => {
     // Base fee calculation
-    const baseFee = 50; 
-    const weightFee = weight * 20; 
-    const distanceFee = distance ? distance * 5 : 0; 
+    const baseFee = 50;
+    const weightFee = weight * 20;
+    const distanceFee = distance ? distance * 5 : 0;
 
     return baseFee + weightFee + distanceFee;
 };
