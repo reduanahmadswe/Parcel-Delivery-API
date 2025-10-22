@@ -10,7 +10,7 @@ export class ParcelController {
 
     // Get delivery history for receiver
     static getReceiverDeliveryHistory = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-        const receiverId = (req as any).user.userId;
+        const receiverId = req.user!.userId;
         const parcels = await ParcelService.getReceiverDeliveryHistory(receiverId);
         sendResponse(res, {
             statuscode: 200,
@@ -21,7 +21,7 @@ export class ParcelController {
     });
     // Create new parcel (sender only)
     static createParcel = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-        const senderId = (req as any).user.userId;
+        const senderId = req.user!.userId;
         const parcelData = req.body;
 
         const parcel = await ParcelService.createParcel(senderId, parcelData);
@@ -37,9 +37,9 @@ export class ParcelController {
     // Get parcel by ID
     static getParcelById = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
         const { id } = req.params;
-        const userId = (req as any).user.userId;
-        const userRole = (req as any).user.role;
-        const userEmail = (req as any).user.email;
+        const userId = req.user!.userId;
+        const userRole = req.user!.role;
+        const userEmail = req.user!.email;
 
         const parcel = await ParcelService.getParcelById(id, userId, userRole, userEmail);
 
@@ -67,9 +67,9 @@ export class ParcelController {
     // Get parcel status log
     static getParcelStatusLog = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
         const { id } = req.params;
-        const userId = (req as any).user.userId;
-        const userRole = (req as any).user.role;
-        const userEmail = (req as any).user.email;
+        const userId = req.user!.userId;
+        const userRole = req.user!.role;
+        const userEmail = req.user!.email;
 
         const statusLog = await ParcelService.getParcelStatusLog(id, userId, userRole, userEmail);
 
@@ -83,9 +83,9 @@ export class ParcelController {
 
     // Get current user's parcels
     static getMyParcels = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-        const userId = (req as any).user.userId;
-        const userRole = (req as any).user.role;
-        const userEmail = (req as any).user.email;
+        const userId = req.user!.userId;
+        const userRole = req.user!.role;
+        const userEmail = req.user!.email;
         const { page, limit, status, isUrgent, startDate, endDate } = req.query as any;
 
         const result = await ParcelService.getUserParcels(

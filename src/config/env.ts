@@ -40,7 +40,7 @@ const loadEnvVariables = (): EnvConfig => {
         }
     });
 
-    return {
+    const config: EnvConfig = {
         NODE_ENV: process.env.NODE_ENV as 'development' | 'production',
         PORT: process.env.PORT as string,
         MONGODB_URI: process.env.MONGODB_URI as string,
@@ -55,8 +55,13 @@ const loadEnvVariables = (): EnvConfig => {
         JWT_REFRESH_EXPIRES: process.env.JWT_REFRESH_EXPIRES as string,
 
         BCRYPT_SALT_ROUNDS: process.env.BCRYPT_SALT_ROUNDS as string,
-        FRONTEND_URL: process.env.FRONTEND_URL,
     };
+
+    if (process.env.FRONTEND_URL) {
+        config.FRONTEND_URL = process.env.FRONTEND_URL;
+    }
+
+    return config;
 };
 
 export const envVars = loadEnvVariables();

@@ -7,7 +7,9 @@ export class AppError extends Error {
         super(message);
         this.statusCode = statusCode;
         this.isOperational = true;
-        this.data = data;
+        if (data !== undefined) {
+            this.data = data;
+        }
 
         Error.captureStackTrace(this, this.constructor);
     }

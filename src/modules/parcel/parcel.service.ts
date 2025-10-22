@@ -3,7 +3,7 @@
 import mongoose from 'mongoose';
 import { AppError } from '../../utils/AppError';
 import { User } from '../user/user.model';
-import { ICreateParcel, IParcelResponse, IUpdateParcelStatus } from './parcel.interface';
+import { ICreateParcel, IParcelResponse, IStatusLog, IUpdateParcelStatus } from './parcel.interface';
 import { Parcel } from './parcel.model';
 
 export class ParcelService {
@@ -434,13 +434,20 @@ export class ParcelService {
 
         // Update status
         parcel.currentStatus = statusData.status;
-        parcel.statusHistory.push({
+        const statusLog: IStatusLog = {
             status: statusData.status,
             timestamp: new Date(),
             updatedBy,
-            location: statusData.location,
-            note: statusData.note,
-        });
+        };
+
+        if (statusData.location !== undefined) {
+            statusLog.location = statusData.location;
+        }
+        if (statusData.note !== undefined) {
+            statusLog.note = statusData.note;
+        }
+
+        parcel.statusHistory.push(statusLog);
 
         await parcel.save();
         return parcel.toJSON();
