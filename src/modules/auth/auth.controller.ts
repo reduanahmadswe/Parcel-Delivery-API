@@ -41,6 +41,11 @@ export class AuthController {
             refreshToken: result.refreshToken,
         });
 
+        console.info('✅ Login successful - Cookies set:', {
+            hasAccessToken: !!result.accessToken,
+            hasRefreshToken: !!result.refreshToken,
+        });
+
         sendResponse(res, {
             statuscode: 200,
             success: true,
@@ -67,6 +72,11 @@ export class AuthController {
     // Refresh token
     static refreshToken = catchAsync(async (req: Request, res: Response) => {
         const refreshToken = req.cookies.refreshToken;
+
+        // 🔍 Debug logging
+        console.info('🍪 Cookies received:', req.cookies);
+        console.info('🔄 Refresh token:', refreshToken ? 'Found' : 'Missing');
+
         if (!refreshToken) {
             return sendResponse(res, {
                 statuscode: 401,
