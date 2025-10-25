@@ -10,16 +10,34 @@ import { notFoundHandler } from './middlewares/notFoundHandler';
 import { router } from './routes';
 
 const app = express();
-// CORS configuration
-const allowedOrigins = [
-    "https://parcel-delivery-frontend.onrender.com", // frontend on Render
-    "http://localhost:5173",
-];
+// // CORS configuration
+// const allowedOrigins = [
+//     "https://parcel-delivery-frontend.onrender.com", // frontend on Render
+//     "http://localhost:3000",
+// ];
+
+// app.use(cors({
+//     origin: allowedOrigins,
+//     credentials: true, // important for cookies / tokens
+// }));
+
 
 app.use(cors({
-    origin: allowedOrigins,
-    credentials: true, // important for cookies / tokens
+  origin: [
+    'http://localhost:3000',           // ✅ Vite dev server (আপনার local)
+    'http://localhost:5173',           // ✅ Alternative Vite port
+    'https://parcel-delivery-frontend.onrender.com',  // ✅ Production
+  ],
+  credentials: true,                   // ✅ Important for cookies
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  exposedHeaders: ['Set-Cookie'],
+  optionsSuccessStatus: 200,           // ✅ Some legacy browsers (IE11, various SmartTVs) choke on 204
+  maxAge: 86400,                       // ✅ Cache preflight request for 24 hours
 }));
+
+// Handle preflight requests explicitly
+app.options('*', cors());
 
 // Body parsers
 app.use(express.json({ limit: '10mb' }));
