@@ -4,6 +4,7 @@
     "module": "commonjs",
     "lib": ["ES2020"],
     "types": ["node"],
+    "typeRoots": ["./node_modules/@types", "./src/types"],
     "outDir": "./dist",
     "rootDir": "./src",
     "strict": true,
@@ -25,7 +26,7 @@
     "noImplicitOverride": true,
     "allowUnusedLabels": false,
     "allowUnreachableCode": false,
-    "exactOptionalPropertyTypes": true,
+    "exactOptionalPropertyTypes": false,
     "useDefineForClassFields": true
   },
   "include": ["src/**/*"],
