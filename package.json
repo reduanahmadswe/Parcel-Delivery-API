@@ -19,7 +19,6 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.17.0",
     "morgan": "^1.10.0",
-    "nodemailer": "^7.0.10",
     "zod": "^4.0.14",
     "@types/bcryptjs": "^2.4.6",
     "@types/cookie-parser": "^1.4.9",
@@ -29,7 +28,6 @@
     "@types/mongoose": "^5.11.96",
     "@types/morgan": "^1.9.7",
     "@types/node": "^24.1.0",
-    "@types/nodemailer": "^7.0.3",
     "typescript": "^5.8.3"
   },
   "devDependencies": {

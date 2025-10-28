@@ -5,7 +5,6 @@ import { AppError } from '../../utils/AppError';
 import { catchAsync } from '../../utils/catchAsync';
 import { sendResponse } from '../../utils/sendResponse';
 import { ParcelService } from './parcel.service';
-import { sendParcelNotificationEmails } from '../../services/emailService';
 
 export class ParcelController {
 
@@ -27,36 +26,12 @@ export class ParcelController {
 
         const parcel = await ParcelService.createParcel(senderId, parcelData);
 
-        // Send response immediately - don't wait for emails
+        // Send response
         sendResponse(res, {
             statuscode: 201,
             success: true,
             message: 'Parcel created successfully',
             data: parcel,
-        });
-
-        // Send notification emails asynchronously (fire and forget)
-        // This won't block the response
-        setImmediate(async () => {
-            try {
-                console.info('📧 Sending parcel notification emails...');
-                const emailResults = await sendParcelNotificationEmails({
-                    trackingId: parcel.trackingId,
-                    senderName: parcel.senderInfo?.name || parcelData.senderName,
-                    senderEmail: parcel.senderInfo?.email || parcelData.senderEmail,
-                    receiverName: parcel.receiverInfo?.name || parcelData.receiverName,
-                    receiverEmail: parcel.receiverInfo?.email || parcelData.receiverEmail,
-                    receiverAddress: parcel.receiverInfo?.address || parcelData.receiverAddress,
-                    parcelDetails: {
-                        type: parcel.parcelDetails?.type || parcelData.parcelDetails?.type || parcelData.type,
-                        weight: parcel.parcelDetails?.weight || parcelData.parcelDetails?.weight || parcelData.weight,
-                        description: parcel.parcelDetails?.description || parcelData.parcelDetails?.description || parcelData.description,
-                    },
-                });
-                console.info('✅ Email notifications sent successfully');
-            } catch (err) {
-                console.error('❌ Notification emails error:', err);
-            }
         });
     });
 
