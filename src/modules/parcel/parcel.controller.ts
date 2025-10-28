@@ -5,6 +5,7 @@ import { AppError } from '../../utils/AppError';
 import { catchAsync } from '../../utils/catchAsync';
 import { sendResponse } from '../../utils/sendResponse';
 import { ParcelService } from './parcel.service';
+import { sendParcelNotificationEmails } from '../../services/emailService';
 
 export class ParcelController {
 
@@ -26,12 +27,48 @@ export class ParcelController {
 
         const parcel = await ParcelService.createParcel(senderId, parcelData);
 
-        sendResponse(res, {
-            statuscode: 201,
-            success: true,
-            message: 'Parcel created successfully',
-            data: parcel,
-        });
+        // Try sending notification emails (sender & receiver) using server-side data
+        try {
+            console.info('📧 Sending parcel notification emails...');
+            // parcel returned from service uses senderInfo / receiverInfo / parcelDetails
+            const emailResults = await sendParcelNotificationEmails({
+                trackingId: parcel.trackingId,
+                senderName: parcel.senderInfo?.name || parcelData.senderName,
+                senderEmail: parcel.senderInfo?.email || parcelData.senderEmail,
+                receiverName: parcel.receiverInfo?.name || parcelData.receiverName,
+                receiverEmail: parcel.receiverInfo?.email || parcelData.receiverEmail,
+                receiverAddress: parcel.receiverInfo?.address || parcelData.receiverAddress,
+                parcelDetails: {
+                    type: parcel.parcelDetails?.type || parcelData.parcelDetails?.type || parcelData.type,
+                    weight: parcel.parcelDetails?.weight || parcelData.parcelDetails?.weight || parcelData.weight,
+                    description: parcel.parcelDetails?.description || parcelData.parcelDetails?.description || parcelData.description,
+                },
+            });
+
+            // include email send info in response data
+            sendResponse(res, {
+                statuscode: 201,
+                success: true,
+                message: 'Parcel created successfully',
+                data: {
+                    parcel,
+                    email: {
+                        senderEmailSent: !!emailResults.sender && !(emailResults.sender as any).error,
+                        receiverEmailSent: !!emailResults.receiver && !(emailResults.receiver as any).error,
+                        results: emailResults,
+                    },
+                },
+            });
+        } catch (err) {
+            console.error('❌ Notification emails error:', err);
+            // still return parcel creation response even if emails failed
+            sendResponse(res, {
+                statuscode: 201,
+                success: true,
+                message: 'Parcel created successfully',
+                data: parcel,
+            });
+        }
     });
 
     // Get parcel by ID

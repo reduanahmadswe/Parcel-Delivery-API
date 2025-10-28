@@ -1,18 +1,19 @@
 import nodemailer from 'nodemailer';
+import { envVars } from '../config/env';
 
 interface SendResult {
     sender?: any;
     receiver?: any;
 }
 
-// Configure transporter using environment variables
+// Configure transporter using centralized environment variables
 const transporter = nodemailer.createTransport({
-    host: process.env.EMAIL_HOST || 'smtp.gmail.com',
-    port: parseInt(process.env.EMAIL_PORT || '587', 10),
-    secure: process.env.EMAIL_SECURE === 'true', // true for 465, false for other ports
+    host: envVars.EMAIL_HOST || 'smtp.gmail.com',
+    port: parseInt(envVars.EMAIL_PORT || '587', 10),
+    secure: envVars.EMAIL_SECURE === 'true', // true for 465, false for other ports
     auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASSWORD,
+        user: envVars.EMAIL_USER,
+        pass: envVars.EMAIL_PASSWORD,
     },
 });
 
@@ -40,7 +41,7 @@ export const sendParcelNotificationEmails = async (parcelData: any): Promise<Sen
 
     const results: SendResult = {};
 
-    const fromAddress = `${process.env.EMAIL_FROM_NAME || 'Parcel Delivery System'} <${process.env.EMAIL_FROM || process.env.EMAIL_USER}>`;
+    const fromAddress = `${envVars.EMAIL_FROM_NAME || 'Parcel Delivery System'} <${envVars.EMAIL_FROM || envVars.EMAIL_USER}>`;
 
     // Sender email
     if (senderEmail) {
@@ -53,7 +54,7 @@ export const sendParcelNotificationEmails = async (parcelData: any): Promise<Sen
               <p>Hi ${senderName || 'Customer'},</p>
               <p>Your parcel has been created. Tracking ID: <strong>${trackingId}</strong></p>
               <p>Receiver: ${receiverName || ''} &lt;${receiverEmail || ''}&gt;</p>
-              <p>View tracking: <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/track?id=${trackingId}">Track parcel</a></p>
+              <p>View tracking: <a href="${envVars.FRONTEND_URL || 'http://localhost:5173'}/track?id=${trackingId}">Track parcel</a></p>
               </body></html>`,
         };
 
@@ -82,7 +83,7 @@ export const sendParcelNotificationEmails = async (parcelData: any): Promise<Sen
               <p>You have a parcel coming from ${senderName || ''}.</p>
               <p>Tracking ID: <strong>${trackingId}</strong></p>
               <p>Delivery address: ${receiverAddress?.street || ''} ${receiverAddress?.city || ''}</p>
-              <p>Track: <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/track?id=${trackingId}">Track parcel</a></p>
+              <p>Track: <a href="${envVars.FRONTEND_URL || 'http://localhost:5173'}/track?id=${trackingId}">Track parcel</a></p>
               </body></html>`,
         };
 
