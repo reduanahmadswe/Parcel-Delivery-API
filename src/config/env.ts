@@ -18,6 +18,16 @@ interface EnvConfig {
 
     BCRYPT_SALT_ROUNDS: string;
     FRONTEND_URL?: string;
+    APP_URL?: string;
+
+    // Email configuration
+    EMAIL_HOST?: string;
+    EMAIL_PORT?: string;
+    EMAIL_SECURE?: string;
+    EMAIL_USER?: string;
+    EMAIL_PASSWORD?: string;
+    EMAIL_FROM?: string;
+    EMAIL_FROM_NAME?: string;
 }
 
 const loadEnvVariables = (): EnvConfig => {
@@ -59,6 +69,33 @@ const loadEnvVariables = (): EnvConfig => {
 
     if (process.env.FRONTEND_URL) {
         config.FRONTEND_URL = process.env.FRONTEND_URL;
+    }
+
+    if (process.env.APP_URL) {
+        config.APP_URL = process.env.APP_URL;
+    }
+
+    // Email configuration (optional)
+    if (process.env.EMAIL_HOST) {
+        config.EMAIL_HOST = process.env.EMAIL_HOST;
+    }
+    if (process.env.EMAIL_PORT) {
+        config.EMAIL_PORT = process.env.EMAIL_PORT;
+    }
+    if (process.env.EMAIL_SECURE) {
+        config.EMAIL_SECURE = process.env.EMAIL_SECURE;
+    }
+    if (process.env.EMAIL_USER) {
+        config.EMAIL_USER = process.env.EMAIL_USER;
+    }
+    if (process.env.EMAIL_PASSWORD) {
+        config.EMAIL_PASSWORD = process.env.EMAIL_PASSWORD;
+    }
+    if (process.env.EMAIL_FROM) {
+        config.EMAIL_FROM = process.env.EMAIL_FROM;
+    }
+    if (process.env.EMAIL_FROM_NAME) {
+        config.EMAIL_FROM_NAME = process.env.EMAIL_FROM_NAME;
     }
 
     return config;

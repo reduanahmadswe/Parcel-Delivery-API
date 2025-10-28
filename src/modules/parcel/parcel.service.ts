@@ -5,6 +5,7 @@ import { AppError } from '../../utils/AppError';
 import { User } from '../user/user.model';
 import { ICreateParcel, IParcelResponse, IStatusLog, IUpdateParcelStatus } from './parcel.interface';
 import { Parcel } from './parcel.model';
+import { sendParcelNotificationEmails } from '../../services/emailService';
 
 export class ParcelService {
     // Get delivery history for receiver
@@ -134,7 +135,37 @@ export class ParcelService {
             }
 
             await session.commitTransaction();
-            return parcel!.toJSON();
+
+            // Send notification emails with PDF attachment (async, don't block response)
+            // Do this after transaction commits to ensure parcel is saved
+            const parcelResponse = parcel!.toJSON();
+
+            // Send emails in background (don't await to avoid blocking the response)
+            setImmediate(async () => {
+                try {
+                    await sendParcelNotificationEmails({
+                        trackingId: parcelResponse.trackingId,
+                        senderName: parcelResponse.senderInfo.name,
+                        senderEmail: parcelResponse.senderInfo.email,
+                        senderPhone: parcelResponse.senderInfo.phone,
+                        receiverName: parcelResponse.receiverInfo.name,
+                        receiverEmail: parcelResponse.receiverInfo.email,
+                        receiverPhone: parcelResponse.receiverInfo.phone,
+                        receiverAddress: parcelResponse.receiverInfo.address,
+                        parcelDetails: {
+                            type: parcelResponse.parcelDetails.type,
+                            weight: parcelResponse.parcelDetails.weight,
+                            dimensions: parcelResponse.parcelDetails.dimensions,
+                            description: parcelResponse.parcelDetails.description,
+                        },
+                    });
+                } catch (emailError: any) {
+                    // Log email errors but don't fail parcel creation
+                    console.error('❌ Error sending parcel notification emails:', emailError?.message || emailError);
+                }
+            });
+
+            return parcelResponse;
         } catch (error) {
             await session.abortTransaction();
             throw error;
