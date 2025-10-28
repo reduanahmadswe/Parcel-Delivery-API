@@ -7,27 +7,45 @@ interface SendResult {
     receiver?: any;
 }
 
+// Check if email is configured
+const isEmailConfigured = !!(
+    envVars.EMAIL_USER &&
+    envVars.EMAIL_PASSWORD &&
+    envVars.EMAIL_HOST
+);
+
 // Configure transporter using centralized environment variables
-const transporter = nodemailer.createTransport({
-    host: envVars.EMAIL_HOST || 'smtp.gmail.com',
-    port: parseInt(envVars.EMAIL_PORT || '587', 10),
-    secure: envVars.EMAIL_SECURE === 'true', // true for 465, false for other ports
-    auth: {
-        user: envVars.EMAIL_USER,
-        pass: envVars.EMAIL_PASSWORD,
-    },
-});
+const transporter = isEmailConfigured
+    ? nodemailer.createTransport({
+        host: envVars.EMAIL_HOST || 'smtp.gmail.com',
+        port: parseInt(envVars.EMAIL_PORT || '587', 10),
+        secure: envVars.EMAIL_SECURE === 'true', // true for 465, false for other ports
+        auth: {
+            user: envVars.EMAIL_USER,
+            pass: envVars.EMAIL_PASSWORD,
+        },
+        // Add connection timeout and socket timeout
+        connectionTimeout: 10000, // 10 seconds
+        greetingTimeout: 10000,
+        socketTimeout: 10000,
+    })
+    : null;
 
-transporter.verify((error, success) => {
-    if (error) {
-        // do not throw here, just log - service may not be configured in all environments
-
-        console.error('❌ Email service configuration error:', error);
-    } else {
-
-        console.info('✅ Email service is ready to send emails');
-    }
-});
+// Verify transporter without blocking server startup
+if (transporter && isEmailConfigured) {
+    // Run verification asynchronously without blocking
+    transporter.verify((error, success) => {
+        if (error) {
+            console.warn('⚠️  Email service not available:', error.message);
+            console.warn('📧 Emails will not be sent. Configure EMAIL_* environment variables to enable email notifications.');
+        } else {
+            console.info('✅ Email service is ready to send emails');
+        }
+    });
+} else {
+    console.warn('⚠️  Email service not configured');
+    console.warn('📧 Set EMAIL_HOST, EMAIL_USER, and EMAIL_PASSWORD to enable email notifications.');
+}
 
 export const sendParcelNotificationEmails = async (parcelData: any): Promise<SendResult> => {
     const {
@@ -41,6 +59,14 @@ export const sendParcelNotificationEmails = async (parcelData: any): Promise<Sen
     } = parcelData || {};
 
     const results: SendResult = {};
+
+    // Check if email is configured
+    if (!transporter || !isEmailConfigured) {
+        console.warn('⚠️  Email not sent - service not configured');
+        results.sender = { error: 'Email service not configured' };
+        results.receiver = { error: 'Email service not configured' };
+        return results;
+    }
 
     const fromAddress = `${envVars.EMAIL_FROM_NAME || 'Parcel Delivery System'} <${envVars.EMAIL_FROM || envVars.EMAIL_USER}>`;
     const trackingUrl = `${envVars.FRONTEND_URL || 'http://localhost:5173'}/track?id=${trackingId}`;
