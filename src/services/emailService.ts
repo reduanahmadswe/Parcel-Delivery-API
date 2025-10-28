@@ -24,10 +24,16 @@ const transporter = isEmailConfigured
             user: envVars.EMAIL_USER,
             pass: envVars.EMAIL_PASSWORD,
         },
-        // Add connection timeout and socket timeout
-        connectionTimeout: 10000, // 10 seconds
-        greetingTimeout: 10000,
-        socketTimeout: 10000,
+        // Increased timeouts for better compatibility with Render
+        connectionTimeout: 30000, // 30 seconds
+        greetingTimeout: 30000,
+        socketTimeout: 30000,
+        // Additional Gmail-specific settings
+        tls: {
+            rejectUnauthorized: false, // Allow self-signed certificates
+            ciphers: 'SSLv3'
+        },
+        debug: process.env.NODE_ENV === 'development', // Enable debug in dev
     })
     : null;
 
