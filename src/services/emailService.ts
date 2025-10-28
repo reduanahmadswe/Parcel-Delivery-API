@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer';
 import { envVars } from '../config/env';
+import { senderEmailTemplate, receiverEmailTemplate } from '../templates/emailTemplates';
 
 interface SendResult {
     sender?: any;
@@ -42,58 +43,53 @@ export const sendParcelNotificationEmails = async (parcelData: any): Promise<Sen
     const results: SendResult = {};
 
     const fromAddress = `${envVars.EMAIL_FROM_NAME || 'Parcel Delivery System'} <${envVars.EMAIL_FROM || envVars.EMAIL_USER}>`;
+    const trackingUrl = `${envVars.FRONTEND_URL || 'http://localhost:5173'}/track?id=${trackingId}`;
 
-    // Sender email
+    // Prepare template data
+    const templateData = {
+        trackingId,
+        senderName,
+        senderEmail,
+        receiverName,
+        receiverEmail,
+        receiverAddress,
+        parcelDetails,
+        trackingUrl,
+    };
+
+    // Sender email with beautiful template
     if (senderEmail) {
         const senderMailOptions = {
             from: fromAddress,
             to: senderEmail,
-            subject: `✅ Parcel Created Successfully - ${trackingId}`,
-            html: `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body>
-              <h2>Parcel Created</h2>
-              <p>Hi ${senderName || 'Customer'},</p>
-              <p>Your parcel has been created. Tracking ID: <strong>${trackingId}</strong></p>
-              <p>Receiver: ${receiverName || ''} &lt;${receiverEmail || ''}&gt;</p>
-              <p>View tracking: <a href="${envVars.FRONTEND_URL || 'http://localhost:5173'}/track?id=${trackingId}">Track parcel</a></p>
-              </body></html>`,
+            subject: `✅ আপনার পার্সেল সফলভাবে পাঠানো হয়েছে - ${trackingId}`,
+            html: senderEmailTemplate(templateData),
         };
 
         try {
-            // sendMail returns a Promise in nodemailer v6+ when using async/await
             const info = await transporter.sendMail(senderMailOptions as any);
             results.sender = info;
-
             console.info('✅ Sender email sent:', info.messageId || info);
         } catch (error: any) {
-
             console.error('❌ Sender email error:', error?.message || error);
             results.sender = { error: error?.message || String(error) };
         }
     }
 
-    // Receiver email
+    // Receiver email with beautiful template
     if (receiverEmail) {
         const receiverMailOptions = {
             from: fromAddress,
             to: receiverEmail,
-            subject: `📦 You Have a Parcel Coming - ${trackingId}`,
-            html: `<!doctype html><html><head><meta charset="utf-8"></head><body>
-              <h2>Parcel Notification</h2>
-              <p>Hi ${receiverName || 'Customer'},</p>
-              <p>You have a parcel coming from ${senderName || ''}.</p>
-              <p>Tracking ID: <strong>${trackingId}</strong></p>
-              <p>Delivery address: ${receiverAddress?.street || ''} ${receiverAddress?.city || ''}</p>
-              <p>Track: <a href="${envVars.FRONTEND_URL || 'http://localhost:5173'}/track?id=${trackingId}">Track parcel</a></p>
-              </body></html>`,
+            subject: `📦 আপনার জন্য একটি পার্সেল আসছে - ${trackingId}`,
+            html: receiverEmailTemplate(templateData),
         };
 
         try {
             const info = await transporter.sendMail(receiverMailOptions as any);
             results.receiver = info;
-
             console.info('✅ Receiver email sent:', info.messageId || info);
         } catch (error: any) {
-
             console.error('❌ Receiver email error:', error?.message || error);
             results.receiver = { error: error?.message || String(error) };
         }
