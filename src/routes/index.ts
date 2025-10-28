@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { authRoutes } from '../modules/auth/auth.routes';
 import { parcelRoutes } from '../modules/parcel/parcel.routes';
 import { userRoutes } from '../modules/user/user.routes';
+import { notificationRoutes } from '../modules/notification/notification.routes';
 
 const router = Router();
 
@@ -15,6 +16,7 @@ router.get('/', (req, res) => {
             auth: '/api/auth',
             users: '/api/users',
             parcels: '/api/parcels',
+            notifications: '/api/notifications',
         },
         documentation: 'https://github.com/reduanahmadswe/Parcel-Delivery-API',
         timestamp: new Date().toISOString(),
@@ -34,6 +36,10 @@ const moduleRoutes = [
     {
         path: '/parcels',
         route: parcelRoutes,
+    },
+    {
+        path: '/notifications',
+        route: notificationRoutes,
     },
 ];
 
