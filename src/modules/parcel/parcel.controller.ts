@@ -35,6 +35,24 @@ export class ParcelController {
         });
     });
 
+    // Send parcel notification emails manually
+    static sendParcelEmail = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+        const { trackingId } = req.body;
+
+        if (!trackingId) {
+            throw new AppError('Tracking ID is required', 400);
+        }
+
+        const parcel = await ParcelService.sendEmailByTrackingId(trackingId);
+
+        sendResponse(res, {
+            statuscode: 200,
+            success: true,
+            message: 'Notification emails sent successfully',
+            data: parcel,
+        });
+    });
+
     // Get parcel by ID
     static getParcelById = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
         const { id } = req.params;

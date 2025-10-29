@@ -214,6 +214,44 @@ export class ParcelService {
         return parcel.toJSON();
     }
 
+    // Send email by tracking ID
+    static async sendEmailByTrackingId(trackingId: string): Promise<{ emailsSent: { sender: boolean; receiver: boolean } }> {
+        const parcel = await Parcel.findOne({ trackingId });
+        if (!parcel) {
+            throw new AppError('Parcel not found with this tracking ID', 404);
+        }
+
+        // Send notification emails
+        try {
+            const emailResults = await sendParcelNotificationEmails({
+                trackingId: parcel.trackingId,
+                senderName: parcel.senderInfo.name,
+                senderEmail: parcel.senderInfo.email,
+                senderPhone: parcel.senderInfo.phone,
+                receiverName: parcel.receiverInfo.name,
+                receiverEmail: parcel.receiverInfo.email,
+                receiverPhone: parcel.receiverInfo.phone,
+                receiverAddress: parcel.receiverInfo.address,
+                parcelDetails: {
+                    type: parcel.parcelDetails.type,
+                    weight: parcel.parcelDetails.weight,
+                    dimensions: parcel.parcelDetails.dimensions,
+                    description: parcel.parcelDetails.description,
+                },
+            });
+
+            return {
+                emailsSent: {
+                    sender: !emailResults.sender?.error,
+                    receiver: !emailResults.receiver?.error,
+                },
+            };
+        } catch (error: any) {
+            console.error('❌ Error sending emails:', error);
+            throw new AppError('Failed to send notification emails', 500);
+        }
+    }
+
     // Get parcel status log
     static async getParcelStatusLog(id: string, userId: string, userRole: string, userEmail?: string): Promise<{ trackingId: string; statusHistory: any[] }> {
         if (!mongoose.Types.ObjectId.isValid(id)) {

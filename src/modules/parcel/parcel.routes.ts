@@ -26,6 +26,7 @@ router.use(authenticate);
 
 // Sender routes
 router.post('/', authorize('sender'), validateRequest(createParcelValidation), ParcelController.createParcel);
+router.post('/send-email', authorize('sender', 'receiver', 'admin'), ParcelController.sendParcelEmail);
 router.patch('/cancel/:id', authorize('sender'), validateRequest(parcelIdValidation), ParcelController.cancelParcel);
 
 // Receiver routes
