@@ -79,6 +79,17 @@ export class ParcelService {
             let retryCount = 0;
             const maxRetries = 5;
 
+            // Prepare receiver address - use form data if provided, otherwise use account address
+            const deliveryAddress = parcelData.receiverInfo?.address 
+                ? {
+                    street: parcelData.receiverInfo.address.street,
+                    city: parcelData.receiverInfo.address.city,
+                    state: parcelData.receiverInfo.address.state,
+                    zipCode: parcelData.receiverInfo.address.zipCode,
+                    country: parcelData.receiverInfo.address.country || 'Bangladesh',
+                }
+                : receiver.address;
+
             while (retryCount < maxRetries) {
                 try {
                     parcel = new Parcel({
@@ -94,7 +105,7 @@ export class ParcelService {
                             name: receiver.name, // Always from database (non-editable)
                             email: receiver.email, // Always from database (non-editable)
                             phone: parcelData.receiverInfo?.phone || receiver.phone, // Override or default
-                            address: parcelData.receiverInfo?.address ?? receiver.address, // Use delivery address from form if provided
+                            address: deliveryAddress, // Use prepared delivery address
                         },
                         parcelDetails: parcelData.parcelDetails,
                         deliveryInfo: parcelData.deliveryInfo,
