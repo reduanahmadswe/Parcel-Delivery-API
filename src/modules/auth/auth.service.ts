@@ -1,3 +1,4 @@
+
 import { AppError } from '../../utils/AppError';
 import { createNewAccessTokenWithRefreshToken, createUserTokens } from '../../utils/helpers';
 import { ICreateUser, ILoginUser } from '../user/user.interface';
@@ -62,6 +63,13 @@ export class AuthService {
             accessToken: tokens.accessToken,
             refreshToken: tokens.refreshToken,
         };
+    }
+
+
+        // Check if email exists
+    static async checkEmailExists(email: string): Promise<boolean> {
+        const user = await UserService.getUserByEmail(email);
+        return !!user;
     }
 
     // Refresh token

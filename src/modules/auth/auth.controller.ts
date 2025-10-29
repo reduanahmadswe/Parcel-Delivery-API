@@ -1,3 +1,4 @@
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { NextFunction, Request, Response } from 'express';
@@ -34,18 +35,15 @@ export class AuthController {
     static login = catchAsync(async (req: Request, res: Response) => {
         const loginData = req.body;
         const result = await AuthService.login(loginData);
-
         // Set tokens in cookies
         setAuthCookie(res, {
             accessToken: result.accessToken,
             refreshToken: result.refreshToken,
         });
-
         console.info('✅ Login successful - Cookies set:', {
             hasAccessToken: !!result.accessToken,
             hasRefreshToken: !!result.refreshToken,
         });
-
         sendResponse(res, {
             statuscode: 200,
             success: true,
@@ -55,6 +53,26 @@ export class AuthController {
                 accessToken: result.accessToken,
                 refreshToken: result.refreshToken,
             },
+        });
+    });
+
+    // Check if email exists
+    static checkEmailExists = catchAsync(async (req: Request, res: Response) => {
+        const email = req.query.email as string;
+        if (!email) {
+            return sendResponse(res, {
+                statuscode: 400,
+                success: false,
+                message: 'Email query parameter is required',
+                data: { exists: false },
+            });
+        }
+        const exists = await AuthService.checkEmailExists(email);
+        sendResponse(res, {
+            statuscode: 200,
+            success: true,
+            message: 'Email existence checked',
+            data: { exists },
         });
     });
 

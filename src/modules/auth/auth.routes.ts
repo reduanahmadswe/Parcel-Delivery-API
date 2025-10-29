@@ -7,6 +7,10 @@ import { AuthController } from './auth.controller';
 const router = Router();
 
 // Public routes (no authentication required)
+
+// Check if email exists
+router.get('/check-email', AuthController.checkEmailExists);
+
 router.post('/register', validateRequest(createUserValidation), AuthController.register);
 router.post('/login', validateRequest(loginValidation), AuthController.login);
 router.post('/logout', AuthController.logout);
