@@ -94,7 +94,7 @@ export class ParcelService {
                             name: receiver.name, // Always from database (non-editable)
                             email: receiver.email, // Always from database (non-editable)
                             phone: parcelData.receiverInfo?.phone || receiver.phone, // Override or default
-                            address: parcelData.receiverInfo?.address || receiver.address, // Override or default
+                            address: parcelData.receiverInfo?.address ?? receiver.address, // Use delivery address from form if provided
                         },
                         parcelDetails: parcelData.parcelDetails,
                         deliveryInfo: parcelData.deliveryInfo,
