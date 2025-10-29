@@ -70,14 +70,43 @@ const payload = {
 
 ## What Changed in Backend
 
-Changed in `parcel.service.ts` line 98:
+Changed in `parcel.service.ts` to properly handle delivery address:
 
 ```typescript
-// Old (would fallback to account address)
-address: parcelData.receiverInfo?.address || receiver.address;
+// OLD CODE (WRONG - Could mix addresses)
+receiverInfo: {
+    name: receiver.name,
+    email: receiver.email,
+    phone: parcelData.receiverInfo?.phone || receiver.phone,
+    address: parcelData.receiverInfo?.address ?? receiver.address,
+}
 
-// New (prioritizes form address, uses ?? for explicit null/undefined check)
-address: parcelData.receiverInfo?.address ?? receiver.address;
+// NEW CODE (CORRECT - Prevents address mixing)
+// Prepare receiver address - use form data if provided, otherwise use account address
+const deliveryAddress = parcelData.receiverInfo?.address 
+    ? {
+        street: parcelData.receiverInfo.address.street,
+        city: parcelData.receiverInfo.address.city,
+        state: parcelData.receiverInfo.address.state,
+        zipCode: parcelData.receiverInfo.address.zipCode,
+        country: parcelData.receiverInfo.address.country || 'Bangladesh',
+    }
+    : receiver.address;
+
+receiverInfo: {
+    name: receiver.name,
+    email: receiver.email,
+    phone: parcelData.receiverInfo?.phone || receiver.phone,
+    address: deliveryAddress, // Use prepared delivery address
+}
 ```
 
-The `??` (nullish coalescing) operator only falls back if the value is `null` or `undefined`, not for empty objects.
+### Why This Fix Was Needed
+
+The previous approach using `??` operator would accept any object, even if partially filled. This caused issues where:
+- Frontend sends: `{ city: "Rajshahi", state: "Rajshahi", zipCode: "6000" }`
+- But `street` was missing
+- Backend would use the whole partial object instead of falling back to account address
+- Result: Street from account address got mixed with city/state/zip from form
+
+**Solution:** Now we explicitly construct a new address object only when `receiverInfo.address` exists, ensuring all fields come from the same source.
