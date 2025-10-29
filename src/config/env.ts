@@ -25,7 +25,7 @@ interface EnvConfig {
     SENDGRID_API_KEY?: string;
     EMAIL_FROM?: string;
     EMAIL_FROM_NAME?: string;
-    
+
     // Legacy email config (for backward compatibility)
     EMAIL_HOST?: string;
     EMAIL_PORT?: string;
@@ -92,7 +92,7 @@ const loadEnvVariables = (): EnvConfig => {
     if (process.env.EMAIL_FROM_NAME) {
         config.EMAIL_FROM_NAME = process.env.EMAIL_FROM_NAME;
     }
-    
+
     // Legacy email config (backward compatibility)
     if (process.env.EMAIL_HOST) {
         config.EMAIL_HOST = process.env.EMAIL_HOST;
