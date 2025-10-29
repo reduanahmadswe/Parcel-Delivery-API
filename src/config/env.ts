@@ -21,13 +21,17 @@ interface EnvConfig {
     APP_URL?: string;
 
     // Email configuration
+    EMAIL_SERVICE?: string;
+    SENDGRID_API_KEY?: string;
+    EMAIL_FROM?: string;
+    EMAIL_FROM_NAME?: string;
+    
+    // Legacy email config (for backward compatibility)
     EMAIL_HOST?: string;
     EMAIL_PORT?: string;
     EMAIL_SECURE?: string;
     EMAIL_USER?: string;
     EMAIL_PASSWORD?: string;
-    EMAIL_FROM?: string;
-    EMAIL_FROM_NAME?: string;
 }
 
 const loadEnvVariables = (): EnvConfig => {
@@ -76,6 +80,20 @@ const loadEnvVariables = (): EnvConfig => {
     }
 
     // Email configuration (optional)
+    if (process.env.EMAIL_SERVICE) {
+        config.EMAIL_SERVICE = process.env.EMAIL_SERVICE;
+    }
+    if (process.env.SENDGRID_API_KEY) {
+        config.SENDGRID_API_KEY = process.env.SENDGRID_API_KEY;
+    }
+    if (process.env.EMAIL_FROM) {
+        config.EMAIL_FROM = process.env.EMAIL_FROM;
+    }
+    if (process.env.EMAIL_FROM_NAME) {
+        config.EMAIL_FROM_NAME = process.env.EMAIL_FROM_NAME;
+    }
+    
+    // Legacy email config (backward compatibility)
     if (process.env.EMAIL_HOST) {
         config.EMAIL_HOST = process.env.EMAIL_HOST;
     }
@@ -90,12 +108,6 @@ const loadEnvVariables = (): EnvConfig => {
     }
     if (process.env.EMAIL_PASSWORD) {
         config.EMAIL_PASSWORD = process.env.EMAIL_PASSWORD;
-    }
-    if (process.env.EMAIL_FROM) {
-        config.EMAIL_FROM = process.env.EMAIL_FROM;
-    }
-    if (process.env.EMAIL_FROM_NAME) {
-        config.EMAIL_FROM_NAME = process.env.EMAIL_FROM_NAME;
     }
 
     return config;

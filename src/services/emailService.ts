@@ -36,50 +36,69 @@ interface ParcelNotificationData {
     };
 }
 
-// Check if email is configured
-const isEmailConfigured = !!(
+// Check if SendGrid is configured
+const isSendGridConfigured = !!(envVars.EMAIL_SERVICE === 'sendgrid' && envVars.SENDGRID_API_KEY);
+
+// Check if legacy email is configured (Gmail/SMTP)
+const isLegacyEmailConfigured = !!(
     envVars.EMAIL_USER &&
     envVars.EMAIL_PASSWORD &&
     envVars.EMAIL_HOST
 );
 
-// Configure transporter using centralized environment variables
-const transporter = isEmailConfigured
-    ? nodemailer.createTransport({
+const isEmailConfigured = isSendGridConfigured || isLegacyEmailConfigured;
+
+// Configure transporter based on email service
+let transporter: any = null;
+
+if (isSendGridConfigured) {
+    // SendGrid configuration
+    transporter = nodemailer.createTransport({
+        service: 'SendGrid',
+        auth: {
+            user: 'apikey', // Fixed value for SendGrid
+            pass: envVars.SENDGRID_API_KEY,
+        },
+    });
+    console.info('✅ SendGrid email service configured');
+} else if (isLegacyEmailConfigured) {
+    // Legacy SMTP configuration (Gmail, etc.)
+    transporter = nodemailer.createTransport({
         host: envVars.EMAIL_HOST || 'smtp.gmail.com',
         port: parseInt(envVars.EMAIL_PORT || '587', 10),
-        secure: envVars.EMAIL_SECURE === 'true', // true for 465, false for other ports
+        secure: envVars.EMAIL_SECURE === 'true',
         auth: {
             user: envVars.EMAIL_USER,
             pass: envVars.EMAIL_PASSWORD,
         },
-        // Increased timeouts for better compatibility with Render
-        connectionTimeout: 30000, // 30 seconds
+        connectionTimeout: 30000,
         greetingTimeout: 30000,
         socketTimeout: 30000,
-        // Additional Gmail-specific settings
         tls: {
-            rejectUnauthorized: false, // Allow self-signed certificates
+            rejectUnauthorized: false,
             ciphers: 'SSLv3'
         },
-        debug: process.env.NODE_ENV === 'development', // Enable debug in dev
-    })
-    : null;
+        debug: process.env.NODE_ENV === 'development',
+    });
+    console.info('✅ SMTP email service configured');
+}
 
 // Verify transporter without blocking server startup
 if (transporter && isEmailConfigured) {
     // Run verification asynchronously without blocking
-    transporter.verify((error, success) => {
+    transporter.verify((error: any, success: any) => {
         if (error) {
             console.warn('⚠️  Email service not available:', error.message);
-            console.warn('📧 Emails will not be sent. Configure EMAIL_* environment variables to enable email notifications.');
+            console.warn('📧 Emails will not be sent. Configure email environment variables to enable email notifications.');
         } else {
             console.info('✅ Email service is ready to send emails');
         }
     });
 } else {
     console.warn('⚠️  Email service not configured');
-    console.warn('📧 Set EMAIL_HOST, EMAIL_USER, and EMAIL_PASSWORD to enable email notifications.');
+    if (!isSendGridConfigured && !isLegacyEmailConfigured) {
+        console.warn('📧 Set EMAIL_SERVICE=sendgrid and SENDGRID_API_KEY, or EMAIL_HOST/EMAIL_USER/EMAIL_PASSWORD to enable email notifications.');
+    }
 }
 
 export const sendParcelNotificationEmails = async (parcelData: ParcelNotificationData): Promise<SendResult> => {
