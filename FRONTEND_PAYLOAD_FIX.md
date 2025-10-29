@@ -83,7 +83,7 @@ receiverInfo: {
 
 // NEW CODE (CORRECT - Prevents address mixing)
 // Prepare receiver address - use form data if provided, otherwise use account address
-const deliveryAddress = parcelData.receiverInfo?.address 
+const deliveryAddress = parcelData.receiverInfo?.address
     ? {
         street: parcelData.receiverInfo.address.street,
         city: parcelData.receiverInfo.address.city,
@@ -104,6 +104,7 @@ receiverInfo: {
 ### Why This Fix Was Needed
 
 The previous approach using `??` operator would accept any object, even if partially filled. This caused issues where:
+
 - Frontend sends: `{ city: "Rajshahi", state: "Rajshahi", zipCode: "6000" }`
 - But `street` was missing
 - Backend would use the whole partial object instead of falling back to account address

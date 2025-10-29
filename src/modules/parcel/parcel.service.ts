@@ -80,7 +80,7 @@ export class ParcelService {
             const maxRetries = 5;
 
             // Prepare receiver address - use form data if provided, otherwise use account address
-            const deliveryAddress = parcelData.receiverInfo?.address 
+            const deliveryAddress = parcelData.receiverInfo?.address
                 ? {
                     street: parcelData.receiverInfo.address.street,
                     city: parcelData.receiverInfo.address.city,
