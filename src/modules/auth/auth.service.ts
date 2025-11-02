@@ -66,7 +66,7 @@ export class AuthService {
     }
 
 
-        // Check if email exists
+    // Check if email exists
     static async checkEmailExists(email: string): Promise<boolean> {
         const user = await UserService.getUserByEmail(email);
         return !!user;

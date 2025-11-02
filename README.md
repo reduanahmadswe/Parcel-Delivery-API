@@ -12,7 +12,12 @@ A comprehensive, secure, and role-based backend API for a parcel delivery system
 - **📈 Performance Optimized**: Efficient database operations with proper indexing
 - **🔧 Developer Friendly**: TypeScript, comprehensive error handling, and detailed documentation
 
-## 🚀 Features
+## � Live Links
+
+- **Backend (API)**: https://parcel-delivery-api.onrender.com
+- **Frontend**: https://parcel-delivery-frontend.onrender.com
+
+## �🚀 Features
 
 ### 🔐 Authentication & Authorization
 
@@ -134,8 +139,16 @@ npm start
 
 ### Base URL
 
+Local (development):
+
 ```
 http://localhost:5000/api
+```
+
+Production (deployed):
+
+```
+https://parcel-delivery-api.onrender.com/api
 ```
 
 ### 🔐 Authentication Endpoints
